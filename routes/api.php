@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\LoginController;
+use App\Http\Controllers\Api\VisitController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -19,18 +20,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Login
-Route::post('login', [App\Http\Controllers\Api\LoginController::class, 'index']);
+Route::post('login', [LoginController::class, 'index']);
 
 /** ASE **/
 //start-visit
-Route::post('visit/start', [App\Http\Controllers\Api\VisitController::class, 'visitStart']);
+Route::post('visit/start', [VisitController::class, 'visitStart']);
 //check visit started or not
-Route::get('check/visit/{id}', [App\Http\Controllers\Api\VisitController::class, 'checkVisit']);
+Route::get('check/visit/{id}', [VisitController::class, 'checkVisit']);
 //end-visit
-Route::post('visit/end', [App\Http\Controllers\Api\VisitController::class, 'visitEnd']);
+Route::post('visit/end', [VisitController::class, 'visitEnd']);
 //activity store
-Route::post('activity/create', [App\Http\Controllers\Api\VisitController::class, 'activityStore']);
+Route::post('activity/create', [VisitController::class, 'activityStore']);
 //activity list
-Route::post('activity', [App\Http\Controllers\Api\VisitController::class, 'activityList']);
+Route::post('activity', [VisitController::class, 'activityList']);
 //area list
-Route::get('area/list/{id}', [App\Http\Controllers\Api\VisitController::class, 'areaList']);
+Route::get('area/list/{id}', [VisitController::class, 'areaList']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 class LoginController extends Controller
 {
@@ -13,26 +14,35 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $mobile = $request->mobile;
-        $password = $request->password;
+        $validator = Validator::make($request->all(),[
+            'mobile' => 'required|digits:10',
+            'password' => 'required'
+        ]);
 
-        $userCheck = User::where('mobile', $mobile)->first();
+        if(!$validator->fails()){
+            $mobile = $request->mobile;
+            $password = $request->password;
 
-        if ($userCheck) {
-            if (Hash::check($password, $userCheck->password)) {
-				$status = $userCheck->status;
-					 if ($status == 0) {
-						return response()->json(['error' => true, 'resp' =>  'Your account is temporary blocked. Contact Admin']);
-					}else{
-                     return response()->json(['error' => false, 'resp' => 'Login successful', 'data' => $userCheck]);
-					}
+            $userCheck = User::where('mobile', $mobile)->first();
+
+            if ($userCheck) {
+                if (Hash::check($password, $userCheck->password)) {
+                    $status = $userCheck->status;
+                        if ($status == 0) {
+                            return response()->json(['error' => true, 'resp' =>  'Your account is temporary blocked. Contact Admin']);
+                        }else{
+                        return response()->json(['error' => false, 'resp' => 'Login successful', 'data' => $userCheck]);
+                        }
+                } else {
+                    return response()->json(['error' => true, 'resp' => 'You have entered wrong login credential. Please try with the correct one.']);
+                }
             } else {
-                return response()->json(['error' => true, 'resp' => 'You have entered wrong login credential. Please try with the correct one.', 'data' => $userCheck->password]);
+                return response()->json(['error' => true, 'resp' => 'You have entered wrong login credential. Please try with the correct one.']);
             }
-        } else {
-            return response()->json(['error' => true, 'resp' => 'You have entered wrong login credential. Please try with the correct one.']);
+        }else {
+            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
         }
     }
 

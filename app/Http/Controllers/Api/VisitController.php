@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Activity;
 use App\Models\UserArea;
+use App\Models\User;
+use App\Models\Visit;
+use DB;
+use Illuminate\Support\Facades\Validator;
 class VisitController extends Controller
 {
     // store visit start
@@ -13,7 +17,7 @@ class VisitController extends Controller
 	{
 		$validator = Validator::make($request->all(), [
             "user_id" => "required",
-            "area" => "required",
+            "area_id" => "required",
             "start_date" => "required",
             "start_time" => "required",
             "start_location" => "nullable",
@@ -24,19 +28,20 @@ class VisitController extends Controller
         if (!$validator->fails()) {
             $data = [
                 "user_id" => $request->user_id,
-                "area" => $request->area,
+                "area_id" => $request->area_id,
                 "start_date" => $request->start_date,
                 "start_time" => $request->start_time,
                 "start_location" => $request->start_location,
                 "start_lat" => $request->start_lat,
                 "start_lon" => $request->start_lon,
+                "created_at" => date('Y-m-d H:i:s'),
             ];
 
             $resp = DB::table('visits')->insertGetId($data);
 
-            return response()->json(['error' => false, 'message' => 'Visit started', 'visit_id' => $resp]);
+            return response()->json(['error' => false, 'resp' => 'Visit started', 'visit_id' => $resp]);
         } else {
-            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
 	}
 
@@ -60,13 +65,14 @@ class VisitController extends Controller
                 "end_location" => $request->end_location,
                 "end_lat" => $request->end_lat,
                 "end_lon" => $request->end_lon,
+                "updated_at" => date('Y-m-d H:i:s'),
             ];
 
             DB::table('visits')->where('id', $request->visit_id)->update($data);
 
-            return response()->json(['error' => false, 'message' => 'Visit ended', 'data' => $data]);
+            return response()->json(['error' => false, 'resp' => 'Visit ended', 'data' => $data]);
         } else {
-            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
 	}
 
@@ -76,12 +82,12 @@ class VisitController extends Controller
     public function checkVisit(Request $request,$id)
     {
         $data = (object)[];
-		$data->area=DB::table('visits')->where('user_id',$id)->where('start_date',date('Y-m-d'))->where('visit_id',NULL)->orderby('id','desc')->first();
+		$data->visit=Visit::where('user_id',$id)->where('start_date',date('Y-m-d'))->where('visit_id',NULL)->orderby('id','desc')->first();
         $data->user=User::where('id',$id)->first();
-        if (count($data->area)==0) {
+        if (empty($data->visit)) {
                 return response()->json(['error'=>true, 'resp'=>'Start Your Visit']);
             } else {
-                return response()->json(['error'=>false, 'resp'=>'Visit already started','area'=>$data->area->area,'visit_id'=>$data->area->id,'data'=>$data->user]);
+                return response()->json(['error'=>false, 'resp'=>'Visit already started','area'=>$data->visit->areas->name,'visit_id'=>$data->visit->id,'user'=>$data->user]);
             } 
 		
 	}
@@ -103,7 +109,7 @@ class VisitController extends Controller
                 return response()->json(['error'=>false, 'resp'=>'Activity List','data'=>$data->activity]);
             } 
         } else {
-            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
 		
 	}
@@ -142,20 +148,19 @@ class VisitController extends Controller
             }
            
         } else {
-            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
     }
 
      //area list
      public function areaList(Request $request,$id)
      {
-         $data = (object)[];
-         $data->area=UserArea::where('user_id',$id)->get();
-         if (count($data->area)==0) {
+         $data=UserArea::where('user_id',$id)->with('areas:id,name')->get();
+        if (count($data)==0) {
                  return response()->json(['error'=>true, 'resp'=>'No data found']);
-            } else {
-                 return response()->json(['error'=>false, 'resp'=>'Activity List','data'=>$data->area]);
-             } 
+        } else {
+                 return response()->json(['error'=>false, 'resp'=>'Area List','data'=>$data]);
+        } 
          
      }
 }

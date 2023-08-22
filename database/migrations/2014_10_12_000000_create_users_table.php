@@ -24,10 +24,10 @@ class CreateUsersTable extends Migration
             $table->integer('whatsapp_no')->unique();
             $table->string('password');
             $table->string('employee_id')->unique();
-            $table->integer('address')->nullable();
-            $table->integer('landmark')->nullable();
-            $table->integer('state')->nullable();
-            $table->integer('city')->nullable();
+            $table->string('address')->nullable();
+            $table->string('landmark')->nullable();
+            $table->string('state')->nullable();
+            $table->string('city')->nullable();
             $table->integer('pin')->nullable();
             $table->integer('aadhar_no')->unique();
             $table->integer('pan_no')->unique();
