@@ -35,9 +35,9 @@ class CreateStoresTable extends Migration
             $table->integer('whatsapp')->nullable();
             $table->string('email')->nullable();
             $table->string('address')->nullable();
-            $table->string('area')->nullable();
-            $table->string('state')->nullable();
-            $table->string('city')->nullable();
+            $table->integer('area_id')->nullable();
+            $table->integer('state_id')->nullable();
+            $table->integer('city')->nullable();
             $table->string('pin')->nullable();
             $table->string('gst')->nullable();
             $table->string('image')->nullable();

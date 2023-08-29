@@ -39,23 +39,26 @@
 				
                 <li class="{{ ( request()->is('admin/dashboard*') ) ? 'active' : '' }}"><a href="{{ route('admin.dashboard') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a></li>
 
-                
-                    {{-- product --}}
-                <li class="@if(request()->is('admin/product*') || request()->is('admin/faq*')) { {{'active'}} }  @endif">
-                    <a href="#"><i class="fi fi-br-cube"></i> <span>Product</span></a>
+                 {{-- master --}}
+                 <li class="@if(request()->is('admin/categories*') || request()->is('admin/collection*') || request()->is('admin/products*')|| request()->is('admin/catalogues*')|| request()->is('admin/offers*')) { {{'active'}} }  @endif">
+                    <a href="#"><i class="fi fi-br-cube"></i> <span>Master</span></a>
                     <ul>
-                        <li class="{{ ( request()->is('admin/products*') ) ? 'active' : '' }}"><a href="{{ route('admin.products.index') }}">All Product</a></li>
-
-                        <li class="{{ ( request()->is('admin/product/create*') ) ? 'active' : '' }}"><a href="{{ route('admin.products.create') }}">Add New</a></li>
+                        <li class="{{ ( request()->is('admin/categories*') ) ? 'active' : '' }}"><a href="{{ route('admin.categories.index') }}"><i class="fi fi-br-database"></i> <span>Category</span></a></li>
+                        <li class="{{ ( request()->is('admin/collection*') ) ? 'active' : '' }}"><a href="{{ route('admin.collections.index') }}"><i class="fi fi-br-database"></i> <span>Collection</span></a></li>
+                        <li class="{{ ( request()->is('admin/products*') ) ? 'active' : '' }}"><a href="{{ route('admin.products.index') }}"><i class="fi fi-br-database"></i><span>Product</span></a></li>
+                        <li class="{{ ( request()->is('admin/catalogues*') ) ? 'active' : '' }}"><a href="{{ route('admin.catalogues.index') }}"><i class="fi fi-br-database"></i> <span>Catalogue</span></a></li>
+                        <li class="{{ ( request()->is('admin/offers*') ) ? 'active' : '' }}"><a href="{{ route('admin.offers.index') }}"><i class="fi fi-br-database"></i> <span>Scheme</span></a></li>
                     </ul>
                 </li>
+                    
+                
 				{{-- reward app --}}
               
 				
 				
             </ul>
         </nav>
-         <div class="nav__footer">
+        <div class="nav__footer">
             <a href="javascript:void(0)" onclick="event.preventDefault();document.getElementById('logout-form').submit();"><i class="fi fi-br-cube"></i> <span>Log Out</span></a>
         </div>
     </aside>

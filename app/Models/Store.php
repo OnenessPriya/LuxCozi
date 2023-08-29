@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Store extends Model
 {
     use HasFactory;
+    public function states() {
+        return $this->belongsTo('App\Models\State', 'state_id', 'id');
+    }
+    public function areas() {
+        return $this->belongsTo('App\Models\Area', 'area_id', 'id');
+    }
 }

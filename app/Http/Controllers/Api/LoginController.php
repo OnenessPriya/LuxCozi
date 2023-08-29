@@ -42,7 +42,7 @@ class LoginController extends Controller
                 return response()->json(['error' => true, 'resp' => 'You have entered wrong login credential. Please try with the correct one.']);
             }
         }else {
-            return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
     }
 
