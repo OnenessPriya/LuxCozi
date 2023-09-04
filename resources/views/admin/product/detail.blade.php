@@ -3,7 +3,7 @@
 @section('page', 'Product detail')
 
 @section('content')
-<section>
+<section class="product-detail-sec">
     
         <div class="row">
             <div class="col-sm-3">
@@ -77,12 +77,12 @@
                             echo '<hr><div class="d-flex">';
 
                             foreach($uniqueColors as $colorCode) {
-                                echo '<div onclick="sizeCheck('.$data->id.', '.$colorCode['id'].')" style="text-align:center;height: 70px;width: 40px;margin-right: 20px;"><div class="btn btn-sm rounded-circle" style="background-color: '.$colorCode['code'].';height: 40px;width: 40px;border: 1px solid #000;"></div><p class="small text-muted mb-0 mt-2">'.ucwords($colorCode['name']).'</p></div>';
+                                echo '<div onclick="sizeCheck('.$data->id.', '.$colorCode['id'].')" style="text-align:center;height: 70px; min-width: 40px;margin-right: 20px;" class="pro-detail-size-flex"><div class="btn btn-sm rounded-circle" style="background-color: '.$colorCode['code'].';height: 40px;width: 40px;border: 1px solid #000;"></div><p class="small text-muted mb-0 mt-2">'.ucwords($colorCode['name']).'</p></div>';
                             }
 
                             echo '</div>';
 
-                            echo '<p class="small text-dark">Tap on color to get sizes</p>';
+                            echo '<p class="small text-dark font-default">Tap on color to get sizes</p>';
 
                             echo '<div id="sizeContainer"></div>';
                             @endphp
@@ -97,12 +97,12 @@
                         </div>
                         <hr>
                         <div class="form-group mb-3">
-                            <p class="small">Short Description</p>
+                            <p class="font-default">Short Description</p>
                             {!! $data->short_desc !!}
                         </div>
                         <hr>
                          <div class="form-group mb-3">
-                            <p class="small">Description</p>
+                            <p class="font-default">Description</p>
                             {!! $data->desc !!}
                         </div> 
 

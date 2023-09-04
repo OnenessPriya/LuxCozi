@@ -6,8 +6,8 @@
 <section>
     <div class="row">
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-danger">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-danger dash-card">
+                <div class="card-body dash-card-body">
                     <h4>NSM <i class="fi fi-br-user"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>1]) }}"> {{$data->nsm->count()}}</a></h2>
                 </div>
@@ -15,8 +15,8 @@
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-info">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-info dash-card">
+                <div class="card-body dash-card-body">
                     <h4>ZSM <i class="fi fi-br-chart-histogram"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>2]) }}"> {{$data->zsm->count()}}</a></h2>
                 </div>
@@ -24,8 +24,8 @@
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-secondary">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-secondary dash-card">
+                <div class="card-body dash-card-body">
                     <h4>RSM <i class="fi fi-br-cube"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>3]) }}"> {{$data->rsm->count()}}</a></h2>
                 </div>
@@ -33,24 +33,24 @@
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-secondary">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-secondary dash-card">
+                <div class="card-body dash-card-body">
                     <h4>SM <i class="fi fi-br-cube"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>4]) }}"> {{$data->sm->count()}}</a></h2>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-secondary">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-secondary dash-card">
+                <div class="card-body dash-card-body">
                     <h4>ASM <i class="fi fi-br-cube"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>4]) }}"> {{$data->sm->count()}}</a></h2>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-secondary">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-secondary dash-card">
+                <div class="card-body dash-card-body">
                     <h4>SM <i class="fi fi-br-cube"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>4]) }}"> {{$data->sm->count()}}</a></h2>
                 </div>
@@ -58,8 +58,8 @@
         </div>
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-success">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-success dash-card">
+                <div class="card-body dash-card-body">
                     <h4>Distributor <i class="fi fi-br-user"></i></h4>
                     <h2><a href="{{ route('admin.users.index',['type'=>5]) }}"> {{$data->distributor->count()}}</a></h2>
                 </div>
@@ -68,7 +68,7 @@
 
         {{-- <div class="col-sm-6 col-lg-3">
             <div class="card home__card bg-gradient-success">
-                <div class="card-body">
+                <div class="card-body dash-card-body">
                     <h4>Store <i class="fi fi-br-chart-histogram"></i></h4>
                     <h2><a href="{{ route('admin.stores.index') }}">{{$data->store}}</a></h2>
                 </div>
@@ -86,8 +86,8 @@
         </div> --}}
 
         <div class="col-sm-6 col-lg-3">
-            <div class="card home__card bg-gradient-success">
-                <div class="card-body">
+            <div class="card home__card bg-gradient-success dash-card">
+                <div class="card-body dash-card-body">
                     <h4>Today Secondary Order Quantity <i class="fi fi-br-chart-histogram"></i></h4>
                     {{-- <h2><a href="{{ route('admin.order.index',['date_from'=>date('Y-m-d'),'date_to'=>date('Y-m-d')]) }}">{{number_format($data->secondary)}}</a></h2> --}}
                 </div>

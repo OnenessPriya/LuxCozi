@@ -5,38 +5,42 @@
 <section>
     <div class="row">
         <div class="col-xl-12">
-            <div class="card">
+            <div class="card search-card">
                 <div class="card-body">
-                    <div class="search__filter">
+                    <div class="search__filter mb-5">
                         <div class="row align-items-center justify-content-between">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <p class="text-muted mt-1 mb-0">Showing {{$data->count()}} out of {{$data->total()}} Entries</p>
                             </div>
-                            <div class="col-auto">
-                                <form action="{{ route('admin.collections.index')}}" method="GET">
-                                    <div class="row g-3 align-items-center">
-                                        <div class="col-auto">
-                                            <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Search</button>
-                                        </div>
+                            <div class="col-md-8">
+                                <div class="search-filter-right">
+                                    <div class="search-filter-right-el">
+                                        <form action="{{ route('admin.collections.index')}}" method="GET">
+                                            <div class="row g-3 align-items-center">
+                                                <div class="col-auto">
+                                                    <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">
+                                                </div>
+                                                <div class="col-auto">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm"><iconify-icon icon="tabler:search"></iconify-icon> Search</button>
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
+                                    <div class="search-filter-right-el">
+                                        <a href="{{ route('admin.collections.create') }}" class="btn btn-outline-danger btn-sm">
+                                            <iconify-icon icon="prime:plus-circle"></iconify-icon>  Create New Collection
+                                        </a>
+                                    </div>
+                                    <div class="search-filter-right-el">
+                                        <a href="{{ route('admin.collections.csv.export',['term'=>$request->term]) }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
+                                            <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
+                                </a>
+                                    </div>
+                                </div>
                             </div>
-							<div class="col-auto">
-                                <a href="{{ route('admin.collections.create') }}" class="btn btn-outline-danger btn-sm">
-                                    Create New Collection
-                                </a>
-						    </div>
-                            <div class="col-auto">
-                                <a href="{{ route('admin.collections.csv.export',['term'=>$request->term]) }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    CSV
-                                </a>
                         </div>
                     </div>
-                        <table class="table" id="example5">
+                        <table class="table admin-table" id="example5">
                             <thead>
                                 <tr>
                                     <th>#SR</th>
@@ -79,7 +83,7 @@
                                                 <a href="{{ route('admin.collections.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Are you sure ?')" class="btn btn-link" style="padding: 0;margin: 0;font-size: 14px;line-height: 1;text-decoration: none;color: #dc3545;">Delete</button>
+                                                <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link">Delete</button>
                                             </form>
                                         </div>
                                     </td>
@@ -105,6 +109,9 @@
         </div>
     </div>
 </section>
+
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
 @endsection
 @section('script')
 

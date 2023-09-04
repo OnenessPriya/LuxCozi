@@ -3,7 +3,7 @@
 @section('page', 'Collection detail')
 
 @section('content')
-<section>
+<section class="detail-sec">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -36,12 +36,12 @@
                     <hr>
                     <div class="row">
                         <div class="col-md-12">
-                            <h3 class="text-muted">Products</h3>
+                            <h3 class="">Products</h3>
                             <p>{{$data->ProductDetails->count()}} products total</p>
 
 							
 
-                            <table class="table">
+                            <table class="table admin-table">
                                 <thead>
                                 <tr>
                                     <th>ID</th>
@@ -93,8 +93,8 @@
 											echo '<tr><th class="px-0">Size</th><th class="px-0">Price</th></tr>';
 													
 												foreach($sizes as $size) {
-											echo '<tr><td class="p-0"><p class="small text-dark">'.$size->size->name.'(#'.$size->size->name.')</p></td>';
-											echo '<td class="p-0"><p class="small text-dark">Rs'.$size->offer_price.'</p></td></tr>';
+											echo '<tr><td class=""><p class="small text-dark mb-0">'.$size->size->name.'(#'.$size->size->name.')</p></td>';
+											echo '<td class=""><p class="small text-dark mb-0">Rs'.$size->offer_price.'</p></td></tr>';
 												}
 											echo '</table>';
 											}

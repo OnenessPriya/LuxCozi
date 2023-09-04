@@ -3,7 +3,7 @@
 @section('page', 'Category detail')
 
 @section('content')
-<section>
+<section class="detail-sec">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -11,7 +11,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h3>{{ $data->name }}</h3>
-                            <p class="small">{{ $data->description }}</p>
+                            <p class="">{{ $data->description }}</p>
                             <hr>
                         </div>
                     </div>
@@ -36,8 +36,8 @@
                     <hr>
                     <div class="row">
                         <div class="col-md-12">
-                            <h3 class="text-muted">Products</h3>
-                            <p>{{$data->ProductDetails->count()}} products total</p>
+                            <h3 class="">Products</h3>
+                            <p class="mb-2">{{$data->ProductDetails->count()}} products total</p>
                             @php
 							$collections = \DB::select('SELECT p.collection_id, c.name, count(p.id) AS products FROM `products` p INNER JOIN collections c ON c.id = p.collection_id WHERE p.cat_id = '.$data->id.' GROUP BY p.collection_id ORDER BY c.position ASC;');
                             
@@ -47,7 +47,7 @@
 							}
 							echo '</p>';
 							@endphp
-                            <table class="table">
+                            <table class="table admin-table">
                                 <thead>
                                 <tr>
                                     <th class="text-center"><i class="fi fi-br-picture"></i></th>

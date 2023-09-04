@@ -8,7 +8,7 @@
     }
 </style>
 
-<section>
+<section class="inner-sec1">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -34,7 +34,7 @@
                                             <option value="{{ $item->id }}" {{ ($request->state_id == $item->id) ? 'selected' : '' }}>{{ $item->name }}</option>
                                             @endforeach
                                         </select>
-                                        <label for="title">State *</label>
+                                        <!--<label for="title">State *</label>-->
                                     </div>
                                     @error('state_id') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>

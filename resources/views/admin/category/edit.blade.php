@@ -3,7 +3,7 @@
 @section('page', 'Category Update')
 
 @section('content')
-<section>
+<section class="inner-sec1">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -20,7 +20,7 @@
                 
                         <div class="form-group mb-3">
                             <label class="label-control">Description </label>
-                            <textarea name="description" class="form-control">{{$data->description}}</textarea>
+                            <textarea name="description" class="form-control" rows="4">{{$data->description}}</textarea>
                             @error('description') <p class="small text-danger">{{ $message }}</p> @enderror
                         </div>
                         <div class="row">

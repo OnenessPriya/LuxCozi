@@ -105,7 +105,7 @@ class CartController extends Controller
     public function show($id,$userId)
     {
         $cart=Cart::where('store_id',$id)->where('user_id',$userId)->with('product:id,name,style_no','color:id,name','size:id,name')->get();
-        $cart_count = DB::select("select ifnull(sum(qty),0) as total_qty from carts where store_id='$id'");
+        $cart_count = DB::select("select ifnull(sum(qty),0) as total_qty from carts where store_id='$id' and user_id='$userId'");
 		
             if(count($cart_count)>0){
                 $total_quantity = $cart_count[0]->total_qty;
@@ -172,20 +172,20 @@ class CartController extends Controller
         }
     }
 
-    public function PDF_URL(Request $request, $id)
+    public function PDF_URL(Request $request, $id,$userId)
     {
         return response()->json([
             'error' => false,
             'resp' => 'URL generated',
-            'data' => url('/').'/api/cart/pdf/view/'.$id,
+            'data' => url('/').'/api/cart/pdf/view/'.$id.'/'.$userId,
         ]);
     }
 
     
 
-    public function PDF_view(Request $request, $id)
+    public function PDF_view(Request $request, $id,$userId)
     {
-        $cartData =Cart::where('store_id',$id)->with('product','stores','color','size')->get()->toArray();
+        $cartData =Cart::where('store_id',$id)->where('user_id',$userId)->with('product','stores','color','size')->get()->toArray();
 		
         return view('api.cart-pdf', compact('cartData'));
     }

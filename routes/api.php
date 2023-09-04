@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\CatalogueController;
 use App\Http\Controllers\Api\SchemeController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ASMController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -119,3 +121,52 @@ Route::post('store/order/count', [OrderController::class, 'dashboardCount']);
 Route::post('store-wise-report-ase', [ReportController::class, 'storeReportASE']);
 //product wise report for ASE
 Route::post('product-wise-report-ase', [ReportController::class, 'productReportASE']);
+/** ASM **/
+//inactive ASE report for ASM in dashboard
+Route::get('inactive/ase/report/asm', [ASMController::class, 'inactiveAseListASM']);
+//area list
+Route::get('asm/area/list/{id}', [ASMController::class, 'areaList']);
+//distributor list
+Route::get('asm/distributor/list', [ASMController::class, 'distributorList']);
+//store list
+Route::get('asm/store', [ASMController::class, 'storeList']);
+//store search for individual ASE's store
+Route::get('asm/store/search', [ASMController::class, 'searchStore']);
+//store create
+Route::post('asm/store/create', [ASMController::class, 'storeCreate']);
+//store details
+Route::get('asm/store/details', [ASMController::class, 'storesShow']);
+//inactive store list
+Route::get('asm/inactive/store', [ASMController::class, 'inactiveStorelist']);
+//store image create
+Route::post('asm/store/image/create', [ASMController::class, 'imageCreate']);
+//no order reason
+Route::get('no-order-reason', [ASMController::class, 'noOrderReason']);
+Route::get('no-order-history/{id}', [ASMController::class, 'noOrderReasonDetail']);
+Route::post('no-order-reason/update', [ASMController::class, 'noOrderReasonUpdate']);
+
+/* PLACE ORDER */
+/*cart*/
+//cart list user wise
+Route::get('asm/cart/list/{id}/{user_id}', [ASMController::class, 'cartList']);
+//add to cart
+Route::post('asm/addTocart', [ASMController::class, 'addToCart']);
+//cart remove
+Route::get('asm/cart/clear/{id}', [ASMController::class, 'cartDestroy']);
+//cart update
+Route::get('asm/cart/qty/{cartId}/{q}',[ASMController::class, 'cartUpdate']);
+// cart preview url
+Route::get('asm/cart/pdf/url/{id}', [ASMController::class, 'CartPDF_URL']);
+//cart preview pdf
+Route::get('asm/cart/pdf/view/{id}', [ASMController::class, 'CartPDF_view']);
+/* order */
+//order list user wise
+Route::get('asm/order/list/{id}/{user_id}', [ASMController::class, 'orderList']);
+//place order
+Route::post('asm/place-order', [ASMController::class, 'placeOrder']);
+//order details
+Route::get('asm/order/details/{id}', [ASMController::class, 'orderDetails']);
+// order preview url
+Route::get('asm/order/pdf/url/{id}', [ASMController::class, 'orderPDF_URL']);
+//order preview pdf
+Route::get('asm/order/pdf/view/{id}', [ASMController::class, 'orderPDF_view']);

@@ -196,7 +196,7 @@
     }
 </style>
 
-<section>
+<section class="pro-edit">
     <form method="POST" action="{{ route('admin.products.update',$data->id) }}" enctype="multipart/form-data">
          @csrf
         @method('PUT')
@@ -450,7 +450,7 @@
                         @endforeach
                     </div>
 
-                    <a href="javascript: void(0)" onclick="addColorModal()" class="btn btn-sm btn-success">Add new color</a>
+                    <a href="javascript: void(0)" onclick="addColorModal()" class="btn btn-sm btn-success new-color">Add new color</a>
                 </content>
             </div>
             @foreach ($productColorGroup as $productColorKey => $productColorGroupVal)

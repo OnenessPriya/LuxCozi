@@ -159,7 +159,7 @@ class VisitController extends Controller
      //area list
      public function areaList(Request $request,$id)
      {
-         $data=UserArea::where('user_id',$id)->with('areas:id,name')->get();
+        $data=UserArea::where('user_id',$id)->with('areas:id,name')->get();
         if (count($data)==0) {
                  return response()->json(['error'=>true, 'resp'=>'No data found']);
         } else {

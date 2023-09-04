@@ -5,7 +5,7 @@
 @section('content')
 
 
-<section>
+<section class="inner-sec1">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">
@@ -30,7 +30,7 @@
                                             <option value="{{ $item->id }}" {{ ($data->state_id == $item->id) ? 'selected' : '' }}>{{ $item->name }}</option>
                                             @endforeach
                                         </select>
-                                        <label for="title">State *</label>
+                                       
                                     </div>
                                     @error('name') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>

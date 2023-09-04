@@ -3,7 +3,7 @@
 @section('page', 'Collection Create')
 
 @section('content')
-<section>
+<section class="inner-sec1">
     <div class="row">
         <div class="col-xl-12">
             <div class="card">
@@ -28,7 +28,7 @@
                         </div>
                         <div class="form-group mb-3">
                             <label class="label-control">Description </label>
-                            <textarea name="description" class="form-control">{{old('description')}}</textarea>
+                            <textarea name="description" class="form-control" rows="4">{{old('description')}}</textarea>
                             @error('description') <p class="small text-danger">{{ $message }}</p> @enderror
                         </div>
                         <div class="row">

@@ -2,44 +2,76 @@
 @section('page', 'Area')
 
 @section('content')
-<section>
+<section class="pro-sec">
     <div class="card card-body">
         <div class="search__filter mb-0">
-            <div class="row align-items-center">
-                <div class="col-12 text-end mb-3">
-                    <a href="{{ route('admin.areas.create') }}" class="btn btn-danger btn-sm">
-                        Create New Area
-                    </a>
-                </div>
-                <div class="col-md-3">
-                    <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} Entries</p>
-                </div>
-
-                <div class="col-md-9 text-end">
-                    <form class="row align-items-end justify-content-end" action="{{ route('admin.areas.index')}}" method="GET">
-                        <div class="col-auto">
-                            <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">
-                        </div>
-                        <div class="col-auto">
-                            <div class="btn-group">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    Filter
+            
+            <div class="row align-items-center justify-content-between">
+                            <div class="col-md-4">
+                               <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} Entries</p>
+                            </div>
+                            <div class="col-12 col-md-8">
+                                <form action="{{ route('admin.areas.index')}}" method="GET">
+                                    <div class="search-filter-right">
+                                        <div class="search-filter-right-el">
+                                             <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">
+                                        </div>
+                                        <div class="search-filter-right-el">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                    <iconify-icon icon="carbon:filter"></iconify-icon> Filter
                                 </button>
 
-                                <a href="{{ url()->current() }}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="Clear Filter">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter" data-bs-toggle="tooltip" title="Clear Filter">
+                                    <iconify-icon icon="basil:cross-outline"></iconify-icon>
                                 </a>
+                                        </div>
+                                        <div class="search-filter-right-el">
+                                             <a href="{{ route('admin.areas.create') }}" class="btn btn-danger btn-sm">
+                       <iconify-icon icon="prime:plus-circle"></iconify-icon> Create New Area
+                    </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+							
+                            </div>
+            
+            <!--<div class="row align-items-center">-->
+            <!--    <div class="col-12 text-end mb-3">-->
+            <!--        <a href="{{ route('admin.areas.create') }}" class="btn btn-danger btn-sm">-->
+            <!--            Create New Area-->
+            <!--        </a>-->
+            <!--    </div>-->
+            <!--    <div class="col-md-3">-->
+            <!--        <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} Entries</p>-->
+            <!--    </div>-->
+
+            <!--    <div class="col-md-9 text-end">-->
+            <!--        <form class="row align-items-end justify-content-end" action="{{ route('admin.areas.index')}}" method="GET">-->
+            <!--            <div class="col-auto">-->
+            <!--                <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">-->
+            <!--            </div>-->
+            <!--            <div class="col-auto">-->
+            <!--                <div class="btn-group">-->
+            <!--                    <button type="submit" class="btn btn-danger btn-sm">-->
+            <!--                        Filter-->
+            <!--                    </button>-->
+
+            <!--                    <a href="{{ url()->current() }}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="Clear Filter">-->
+            <!--                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>-->
+            <!--                    </a>-->
 
                                 
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <!--                </div>-->
+            <!--            </div>-->
+            <!--        </form>-->
+            <!--    </div>-->
+            <!--</div>-->
         </div>
     </div>
 
-    <table class="table">
+    <table class="table admin-table">
         <thead>
             <tr>
                 <th>#SR</th>
@@ -71,7 +103,7 @@
                                 <a href="{{ route('admin.areas.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" onclick="return confirm('Are you sure ?')" class="btn btn-link" style="padding: 0;margin: 0;font-size: 14px;line-height: 1;text-decoration: none;color: #dc3545;">Delete</button>
+                                <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link">Delete</button>
                             </form>
                         </div>
                     </td>
@@ -93,6 +125,8 @@
     </div>
 
 </section>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
 @endsection
 
 @section('script')

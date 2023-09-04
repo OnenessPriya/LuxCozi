@@ -2,66 +2,93 @@
 @section('page', 'Products')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @section('content')
-<section>
+<section class="pro-sec">
     <div class="card card-body">
-        <div class="search__filter mb-0">
+        <div class="search__filter mb-5">
+            <div class="col-md-3">
+                    <p class="text-muted mt-1 mb-2">Showing {{$data->count()}} out of {{$data->total()}} Entries</p>
+                </div>
             <div class="row">
-                <div class="col-md-3">
-                    <p class="text-muted mt-1 mb-0">Showing {{$data->count()}} out of {{$data->total()}} Entries</p>
-                </div>
-                <div class="col-md-9 text-end">
-                    <form class="row align-items-end" action="{{ route('admin.products.index') }}">
-                        <div class="col">
-                            <select class="form-select form-select-sm select2" aria-label="Default select example"      name="cat_id" id="category">
-                                <option value=""  selected>Select Category</option>
-                                 @foreach ($category as $index => $item)
-                                             <option value="{{$item->id}}" {{ (request()->input('cat_id') == $item->id) ? 'selected' :  '' }}>{{ $item->name }}</option>
-                                 @endforeach
-                            </select>
-                        </div>
-                        <div class="col">
-                            <select class="form-select form-select-sm select2" aria-label="Default select example" name="collection_id" id="collection">
-                                <option value="" selected disabled>Select Collection</option>
-                                <option value="{ (request()->input('collection_id')) ? 'selected' :  '' }}"></option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <input type="search" name="keyword" id="term" class="form-control form-control-sm" placeholder="Search by name/ style no." value="{{app('request')->input('keyword')}}" autocomplete="off">
-                        </div>
-                        <div class="col">
-                            <div class="btn-group">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    Filter
+                
+                <div class="col-12">
+                    <form class="" action="{{ route('admin.products.index') }}">
+                        <div class="search-filter-right">
+                            <div class="search-filter-right-el">
+                                    <select class="form-select form-select-sm select2" aria-label="Default select example" name="cat_id" id="category">
+                                    <option value=""  selected>Select Category</option>
+                                     @foreach ($category as $index => $item)
+                                                 <option value="{{$item->id}}" {{ (request()->input('cat_id') == $item->id) ? 'selected' :  '' }}>{{ $item->name }}</option>
+                                     @endforeach
+                                    </select>
+                            </div>
+                            
+                            <div class="search-filter-right-el">
+                                <select class="form-select form-select-sm select2" aria-label="Default select example" name="collection_id" id="collection">
+                                    <option value="" selected disabled>Select Collection</option>
+                                    <option value="{ (request()->input('collection_id')) ? 'selected' :  '' }}"></option>
+                                </select>
+                            </div>
+                            
+                            <div class="search-filter-right-el">
+                                <input type="search" name="keyword" id="term" class="form-control form-control-sm" placeholder="Search by name/ style no." value="{{app('request')->input('keyword')}}" autocomplete="off">
+                            </div>
+                            <div class="search-filter-right-el">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <iconify-icon icon="carbon:filter"></iconify-icon> Filter
                                 </button>
-
-                                <a href="{{ url()->current() }}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="Clear Filter">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter" data-bs-toggle="tooltip" title="Clear Filter">
+                                    <iconify-icon icon="basil:cross-outline"></iconify-icon>
                                 </a>
-
-                                <a href="{{ route('admin.products.csv.export',['collection_id'=>$request->collection_id,'cat_id'=>$request->cat_id,'term'=>$request->term]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Export data in CSV">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    CSV
+                            </div>
+                            <div class="search-filter-right-el">
+                                <a href="{{ route('admin.products.csv.export',['collection_id'=>$request->collection_id,'cat_id'=>$request->cat_id,'term'=>$request->term]) }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
+                                    <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
                                 </a>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                    
+                        <!--<div class="col">-->
+                        <!--    <select class="form-select form-select-sm select2" aria-label="Default select example" name="cat_id" id="category">-->
+                        <!--            <option value=""  selected>Select Category</option>-->
+                        <!--             @foreach ($category as $index => $item)-->
+                        <!--                         <option value="{{$item->id}}" {{ (request()->input('cat_id') == $item->id) ? 'selected' :  '' }}>{{ $item->name }}</option>-->
+                        <!--             @endforeach-->
+                        <!--            </select>-->
+                        <!--</div>-->
+                        <!--<div class="col">-->
+                        <!--    <select class="form-select form-select-sm select2" aria-label="Default select example" name="collection_id" id="collection">-->
+                        <!--        <option value="" selected disabled>Select Collection</option>-->
+                        <!--        <option value="{ (request()->input('collection_id')) ? 'selected' :  '' }}"></option>-->
+                        <!--    </select>-->
+                        <!--</div>-->
+                        <!--<div class="col">-->
+                        <!--    <input type="search" name="keyword" id="term" class="form-control form-control-sm" placeholder="Search by name/ style no." value="{{app('request')->input('keyword')}}" autocomplete="off">-->
+                        <!--</div>-->
+                        <!--<div class="col">-->
+                        <!--    <div class="btn-group">-->
                                 
-                               
-                            </div>
+
+                                
+
+                                
+                        <!--    </div>-->
+                        <!--</div>-->
+                        <!-- <div class="col">-->
+                        <!--    <div class="btn-group">-->
+                        <!--        <a href="{{ route('admin.products.create') }}" class="btn btn-danger btn-sm">-->
+                        <!--            Create New Product-->
+                        <!--        </a>-->
+                        <!--    </div>-->
                             
-                        </div>
-                        <div class="col">
-                            <div class="btn-group">
-                                <a href="{{ route('admin.products.create') }}" class="btn btn-danger btn-sm">
-                                    Create New Product
-                                </a>
-                            </div>
-                            
-                        </div>
-                    </form>
-                </div>
+                        <!--</div>-->
+              
             </div>
         </div>
     </div>
 
-    <table class="table" id="example5">
+    <table class="table admin-table" id="example5">
         <thead>
             <tr>
                 <th>#SR</th>
@@ -99,7 +126,7 @@
 						<img src="{{asset($item->image)}}" />
 					</td>
                 @endif
-                <td>
+                <td class="mb-3">
                     {{$item->name}}
                     <div class="row__action">
                         <form action="{{ route('admin.products.destroy',$item->id) }}" method="POST">
@@ -108,7 +135,7 @@
                             <a href="{{ route('admin.products.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
                             @csrf
                             @method('DELETE')
-                           <button type="submit" onclick="return confirm('Are you sure ?')" class="btn btn-link" style="padding: 0;margin: 0;font-size: 14px;line-height: 1;text-decoration: none;color: #dc3545;">Delete</button> 
+                           <button type="submit" class="btn-link">Delete</button> 
                     </div>
                 </td>
                 <td>{{$item->style_no}}</td>
@@ -161,6 +188,7 @@
 		});
     </script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 
    
 @endsection
