@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductColorSize;
 class ProductController extends Controller
 {
     /**
@@ -96,7 +97,7 @@ class ProductController extends Controller
      */
     public function colors($id)
     {
-        $color=ProductColorSize::where('product_id',$id)->where('status',1)->with('color:id,name')->get();
+        $color=ProductColorSize::select('color_id')->where('product_id',$id)->where('status',1)->distinct('color_id')->with('color:id,name')->get();
         if ($color) {
             return response()->json(['error'=>false, 'resp'=>'Color List fetched successfully','data'=>$color]);
         } else {
@@ -110,13 +111,50 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function sizes($id)
+    public function sizes(Request $request)
     {
-        $size=ProductColorSize::where('product_id',$id)->where('status',1)->with('size:id,name')->get();
-        if ($size) {
-            return response()->json(['error'=>false, 'resp'=>'Size List fetched successfully','data'=>$size]);
+        $respArray=[];
+        $productId=$_GET['product_id'];
+        $colorId=explode('*', $_GET['color_id']);
+        foreach($colorId as $colorKey => $colorValue)
+        {
+            $size=ProductColorSize::select('size_id')->where('product_id',$productId)->where('color_id',$colorValue)->where('status',1)->with('size:id,name')->get();
+            $respArray[] = [
+                'color_id' =>$colorValue,
+                'primarySizes' => $size,
+            ];
+        }
+        if ($respArray) {
+            return response()->json(['error'=>false, 'resp'=>'Size List fetched successfully','data'=>$respArray]);
         } else {
             return response()->json(['error' => true, 'resp' => 'Something happened']);
         }
     }
+    /*public function sizes(Request $request)
+    {
+        $respArray=[];
+        $params = $request->except('_token');            
+        $product_id = $params['product_id'];
+
+        $items = $params['color'];
+        //$items = json_decode($details);
+        foreach($items as $colorKey => $colorValue)
+        {
+            $size=ProductColorSize::select('size_id')->where('product_id',$product_id)->where('color_id',$colorValue)->where('status',1)->with('size:id,name')->get();
+            $color_name=Color::where('id',$colorValue)->first();
+            //dd($color_name->name);
+            $respArray[] = [
+                'color_id' =>$color_name->id,
+                'color_name' =>$color_name->name,
+                'primarySizes' => $size,
+            ];
+        }
+        if ($respArray) {
+            return response()->json(['error'=>false, 'resp'=>'Size List fetched successfully','data'=>$respArray]);
+        } else {
+            return response()->json(['error' => true, 'resp' => 'Something happened']);
+        }
+    }*/
+
+
 }

@@ -7,6 +7,7 @@
     <link href="{{ asset('admin/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css" rel="stylesheet">
     <link href="{{ asset('admin/css/style.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <title>{{ config('app.name', 'OnnB2B') }} | @yield('page')</title>
 	
@@ -40,14 +41,18 @@
                 <li class="{{ ( request()->is('admin/dashboard*') ) ? 'active' : '' }}"><a href="{{ route('admin.dashboard') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a></li>
 
                  {{-- master --}}
-                 <li class="@if(request()->is('admin/categories*') || request()->is('admin/collection*') || request()->is('admin/products*')|| request()->is('admin/catalogues*')|| request()->is('admin/offers*')) { {{'active'}} }  @endif">
+                 <li class="@if(request()->is('admin/categories*') || request()->is('admin/collection*') || request()->is('admin/products*')|| request()->is('admin/catalogues*')|| request()->is('admin/schemes*')|| request()->is('admin/states*')|| request()->is('admin/areas*')|| request()->is('admin/colors*')|| request()->is('admin/sizes*')) { {{'active'}} }  @endif">
                     <a href="#"><i class="fi fi-br-cube"></i> <span>Master</span></a>
                     <ul>
                         <li class="{{ ( request()->is('admin/categories*') ) ? 'active' : '' }}"><a href="{{ route('admin.categories.index') }}"><i class="fi fi-br-database"></i> <span>Category</span></a></li>
                         <li class="{{ ( request()->is('admin/collection*') ) ? 'active' : '' }}"><a href="{{ route('admin.collections.index') }}"><i class="fi fi-br-database"></i> <span>Collection</span></a></li>
                         <li class="{{ ( request()->is('admin/products*') ) ? 'active' : '' }}"><a href="{{ route('admin.products.index') }}"><i class="fi fi-br-database"></i><span>Product</span></a></li>
                         <li class="{{ ( request()->is('admin/catalogues*') ) ? 'active' : '' }}"><a href="{{ route('admin.catalogues.index') }}"><i class="fi fi-br-database"></i> <span>Catalogue</span></a></li>
-                        <li class="{{ ( request()->is('admin/offers*') ) ? 'active' : '' }}"><a href="{{ route('admin.offers.index') }}"><i class="fi fi-br-database"></i> <span>Scheme</span></a></li>
+                        <li class="{{ ( request()->is('admin/schemes*') ) ? 'active' : '' }}"><a href="{{ route('admin.schemes.index') }}"><i class="fi fi-br-database"></i> <span>Scheme</span></a></li>
+                        <li class="{{ ( request()->is('admin/states*') ) ? 'active' : '' }}"><a href="{{ route('admin.states.index') }}"><i class="fi fi-br-database"></i> <span>State</span></a></li>
+                        <li class="{{ ( request()->is('admin/areas*') ) ? 'active' : '' }}"><a href="{{ route('admin.areas.index') }}"><i class="fi fi-br-database"></i> <span>Area</span></a></li>
+                        <li class="{{ ( request()->is('admin/color*') ) ? 'active' : '' }}"><a href="{{ route('admin.colors.index') }}"><i class="fi fi-br-database"></i> <span>Color</span></a></li>
+                        <li class="{{ ( request()->is('admin/sizes*') ) ? 'active' : '' }}"><a href="{{ route('admin.sizes.index') }}"><i class="fi fi-br-database"></i> <span>Size</span></a></li>
                     </ul>
                 </li>
                     
@@ -148,7 +153,13 @@
             toastFire('warning', '{{ Session::get('failure') }}');
         @endif
     </script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+<script>
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+</script>
     @yield('script')
 </body>
 </html>

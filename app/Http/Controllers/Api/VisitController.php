@@ -102,7 +102,9 @@ class VisitController extends Controller
         if (!$validator->fails()) 
         {
          $data = (object)[];
-		 $data->activity=Activity::where('user_id',$id)->whereDate('created_at',$request->date)->orderby('id','desc')->get();
+         $user_id = $_GET['user_id'];
+         $date = $_GET['date'];
+		 $data->activity=Activity::where('user_id',$user_id)->whereDate('date',$date)->orderby('id','desc')->get();
         if (count($data->activity)==0) {
                 return response()->json(['error'=>true, 'resp'=>'No data found']);
             } else {
@@ -138,6 +140,8 @@ class VisitController extends Controller
                 "location" => $request->location,
                 "lat" => $request->lat,
                 "lng" => $request->lng,
+                "created_at" => date('Y-m-d H:i:s'),
+                "updated_at" => date('Y-m-d H:i:s'),
             ];
 
             $resp = DB::table('activities')->insertGetId($data);

@@ -20,7 +20,7 @@ class CategoryController extends Controller
         }else{
             $data=Category::orderBy('position')->paginate(30);
         }
-        return view('admin.category.index', compact('data'));
+        return view('admin.category.index', compact('data','request'));
     }
 
     /**
@@ -53,21 +53,23 @@ class CategoryController extends Controller
         $data->description = $collection['description'];
         $data->slug = slugGenerate($collection['name'],'categories');
         $catData = Category::select('position')->latest('id')->first();
-        if (empty($catData)) {
-            if (!empty($data->position)) {
-                $new_position = (int) $data->position + 1;
+       
+            if (!empty($catData->position)) {
+                $new_position = (int) $catData->position + 1;
             } else {
                 $new_position = 1;
             }
             $data->position = $new_position;
             // icon image
-            $image = $collection['icon_path'];
-            $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
-            $image->move($upload_path, $imageName);
-            $uploadedImage = $imageName;
-            $data->icon_path = $upload_path.$uploadedImage;
+            if(isset($collection['icon_path'])){
+                $image = $collection['icon_path'];
+                $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
+                $image->move($upload_path, $imageName);
+                $uploadedImage = $imageName;
+                $data->icon_path = $upload_path.$uploadedImage;
+            }
             // thumb image
-            if(isset($params['image_path'])){
+            if(isset($collection['image_path'])){
                 $image = $collection['image_path'];
                 $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
                 $image->move($upload_path, $imageName);
@@ -75,7 +77,7 @@ class CategoryController extends Controller
                 $data->image_path = $upload_path.$uploadedImage;
             }
             // banner image
-            if(isset($params['image_path'])){
+            if(isset($params['banner_image'])){
                 $image = $collection['banner_image'];
                 $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
                 $image->move($upload_path, $imageName);
@@ -83,7 +85,7 @@ class CategoryController extends Controller
                 $data->banner_image = $upload_path.$uploadedImage;
             }
             // sketch icon
-            if(isset($params['image_path'])){
+            if(isset($params['sketch_icon'])){
                 $image = $collection['sketch_icon'];
                 $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
                 $image->move($upload_path, $imageName);
@@ -91,7 +93,7 @@ class CategoryController extends Controller
                 $data->sketch_icon = $upload_path.$uploadedImage;
             }
             $data->save();
-        }
+        
         if ($data) {
             return redirect()->route('admin.categories.index');
         } else {
@@ -147,7 +149,7 @@ class CategoryController extends Controller
             $data->slug = slugGenerate($collection['name'],'categories');
         }
         // icon image
-        if(isset($params['icon_path'])){
+        if(isset($collection['icon_path'])){
             $image = $collection['icon_path'];
             $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
             $image->move($upload_path, $imageName);
@@ -155,7 +157,7 @@ class CategoryController extends Controller
             $data->icon_path = $upload_path.$uploadedImage;
         }
         // thumb image
-        if(isset($params['image_path'])){
+        if(isset($collection['image_path'])){
             $image = $collection['image_path'];
             $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
             $image->move($upload_path, $imageName);
@@ -163,7 +165,7 @@ class CategoryController extends Controller
             $data->image_path = $upload_path.$uploadedImage;
         }
         // banner image
-        if(isset($params['banner_image'])){
+        if(isset($collection['banner_image'])){
             $image = $collection['banner_image'];
             $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
             $image->move($upload_path, $imageName);
@@ -171,7 +173,7 @@ class CategoryController extends Controller
             $data->banner_image = $upload_path.$uploadedImage;
         }
         // sketch icon
-        if(isset($params['sketch_icon'])){
+        if(isset($collection['sketch_icon'])){
             $image = $collection['sketch_icon'];
             $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
             $image->move($upload_path, $imageName);

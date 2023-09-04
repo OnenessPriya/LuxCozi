@@ -30,7 +30,7 @@
                             </a>
 						  </div>
                             <div class="col-auto">
-                                <a href="{{ route('admin.categories.csv.export') }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
+                                <a href="{{ route('admin.categories.csv.export',['term'=>$request->term]) }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                     CSV
                                 </a>
@@ -63,17 +63,25 @@
                             <tr>
                                 <td>{{ ($data->firstItem()) + $index }}</td>
                                 <td class="text-center column-thumb">
+                                    @if(!empty($item->icon_path))
                                     <img src="{{ asset($item->icon_path) }}" style="max-width: 80px;max-height: 80px;">
+                                    @else
+                                    <img src="{{asset('admin/images/product-box.png')}}" style="max-width: 50px;max-height: 50px;">
+                                    @endif
                                 </td>
                 
                                 <td>
                                     <h3 class="text-dark">{{$item->name}}</h3>
                                     <p>{{$item->parentCatDetails ? $item->parentCatDetails->name : ''}}</p>
                                     <div class="row__action">
-                                        <a href="{{ route('admin.categories.edit', $item->id) }}">Edit</a>
-                                        <a href="{{ route('admin.categories.show', $item->id) }}">View</a>
-                                        <a href="{{ route('admin.categories.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
-                                        <a href="{{ route('admin.categories.destroy', $item->id) }}" class="text-danger">Delete</a> 
+                                        <form action="{{ route('admin.categories.destroy',$item->id) }}" method="POST">
+                                            <a href="{{ route('admin.categories.edit', $item->id) }}">Edit</a>
+                                            <a href="{{ route('admin.categories.show', $item->id) }}">View</a>
+                                            <a href="{{ route('admin.categories.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" onclick="return confirm('Are you sure ?')" class="btn btn-link" style="padding: 0;margin: 0;font-size: 14px;line-height: 1;text-decoration: none;color: #dc3545;">Delete</button>
+                                        </form>
                                     </div>
                                 </td>
                                 <td>

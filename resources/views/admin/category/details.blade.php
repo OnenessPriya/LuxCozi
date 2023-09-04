@@ -38,7 +38,15 @@
                         <div class="col-md-12">
                             <h3 class="text-muted">Products</h3>
                             <p>{{$data->ProductDetails->count()}} products total</p>
-
+                            @php
+							$collections = \DB::select('SELECT p.collection_id, c.name, count(p.id) AS products FROM `products` p INNER JOIN collections c ON c.id = p.collection_id WHERE p.cat_id = '.$data->id.' GROUP BY p.collection_id ORDER BY c.position ASC;');
+                            
+							echo '<p>Collections Under '.$data->name.' - ';
+							foreach($collections as $col) {
+								echo $col->name.'('.$col->products.'), ';
+							}
+							echo '</p>';
+							@endphp
                             <table class="table">
                                 <thead>
                                 <tr>
@@ -63,7 +71,7 @@
                                     @endphp
                                     <tr>
                                         <td class="text-center column-thumb">
-                                            <img src="{{asset('img/product-box.png')}}" />
+                                            <img src="{{asset('admin/images/product-box.png')}}" />
                                         </td>
                                         <td>
                                             {{$item->name}}
