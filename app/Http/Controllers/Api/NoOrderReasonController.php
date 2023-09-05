@@ -51,9 +51,9 @@ class NoOrderReasonController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id,$userId)
     {
-        $noOrder=UserNoOrderReason::where('store_id', $id)->with('stores')->orderby('id','desc')->get();
+        $noOrder=UserNoOrderReason::where('store_id', $id)->where('user_id',$userId)->with('stores')->orderby('id','desc')->get();
 		if ($noOrder) {
         return response()->json(['error'=>false, 'resp'=>'no order list data fetched successfully','data'=>$noOrder]);
 		}else{

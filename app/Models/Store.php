@@ -14,4 +14,7 @@ class Store extends Model
     public function areas() {
         return $this->belongsTo('App\Models\Area', 'area_id', 'id');
     }
+    public function users() {
+        return $this->belongsTo('App\Models\User', 'user_id', 'id');
+    }
 }

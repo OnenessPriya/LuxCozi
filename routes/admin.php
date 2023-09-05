@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\StateController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\SizeController;
+use App\Http\Controllers\Admin\OrderController;
 // admin guard
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['guest:admin'])->group(function () {
@@ -66,8 +67,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/schemes/{id}/status', [OfferController::class, 'status'])->name('schemes.status');
         //users
         Route::resource('users', UserController::class);
+        Route::get('/users/{id}/status', [UserController::class, 'status'])->name('users.status');
+        Route::get('/users/csv/export', [UserController::class, 'csvExport'])->name('users.csv.export');
+        //user activity
+        Route::get('/users/activity/list', [UserController::class, 'activityList'])->name('users.activity.index');
+        Route::get('/users/activity/csv/export', [UserController::class, 'activityCSV'])->name('users.activity.csv.export');
+        //user notification
+        Route::get('/users/notification/list', [UserController::class, 'notificationList'])->name('users.notification.index');
         //stores
         Route::resource('stores', StoreController::class);
+        Route::get('/stores/{id}/status', [StoreController::class, 'status'])->name('stores.status');
+        Route::get('/stores/inactive', [StoreController::class, 'inactiveList'])->name('stores.inactive');
+        Route::get('/stores/csv/export', [StoreController::class, 'csvExport'])->name('stores.csv.export');
+        Route::get('state-wise-area/{state}', [StoreController::class, 'stateWiseArea']);
+        Route::get('/stores/noorderreason/csv/export', [StoreController::class, 'noOrderreasonCSV'])->name('stores.noorderreason.csv.export');
+        Route::get('/stores/noorderreason/list', [StoreController::class, 'noOrderreason'])->name('stores.noorderreason.index');
         //states
         Route::resource('states', StateController::class);
         Route::get('/states/{id}/status', [StateController::class, 'status'])->name('states.status');
@@ -80,5 +94,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //sizes
         Route::resource('sizes', SizeController::class);
         Route::get('/sizes/{id}/status', [SizeController::class, 'status'])->name('sizes.status');
-    
+        //store wise orders
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        //product wise order report
+        Route::get('orders/product', [OrderController::class, 'report'])->name('orders.product.index');
+        //store wise order csv export
+        Route::get('/orders/csv/export', [OrderController::class, 'csvExport'])->name('orders.csv.export');
+         //product wise order csv export
+        Route::get('/orders/product/csv/export', [OrderController::class, 'productcsvExport'])->name('orders.product.csv.export');
 });

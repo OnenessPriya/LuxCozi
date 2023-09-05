@@ -1092,6 +1092,79 @@ footer {
 .pro-edit .card-header {
     font-size: 18px;
 }
+.store-sec label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+.store-sec .select2-container .select2-selection--single {
+    height: 41px;
+    border-radius: 3px;
+    border-color: #ccc;
+}
+.store-sec .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 39px;
+}
+.store-sec .select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 7px;
+}
+
+.store-sec .search-filter-right-el button, .store-sec .search-filter-right-el a {
+    border: 1px solid #002d5f;
+  color: #fff;
+  background: #002d5f;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  height: 40px;
+}
+.store-sec .search-filter-right-el button iconify-icon, .search-filter-right-el a iconify-icon {
+    margin-right: 5px;
+  font-size: 20px;
+  color: #fff;
+}
+.search-filter-right-store {
+    display: flex;
+    align-items:center;
+}
+.search-filter-right-store .search-filter-right-el {
+    display: flex;
+    align-items:center;
+}
+.store-filter-btn {
+    margin-right: 10px;
+}
+.store-filter-times {
+    padding: 0 2px;
+
+}
+.store-filter-times:hover {
+    background: #fff!important;
+    border-color: #002d5f!important;
+    color: #002d5f!important;
+}
+.store-filter-times iconify-icon {
+    margin-right: 0!important;
+        font-size: 30px!important;
+} 
+.search-filter-right-store button:hover,
+.search-filter-right-store a:hover{
+    background: #fff!important;
+    border-color: #002d5f!important;
+    color: #002d5f!important;
+}
+
+.search-filter-right-store button:hover iconify-icon,
+.search-filter-right-store a:hover iconify-icon{
+    color: #002d5f!important;
+}
+
+
+
+
+
+
+
 
 
 

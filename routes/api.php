@@ -73,7 +73,7 @@ Route::get('state/list', [StoreController::class, 'stateList']);
 
 //no order reason
 Route::get('no-order-reason', [NoOrderReasonController::class, 'index']);
-Route::get('no-order-history/{id}', [NoOrderReasonController::class, 'show']);
+Route::get('no-order-history/{id}/{user_id}', [NoOrderReasonController::class, 'show']);
 Route::post('no-order-reason/update', [NoOrderReasonController::class, 'update']);
 
 /* PLACE ORDER */
@@ -141,9 +141,8 @@ Route::get('asm/inactive/store', [ASMController::class, 'inactiveStorelist']);
 //store image create
 Route::post('asm/store/image/create', [ASMController::class, 'imageCreate']);
 //no order reason
-Route::get('no-order-reason', [ASMController::class, 'noOrderReason']);
-Route::get('no-order-history/{id}', [ASMController::class, 'noOrderReasonDetail']);
-Route::post('no-order-reason/update', [ASMController::class, 'noOrderReasonUpdate']);
+Route::get('asm/no-order-history/{id}/{user_id}', [ASMController::class, 'noOrderReasonDetail']);
+Route::post('asm/no-order-reason/update', [ASMController::class, 'noOrderReasonUpdate']);
 
 /* PLACE ORDER */
 /*cart*/
@@ -156,12 +155,12 @@ Route::get('asm/cart/clear/{id}', [ASMController::class, 'cartDestroy']);
 //cart update
 Route::get('asm/cart/qty/{cartId}/{q}',[ASMController::class, 'cartUpdate']);
 // cart preview url
-Route::get('asm/cart/pdf/url/{id}', [ASMController::class, 'CartPDF_URL']);
+Route::get('asm/cart/pdf/url/{id}/{user_id}', [ASMController::class, 'CartPDF_URL']);
 //cart preview pdf
-Route::get('asm/cart/pdf/view/{id}', [ASMController::class, 'CartPDF_view']);
+Route::get('asm/cart/pdf/view/{id}/{user_id}', [ASMController::class, 'CartPDF_view']);
 /* order */
 //order list user wise
-Route::get('asm/order/list/{id}/{user_id}', [ASMController::class, 'orderList']);
+Route::get('asm/order/list/{id}', [ASMController::class, 'orderList']);
 //place order
 Route::post('asm/place-order', [ASMController::class, 'placeOrder']);
 //order details
@@ -170,3 +169,24 @@ Route::get('asm/order/details/{id}', [ASMController::class, 'orderDetails']);
 Route::get('asm/order/pdf/url/{id}', [ASMController::class, 'orderPDF_URL']);
 //order preview pdf
 Route::get('asm/order/pdf/view/{id}', [ASMController::class, 'orderPDF_view']);
+//my order list
+Route::post('asm/my-orders', [ASMController::class, 'myOrders']);
+//store wise team report
+Route::post('asm/store-wise-report', [ASMController::class, 'storeReportASM']);
+//product wise team report for ASM
+Route::post('asm/product-wise-report', [ASMController::class, 'productReportASM']);
+//ASM wise ASE list
+Route::get('asm/ase/list/{id}', [ASMController::class, 'aseList']);
+//activity log ase wise
+Route::get('asm/activity', [ASMController::class, 'activityList']);
+//notification list
+Route::post('asm/notification-list', [ASMController::class, 'notificationList']);
+//notification update
+Route::post('asm/read-notification', [ASMController::class, 'readNotification']);
+//SM//
+//inactive ASE report for ASM in dashboard
+Route::get('inactive/ase/report/sm', [SMController::class, 'inactiveAseListSM']);
+//store wise team report
+Route::post('sm/store-wise-report', [SMController::class, 'storeReportSM']);
+//product wise team report for ASM
+Route::post('sm/product-wise-report', [SMController::class, 'productReportSM']);

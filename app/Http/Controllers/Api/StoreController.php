@@ -109,7 +109,7 @@ class StoreController extends Controller
 		    $store->sequence_no = $new_sequence_no;
 			$store->unique_code = $uniqueNo;
 			$store->status = '0';
-			if (!empty($collection['image'])) {
+			if (!empty($request['image'])) {
 				$store->image= $request->image;
 			}
 			
@@ -302,7 +302,7 @@ class StoreController extends Controller
             $data = Store::select('*');
             
             if(!empty($search)){
-                $data = $data->where('status',1)->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name');
+                $data = $data->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status',1);
             }        
 
             $data = $data->get();
@@ -340,7 +340,7 @@ class StoreController extends Controller
             $data = Store::select('*');
             
             if(!empty($search)){
-                $data = $data->where('status',1)->where('user_id',$userId)->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name');
+                $data = $data->where('user_id',$userId)->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status',1);
             }        
 
             $data = $data->get();

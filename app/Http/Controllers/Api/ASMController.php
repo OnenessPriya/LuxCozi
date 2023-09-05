@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\RetailerListOfOcc;
 use App\Models\Activity;
+use App\Models\Notification;
+use App\Models\UserNoOrderReason;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Store;
+use App\Models\Order;
+use App\Models\OrderProduct;
 use App\Models\Cart;
 use DB;
 use Carbon\Carbon;
@@ -19,8 +22,8 @@ class ASMController extends Controller
     //inactive ASE report for ASM in dashboard
     public function inactiveAseListASM(Request $request)
     {
-        $useId = $_GET['user_id'];
-        $aseDetails = Team::select('users.id')->join('users', 'teams.ase_id', '=', 'users.id')->where('teams.asm_id', '=', $useId)->groupby('teams.ase_id')->orderby('teams.ase_id')->get()->pluck('id')->toArray();
+        $userId = $_GET['user_id'];
+        $aseDetails = Team::select('users.id')->join('users', 'teams.ase_id', '=', 'users.id')->where('teams.asm_id', '=', $userId)->groupby('teams.ase_id')->orderby('teams.ase_id')->get()->pluck('id')->toArray();
                 
         $activeASEreport=Activity::where('type','Visit Started')->whereDate('created_at', '=', Carbon::now())->whereIn('user_id',$aseDetails)->pluck('user_id')->toArray();
                 
@@ -138,7 +141,7 @@ class ASMController extends Controller
 		    $store->sequence_no = $new_sequence_no;
 			$store->unique_code = $uniqueNo;
 			$store->status = '0';
-			if (!empty($collection['image'])) {
+			if (!empty($request['image'])) {
 				$store->image= $request->image;
 			}
 			
@@ -380,7 +383,7 @@ class ASMController extends Controller
         }
     }
     //cart delete
-    public function destroy($id)
+    public function cartDestroy($id)
     {
         $cart=Cart::destroy($id);
         if ($cart) {
@@ -390,7 +393,7 @@ class ASMController extends Controller
         }
     }
     //cart preview url
-    public function PDF_URL(Request $request, $id,$userId)
+    public function CartPDF_URL(Request $request, $id,$userId)
     {
         return response()->json([
             'error' => false,
@@ -401,11 +404,554 @@ class ASMController extends Controller
 
     
     //cart preview
-    public function PDF_view(Request $request, $id,$userId)
+    public function CartPDF_view(Request $request, $id,$userId)
     {
         $cartData =Cart::where('store_id',$id)->where('user_id',$userId)->with('product','stores','color','size')->get()->toArray();
 		
         return view('api.cart-pdf', compact('cartData'));
     }
+
+    //place order
+   
+    public function placeOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'store_id' => ['required'],
+            'user_id' => ['required'],
+            'order_type' => ['required', 'string', 'min:1'],
+            'order_lat' => ['required', 'string', 'min:1'],
+            'order_lng' => ['required', 'string', 'min:1'],
+            'comment' => ['nullable', 'string', 'min:1'],
+           
+        ]);
+
+        if (!$validator->fails()) {
+            $params = $request->except('_token');
+            $collectedData = collect($params);
+            $cart_count = Cart::where('store_id', $collectedData['store_id'])->where('user_id',$collectedData['user_id'])->get();
+            if (!empty($cart_count) ) {
+			    $order_no = generateOrderNumber('secondary', $collectedData['store_id'])[0];
+                $sequence_no = generateOrderNumber('secondary', $collectedData['store_id'])[1];
+                // 1 order
+                $newEntry = new Order;
+                $newEntry->sequence_no = $sequence_no;
+                $newEntry->order_no = $order_no;
+                $newEntry->store_id = $collectedData['store_id'];
+                $newEntry->user_id = $collectedData['user_id'];
+                $aseDetails=DB::select("select * from users where id='".$collectedData['user_id']."'");
+                $aseName=$aseDetails[0]->name;
+                $user=$newEntry->store_id;
+    			$result = DB::select("select * from stores where id='".$user."'");
+                $item=$result[0];
+                $name = $item->name;
+                $newEntry->order_type = $collectedData['order_type'] ?? null;
+                $newEntry->order_lat = $collectedData['order_lat'] ?? null;
+                $newEntry->order_lng = $collectedData['order_lng'] ?? null;
+    
+    			$newEntry->email = $item->email;
+    			$newEntry->mobile = $item->contact;
+                // fetch cart details
+                $cartData = Cart::where('store_id', $newEntry->store_id)->where('user_id',$newEntry->user_id)->get();
+                $subtotal = $totalOrderQty = 0;
+                foreach($cartData as $cartValue) {
+                    $totalOrderQty += $cartValue->qty;
+                    $subtotal += $cartValue->product->offer_price * $cartValue->qty;
+                    $store_id = $cartValue->store_id;
+                    $order_type = $cartValue->order_type;
+                }
+                $newEntry->amount = $subtotal;
+                $newEntry->comment = $collectedData['comment'] ?? null;
+                $total = (int) $subtotal;
+                $newEntry->final_amount = $total;
+                $newEntry->save();
+                // 2 insert cart data into order products
+                $orderProducts = [];
+                foreach($cartData as $cartValue) {
+                    $orderProducts[] = [
+                        'order_id' => $newEntry->id,
+                        'product_id' => $cartValue->product_id,
+                        'color_id' => $cartValue->color_id,
+                        'size_id' => $cartValue->size_id,
+                        'qty' => $cartValue->qty,
+                        "created_at" => date('Y-m-d H:i:s'),
+                        "updated_at" => date('Y-m-d H:i:s'),
+                    ];
+                }
+                $orderProductsNewEntry = OrderProduct::insert($orderProducts);
+                  Cart::where('store_id', $newEntry->store_id)->where('user_id',$newEntry->user_id)->delete();
+    
+    			// notification: sender, receiver, type, route, title
+                // notification to ASE
+                sendNotification('admin', '', 'secondary-order-place', 'front.user.order', $totalOrderQty.' New order placed',$totalOrderQty.' new order placed  '.$name);
+    
+    
+    			
+    
+                // notification to SM
+    			$loggedInUser = $aseName;
+                $sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '".$collectedData['user_id']."'");
+                foreach($sm as $value){
+                    sendNotification('', $value->sm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
+                }
+    			// notification to RSM
+    			$loggedInUser = $aseName;
+    			$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '".$collectedData['user_id']."'");
+    			foreach($rsm as $value){
+    				sendNotification('', $value->rsm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
+    			}
+    			
+    			// notification to ZSM
+    			$loggedInUser = $aseName;
+    			$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '".$collectedData['user_id']."'");
+    			foreach($zsm as $value){
+    				sendNotification('', $value->zsm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
+    			}
+    
+                // notification to NSM
+    			$loggedInUser = $aseName;
+    			$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '".$collectedData['user_id']."'");
+    			foreach($nsm as $value){
+    				sendNotification('', $value->nsm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
+    			}
+    
+                return response()->json(['error'=>false, 'resp'=>'Order placed successfully','data'=>$newEntry]);
+            }else{
+                return response()->json(['error'=>true, 'resp'=>'cart empty']);
+            }
+        } else {
+            return response()->json(['status' => 400, 'resp' => $validator->errors()->first()]);
+        }
+    }
+    //order list
+    public function orderList($id)
+    {
+        $order=Order::where('store_id',$id)->with('stores:id,name')->get();
+        if ($order) {
+            return response()->json(['error'=>false, 'resp'=>'order List fetched successfully','data'=>$order]);
+        } else {
+            return response()->json(['error' => true, 'resp' => 'Something happened']);
+        }
+    }
+    //order details
+    public function orderDetails($id)
+    {
+        $order=OrderProduct::where('order_id',$id)->with('product','color','size','orders')->get();
+        if ($order) {
+            return response()->json(['error'=>false, 'resp'=>'order details fetched successfully','data'=>$order]);
+        } else {
+            return response()->json(['error' => true, 'resp' => 'Something happened']);
+        }
+    }
+
+    public function orderPDF_URL(Request $request, $id)
+    {
+        return response()->json([
+            'error' => false,
+            'resp' => 'URL generated',
+            'data' => url('/').'/api/order/pdf/view/'.$id,
+        ]);
+    }
+
+    
+
+    public function orderPDF_view(Request $request, $id)
+    {
+        $orderData =OrderProduct::where('order_id',$id)->with('product','color','size','orders')->get()->toArray();
+		
+        return view('api.order-pdf', compact('orderData','id'));
+    }
+
+    //my order
+    public function myOrders(Request $request){
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['required'],
+            'store_id' => ['nullable'],
+            'date_from' => ['nullable'],
+            'date_to' => ['nullable'],
+        ]);
+
+        $user_id = $request->user_id;
+
+        if (!$validator->fails()) {
+                // date from
+                if (!empty($request->date_from)) {
+                    $from = date('Y-m-d', strtotime($request->date_from));
+                } else {
+                    $from = date('Y-m-01');
+                }
+
+                // date to
+                if (!empty($request->date_to)) {
+                    //$to = date('Y-m-d', strtotime($request->date_to. '+1 day'));
+                    $to = $request->date_to;
+                } else {
+                    $to = date('Y-m-d');
+                }
+                
+                $orderByQuery = 'o.id DESC';
+
+                $orders = array();
+
+                if(!empty($request->store_id)){
+                    $store_id = $request->store_id;
+                    $ordersData = DB::select("SELECT * FROM `orders` AS o
+                    WHERE o.user_id = '".$user_id."' AND o.store_id = '".$store_id."'
+                    AND (date(o.created_at) BETWEEN '".$from."' AND '".$to."')
+                    ORDER BY ".$orderByQuery);
+                }else{
+                    $ordersData = DB::select("SELECT * FROM `orders` AS o
+                    WHERE o.user_id = '".$user_id."'
+                    AND (date(o.created_at) BETWEEN '".$from."' AND '".$to."')
+                    ORDER BY ".$orderByQuery);
+                }
+                
+                
+                foreach($ordersData as $o){
+                    $store_id = $o->store_id;
+                    $user_id = $o->user_id;
+                    $order_id = $o->id;
+
+                    $storesData = Store::where('id',$store_id)->with('states','areas')->first();
+                    $usersData = User::where('id',$user_id)->first();
+                    $orderResult = OrderProduct::select(DB::raw("IFNULL(SUM(qty),0) as product_count"))->where('order_id',$order_id)->get();
+                    $o->stores = $storesData;
+                    $o->users = $usersData;
+                    $o->product_count = $orderResult[0]->product_count;
+                    array_push($orders,$o);
+                }
+            
+        }else{
+            $orders = array();
+        }
+        
+        return response()->json(['error' => false, 'resp' => 'ASM orders with filter', 'data' => $orders]);
+    }
+    // store wise team report
+    public function storeReportASM(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'area_id' => ['required'],
+            'date_from' => ['nullable'],
+            'date_to' => ['nullable'],
+            'collection' => ['nullable'],
+            'category' => ['nullable'],
+            'orderBy' => ['nullable'],
+            'style_no' => ['nullable'],
+        ]);
+         DB::enableQueryLog();
+        if (!$validator->fails()) {
+            //$userName = User::findOrFail($request->area_id);
+            //$userName = $userName->name;
+
+            $retailers = Store::select('id','name','address','area_id','state_id','pin')->where('area_id',$request->area_id)->orderby('name')->get();
+            $retailerResp = $resp = [];
+
+            foreach($retailers as $retailer) {
+                if ( !empty($request->date_from) || !empty($request->date_to) ) {
+                    // date from
+                    if (!empty($request->date_from)) {
+                        $from = date('Y-m-d', strtotime($request->date_from));
+                    } else {
+                        $from = date('Y-m-01');
+                    }
+
+                    // date to
+                    if (!empty($request->date_to)) {
+                        $to = date('Y-m-d', strtotime($request->date_to));
+                    } else {
+                        $to = date('Y-m-d', strtotime('+1 day'));
+                    }
+
+                    // collection
+                    if (!isset($request->collection) || $request->collection == '10000') {
+                        $collectionQuery = "";
+                    } else {
+                        $collectionQuery = " AND p.collection_id = ".$request->collection;
+                    }
+
+                    // category
+                    if ($request->category == '10000' || !isset($request->category)) {
+                        $categoryQuery = "";
+                    } else {
+                        $categoryQuery = " AND p.cat_id = ".$request->category;
+                    }
+
+                    // style no
+                    if (!isset($request->style_no)) {
+                        $styleNoQuery = "";
+                    } else {
+                        $styleNoQuery = " AND p.style_no LIKE '%".$request->style_no."%'";
+                    }
+
+                    // order by
+                    if ($request->orderBy == 'date_asc') {
+                        $orderByQuery = "op.id ASC";
+                    } elseif ($request->orderBy == 'qty_asc') {
+                        $orderByQuery = "qty ASC";
+                    } elseif ($request->orderBy == 'qty_desc') {
+                        $orderByQuery = "qty DESC";
+                    } else {
+                        $orderByQuery = "op.id DESC";
+                    }
+
+                    $report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o
+                    INNER JOIN order_products AS op ON op.order_id = o.id
+                    INNER JOIN products p ON p.id = op.product_id
+                    WHERE o.store_id = '".$retailer->id."'
+                    ".$collectionQuery."
+                    ".$categoryQuery."
+                    ".$styleNoQuery."
+                    AND (date(o.created_at) BETWEEN '".$from."' AND '".$to."')
+                    ORDER BY ".$orderByQuery);
+                } else {
+                    $report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o INNER JOIN order_products AS op ON op.order_id = o.id WHERE o.store_id = '".$retailer->id."' AND (date(o.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')");
+                }
+
+                $retailerResp[] = [
+                    'store_id' => $retailer->id,
+                    'store_name' => $retailer->name,
+                    'address' => $retailer->address,
+                    'area' => $retailer->areas->name,
+                    'state' => $retailer->states->name,
+                    'pin' => $retailer->pin,
+                    'quantity' => $report[0]->qty
+                ];
+            }
+
+            $resp[] = [
+                'secondary_sales' => $retailerResp,
+            ];
+
+            return response()->json(['error' => false, 'resp' => 'ASM report - Store wise', 'data' => $resp]);
+        } else {
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+        }
+    }
+
+    //product wise team report
+    public function productReportASM(Request $request)
+    {
+        \DB::connection()->enableQueryLog();
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['required'],
+            'date_from' => ['nullable'],
+            'date_to' => ['nullable'],
+            'collection' => ['nullable'],
+            'category' => ['nullable'],
+            'orderBy' => ['nullable'],
+            'style_no' => ['nullable'],
+        ]);
+
+        if (!$validator->fails()) {
+            $userName = User::findOrFail($request->ase_id);
+            $userName = $userName->name;
+
+            $retailerResp = $resp = [];
+
+            if ( !empty($request->date_from) || !empty($request->date_to) ) {
+                // date from
+                if (!empty($request->date_from)) {
+                    $from = date('Y-m-d', strtotime($request->date_from));
+                } else {
+                    $from = date('Y-m-01');
+                }
+
+                // date to
+                if (!empty($request->date_to)) {
+                    $to = date('Y-m-d', strtotime($request->date_to));
+                } else {
+                    $to = date('Y-m-d', strtotime('+1 day'));
+                }
+
+                // collection
+                if ($request->collection == '10000' || !isset($request->collection)) {
+                    $collectionQuery = "";
+                } else {
+                    $collectionQuery = " AND p.collection_id = ".$request->collection;
+                }
+
+                // category
+                if ($request->category == '10000' || !isset($request->category)) {
+                    $categoryQuery = "";
+                } else {
+                    $categoryQuery = " AND p.cat_id = ".$request->category;
+                }
+
+                // style no
+                if (!isset($request->style_no)) {
+                    $styleNoQuery = "";
+                } else {
+                    $styleNoQuery = " AND p.style_no LIKE '%".$request->style_no."%'";
+                }
+
+                // order by
+                if ($request->orderBy == 'date_asc') {
+                    $orderByQuery = "op.id ASC";
+                } elseif ($request->orderBy == 'qty_asc') {
+                    $orderByQuery = "qty ASC";
+                } elseif ($request->orderBy == 'qty_desc') {
+                    $orderByQuery = "qty DESC";
+                } else {
+                    $orderByQuery = "op.id DESC";
+                }
+
+                $report = DB::select("SELECT  p.name,op.product_id, p.style_no,IFNULL(SUM(op.qty), 0) AS product_count FROM `order_products` op
+                INNER JOIN products p ON p.id = op.product_id
+                INNER JOIN orders o ON o.id = op.order_id
+                INNER JOIN stores s ON s.id = o.store_id
+                INNER JOIN teams t ON s.id = t.store_id
+                WHERE t.asm_id = ".$request->user_id."
+                AND (DATE(op.created_at) BETWEEN '".$from."' AND '".$to."')
+                ".$collectionQuery."
+                ".$categoryQuery."
+                ".$styleNoQuery."
+                GROUP BY op.product_id
+                ORDER BY ".$orderByQuery);
+                
+            } else {
+                $report = DB::select("SELECT  p.name,op.product_id, p.style_no, IFNULL(SUM(op.qty), 0) AS product_count FROM `order_products` op
+                INNER JOIN products p ON p.id = op.product_id
+                INNER JOIN orders o ON o.id = op.order_id
+                INNER JOIN stores s ON s.id = o.store_id
+                INNER JOIN teams t ON s.id = t.store_id
+                WHERE t.asm_id = ".$request->user_id."
+                AND (DATE(op.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')
+                GROUP BY op.product_id
+                ORDER BY op.id DESC");
+            }
+
+            foreach($report as $item) {
+                $retailerResp[] = [
+                    'style_no' => $item->style_no,
+                    'product' => $item->name,
+                    'quantity' => $item->product_count
+                ];
+            }
+
+			$resp[] = [
+				'secondary_sales' => $retailerResp,
+			];
+         	return response()->json(['error' => false, 'resp' => 'ASM report - Product wise', 'data' => $resp]);
+        } else {
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+        }
+    }
+
+    //ASM wise ASE List
+    public function aseList(Request $request,$id)
+    {
+       $data=Team::where('asm_id',$id)->groupby('ase_id')->with('ase:id,name')->get();
+       if (count($data)==0) {
+                return response()->json(['error'=>true, 'resp'=>'No data found']);
+       } else {
+                return response()->json(['error'=>false, 'resp'=>'ASE List','data'=>$data]);
+       } 
+        
+    }
+    //activity log ase wise
+    public function activityList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "user_id" => "required",
+            "date" => "required",
+        ]);
+        if (!$validator->fails()) 
+        {
+         $data = (object)[];
+         $user_id = $_GET['user_id'];
+         $date = $_GET['date'];
+		 $data->activity=Activity::where('user_id',$user_id)->whereDate('date',$date)->orderby('id','desc')->get();
+        if (count($data->activity)==0) {
+                return response()->json(['error'=>true, 'resp'=>'No data found']);
+            } else {
+                return response()->json(['error'=>false, 'resp'=>'Activity List','data'=>$data->activity]);
+            } 
+        } else {
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+        }
+		
+	}
+
+    // no order reason history
+    public function noOrderReasonDetail(Request $request,$id,$userId)
+    {
+        $noOrder=UserNoOrderReason::where('store_id', $id)->where('user_id',$userId)->with('stores')->orderby('id','desc')->get();
+		if ($noOrder) {
+        return response()->json(['error'=>false, 'resp'=>'no order list data fetched successfully','data'=>$noOrder]);
+		}else{
+			  return response()->json(['error' => true, 'message' => 'No data found']);
+		}
+    }
+
+    //no order reason update
+    public function noOrderReasonUpdate(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'user_id' => 'required|integer',
+            'store_id' => 'required|integer',
+            'no_order_reason_id' => 'required|integer',
+            'comment' => 'required',
+            'location' => 'required',
+            'lat' => 'required',
+            'lng' => 'required',
+            'date' => 'required',
+            'time' => 'required',
+        ]);
+
+        if(!$validator->fails()){
+            $noorder = new UserNoorderreason();
+            $noorder->user_id = $request['user_id'];
+            $noorder->store_id = $request['store_id'];
+            $noorder->no_order_reason_id = $request['no_order_reason_id'];
+            $noorder->comment	 = $request['comment'];
+            $noorder->description	 = $request['description'];
+            $noorder->location = $request['location'];
+            $noorder->lat = $request['lat'];
+            $noorder->lng = $request['lng'];
+            $noorder->date	 = $request['date'];
+            $noorder->time	 = $request['time'];
+            $noorder->save();
+            return response()->json(['error'=>false, 'resp'=>'No order Reason data created successfully','data'=>$noorder]);
+        }else {
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+        }
+    }
+
+    //notification list
+    public function notificationList(Request $request){
+		$validator = Validator::make($request->all(), [
+			'user_id' => ['required'],
+			'pageNo' => ['nullable'],
+		]);
+		
+		if (!$validator->fails()) {
+			$user_id = $request->user_id;
+          	$pageNo =$request->pageNo;
+			if(!$pageNo){
+               $page=1;
+             }else{
+              $page=$pageNo;
+			  }
+              $limit=20;
+              $offset=($page-1)*$limit;
+			  $notifications = DB::select("select * from notifications where receiver_id='$user_id' ORDER BY id desc LIMIT ".$limit." OFFSET ".$offset."");
+			  $notificationCount=DB::table('notifications')->where('receiver_id','=',$user_id)->count();
+			  $count= (int) ceil($notificationCount / $limit);
+				return response()->json(['error' => false, 'message' => 'User wise notification list', 'data' => $notifications,'count'=>$count]);
+			
+			
+		}else{
+			return response()->json(['error' => true, 'message' => 'Please send a valid user']);
+		}
+	}
+	//notification update
+	public function readNotification(Request $request){
+		$id = $request->id;
+		$read_time = date("Y-m-d G:i:s");
+		
+		DB::select("update notifications set read_flag=1, read_at='$read_time' where id='$id'");
+		
+		return response()->json(['error' => false, 'message' => 'Notification date updated successfully']);
+	}
 
 }
