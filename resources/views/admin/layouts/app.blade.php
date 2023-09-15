@@ -43,18 +43,24 @@
                 <li class="{{ ( request()->is('admin/dashboard*') ) ? 'active' : '' }}"><a href="{{ route('admin.dashboard') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a></li>
 
                  {{-- master --}}
-                 <li class="@if(request()->is('admin/categories*') || request()->is('admin/collection*') || request()->is('admin/products*')|| request()->is('admin/catalogues*')|| request()->is('admin/schemes*')|| request()->is('admin/states*')|| request()->is('admin/areas*')|| request()->is('admin/colors*')|| request()->is('admin/sizes*')) { {{'active'}} }  @endif">
-                    <a href="#"><i class="fi fi-br-cube"></i> <span>Master</span></a>
+                 <li class="@if(request()->is('admin/categories*') || request()->is('admin/collection*') || request()->is('admin/products*')|| request()->is('admin/catalogues*')|| request()->is('admin/schemes*')|| request()->is('admin/colors*')|| request()->is('admin/sizes*')) { {{'active'}} }  @endif">
+                    <a href="#"><i class="fi fi-br-cube"></i> <span>Product Master</span></a>
                     <ul>
                         <li class="{{ ( request()->is('admin/categories*') ) ? 'active' : '' }}"><a href="{{ route('admin.categories.index') }}"><i class="fi fi-br-database"></i> <span>Category</span></a></li>
                         <li class="{{ ( request()->is('admin/collection*') ) ? 'active' : '' }}"><a href="{{ route('admin.collections.index') }}"><i class="fi fi-br-database"></i> <span>Collection</span></a></li>
                         <li class="{{ ( request()->is('admin/products*') ) ? 'active' : '' }}"><a href="{{ route('admin.products.index') }}"><i class="fi fi-br-database"></i><span>Product</span></a></li>
                         <li class="{{ ( request()->is('admin/catalogues*') ) ? 'active' : '' }}"><a href="{{ route('admin.catalogues.index') }}"><i class="fi fi-br-database"></i> <span>Catalogue</span></a></li>
                         <li class="{{ ( request()->is('admin/schemes*') ) ? 'active' : '' }}"><a href="{{ route('admin.schemes.index') }}"><i class="fi fi-br-database"></i> <span>Scheme</span></a></li>
-                        <li class="{{ ( request()->is('admin/states*') ) ? 'active' : '' }}"><a href="{{ route('admin.states.index') }}"><i class="fi fi-br-database"></i> <span>State</span></a></li>
-                        <li class="{{ ( request()->is('admin/areas*') ) ? 'active' : '' }}"><a href="{{ route('admin.areas.index') }}"><i class="fi fi-br-database"></i> <span>Area</span></a></li>
+                       
                         <li class="{{ ( request()->is('admin/color*') ) ? 'active' : '' }}"><a href="{{ route('admin.colors.index') }}"><i class="fi fi-br-database"></i> <span>Color</span></a></li>
                         <li class="{{ ( request()->is('admin/sizes*') ) ? 'active' : '' }}"><a href="{{ route('admin.sizes.index') }}"><i class="fi fi-br-database"></i> <span>Size</span></a></li>
+                    </ul>
+                </li>
+                <li class="@if(request()->is('admin/states*') ||request()->is('admin/areas*')) { {{'active'}} }  @endif">
+                    <a href="#"><i class="fi fi-br-cube"></i> <span>State Master </span></a>
+                    <ul>
+                         <li class="{{ ( request()->is('admin/states*') ) ? 'active' : '' }}"><a href="{{ route('admin.states.index') }}"><i class="fi fi-br-database"></i> <span>State</span></a></li>
+                        <li class="{{ ( request()->is('admin/areas*') ) ? 'active' : '' }}"><a href="{{ route('admin.areas.index') }}"><i class="fi fi-br-database"></i> <span>Area</span></a></li>
                     </ul>
                 </li>
                 <li class="@if(request()->is('admin/stores*') ) { {{'active'}} }  @endif">
@@ -64,12 +70,13 @@
                         <li class="{{ ( request()->is('admin/stores*') ) ? 'active' : '' }}"><a href="{{ route('admin.stores.noorderreason.index') }}"><i class="fi fi-br-database"></i> <span>No Order Reason List</span></a></li>
                     </ul>
                 </li>
-                <li class="@if(request()->is('admin/users*') ) { {{'active'}} }  @endif">
+                <li class="@if(request()->is('admin/users*')|| request()->is('admin/activity*')|| request()->is('admin/notification*')|| request()->is('admin/attendance*')) { {{'active'}} }  @endif">
                     <a href="#"><i class="fi fi-br-cube"></i> <span>User </span></a>
                     <ul>
                         <li class="{{ ( request()->is('admin/users*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.index') }}"><i class="fi fi-br-database"></i> <span>Management</span></a></li>
-                        <li class="{{ ( request()->is('admin/users/activity*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.activity.index') }}"><i class="fi fi-br-database"></i> <span>Activity List</span></a></li>
-                        <li class="{{ ( request()->is('admin/users/notification*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.notification.index') }}"><i class="fi fi-br-database"></i> <span>Notification List</span></a></li>
+                        <li class="{{ ( request()->is('admin/activity*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.activity.index') }}"><i class="fi fi-br-database"></i> <span>Activity List</span></a></li>
+                         <li class="{{ ( request()->is('admin/attendance*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.attendance.index') }}"><i class="fi fi-br-database"></i> <span>Attendance Sheet</span></a></li>
+                        <li class="{{ ( request()->is('admin/notification*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.notification.index') }}"><i class="fi fi-br-database"></i> <span>Notification List</span></a></li>
                     </ul>
                 </li>
                 <li class="@if(request()->is('admin/orders*') ) { {{'active'}} }  @endif">
@@ -79,7 +86,6 @@
                         <li class="{{ ( request()->is('admin/orders/product*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.product.index') }}"><i class="fi fi-br-database"></i> <span>Product Wise</span></a></li>
                     </ul>
                 </li>
-                
 				{{-- reward app --}}
               
 				

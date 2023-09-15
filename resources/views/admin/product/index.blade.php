@@ -45,44 +45,16 @@
                                     <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
                                 </a>
                             </div>
+                            <div class="search-filter-right-el">
+                                <a href="{{ route('admin.products.create') }}" class="btn btn-outline-danger btn-sm">
+                                    <iconify-icon icon="prime:plus-circle"></iconify-icon> Create
+                                </a>
+                            </div>
                         </div>
                         </form>
                     </div>
                     
-                        <!--<div class="col">-->
-                        <!--    <select class="form-select form-select-sm select2" aria-label="Default select example" name="cat_id" id="category">-->
-                        <!--            <option value=""  selected>Select Category</option>-->
-                        <!--             @foreach ($category as $index => $item)-->
-                        <!--                         <option value="{{$item->id}}" {{ (request()->input('cat_id') == $item->id) ? 'selected' :  '' }}>{{ $item->name }}</option>-->
-                        <!--             @endforeach-->
-                        <!--            </select>-->
-                        <!--</div>-->
-                        <!--<div class="col">-->
-                        <!--    <select class="form-select form-select-sm select2" aria-label="Default select example" name="collection_id" id="collection">-->
-                        <!--        <option value="" selected disabled>Select Collection</option>-->
-                        <!--        <option value="{ (request()->input('collection_id')) ? 'selected' :  '' }}"></option>-->
-                        <!--    </select>-->
-                        <!--</div>-->
-                        <!--<div class="col">-->
-                        <!--    <input type="search" name="keyword" id="term" class="form-control form-control-sm" placeholder="Search by name/ style no." value="{{app('request')->input('keyword')}}" autocomplete="off">-->
-                        <!--</div>-->
-                        <!--<div class="col">-->
-                        <!--    <div class="btn-group">-->
-                                
-
-                                
-
-                                
-                        <!--    </div>-->
-                        <!--</div>-->
-                        <!-- <div class="col">-->
-                        <!--    <div class="btn-group">-->
-                        <!--        <a href="{{ route('admin.products.create') }}" class="btn btn-danger btn-sm">-->
-                        <!--            Create New Product-->
-                        <!--        </a>-->
-                        <!--    </div>-->
-                            
-                        <!--</div>-->
+                  
               
             </div>
         </div>
@@ -136,6 +108,7 @@
                             @csrf
                             @method('DELETE')
                            <button type="submit" class="btn-link">Delete</button> 
+                        </form>
                     </div>
                 </td>
                 <td>{{$item->style_no}}</td>

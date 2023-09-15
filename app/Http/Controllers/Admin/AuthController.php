@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Store; 
+use App\Models\OrderProduct; 
 use AuthenticatesUsers;
 class AuthController extends Controller
 {
@@ -75,7 +76,8 @@ class AuthController extends Controller
         $data->asm = User::select('name')->where('type',5)->get();
         $data->ase = User::select('name')->where('type',6)->get();
         $data->distributor =User::select('name')->where('type',7)->get();
-       // $data->store = Store::where('status','=', 1)->count();
+        $data->store = Store::where('status','=', 1)->count();
+        $data->secondary = OrderProduct::where('created_at', '>', date('Y-m-d'))->sum('qty');
         return view('admin.dashboard.index', compact('data'));
     }
 

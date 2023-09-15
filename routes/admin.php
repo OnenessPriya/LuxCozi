@@ -68,12 +68,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //users
         Route::resource('users', UserController::class);
         Route::get('/users/{id}/status', [UserController::class, 'status'])->name('users.status');
+        Route::get('/users/collection/{id}', [UserController::class, 'collection'])->name('users.collection');
+        Route::post('/users/{id}/collection/create', [UserController::class, 'collectionCreate'])->name('users.collection.create');
+		Route::get('/collection/delete/{id}', [UserController::class, 'collectionDelete'])->name('users.collection.delete');
+        Route::get('/users/state/{state}', [UserController::class, 'state'])->name('users.state');
+        Route::post('/users/area', [UserController::class, 'areaStore'])->name('users.area.store');
         Route::get('/users/csv/export', [UserController::class, 'csvExport'])->name('users.csv.export');
+        Route::post('/users/password/generate', [UserController::class, 'passwordGenerate'])->name('users.password.generate');
+		Route::post('/users/password/reset', [UserController::class, 'passwordReset'])->name('users.password.reset');
         //user activity
-        Route::get('/users/activity/list', [UserController::class, 'activityList'])->name('users.activity.index');
-        Route::get('/users/activity/csv/export', [UserController::class, 'activityCSV'])->name('users.activity.csv.export');
+        Route::get('/activity/list', [UserController::class, 'activityList'])->name('users.activity.index');
+        Route::get('/activity/csv/export', [UserController::class, 'activityCSV'])->name('users.activity.csv.export');
+        //user attendance
+        Route::get('/attendance/list', [UserController::class, 'attendanceList'])->name('users.attendance.index');
+        Route::get('/attendance/csv/export', [UserController::class, 'attendanceCSV'])->name('users.attendance.csv.export');
         //user notification
-        Route::get('/users/notification/list', [UserController::class, 'notificationList'])->name('users.notification.index');
+        Route::get('/notification/list', [UserController::class, 'notificationList'])->name('users.notification.index');
         //stores
         Route::resource('stores', StoreController::class);
         Route::get('/stores/{id}/status', [StoreController::class, 'status'])->name('stores.status');
@@ -88,6 +98,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //areas
         Route::resource('areas', AreaController::class);
         Route::get('/areas/{id}/status', [AreaController::class, 'status'])->name('areas.status');
+        Route::post('/areas/csv/upload', [AreaController::class, 'areaCSVUpload'])->name('areas.csv.upload');
         //colors
         Route::resource('colors', ColorController::class);
         Route::get('/colors/{id}/status', [ColorController::class, 'status'])->name('colors.status');
@@ -97,9 +108,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //store wise orders
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         //product wise order report
-        Route::get('orders/product', [OrderController::class, 'report'])->name('orders.product.index');
+        Route::get('orders/product', [OrderController::class, 'productwiseOrder'])->name('orders.product.index');
         //store wise order csv export
         Route::get('/orders/csv/export', [OrderController::class, 'csvExport'])->name('orders.csv.export');
+        Route::get('/orders/{id}/pdf/export', [OrderController::class, 'pdfExport'])->name('orders.pdf');
+        Route::get('/orders/{id}/csv/download', [OrderController::class, 'individualcsvExport'])->name('orders.report.csv');
          //product wise order csv export
         Route::get('/orders/product/csv/export', [OrderController::class, 'productcsvExport'])->name('orders.product.csv.export');
 });

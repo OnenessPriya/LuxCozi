@@ -61,9 +61,14 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                 </a>
 
-                                <a href="{{ route('admin.user.export.all', ['user_type'=>$request->user_type,'state'=>$request->state,'area'=>$request->area,'keyword'=>$request->keyword]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Export data in CSV">
+                                <a href="{{ route('admin.users.csv.export', ['user_type'=>$request->user_type,'state'=>$request->state,'area'=>$request->area,'keyword'=>$request->keyword]) }}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Export data in CSV">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                                 </a>
+                                <div class="search-filter-right-el">
+                                    <a href="{{ route('admin.users.create') }}" class="btn btn-outline-danger btn-sm">
+                                        <iconify-icon icon="prime:plus-circle"></iconify-icon> Create
+                                    </a>
+                                </div>
 								
                             </div>
                         </div>
@@ -79,25 +84,17 @@
                 <th>SR</th>
                 <th>Name</th>
                 <th>Designation</th>
-                <th>Mobile</th>
-			    <th>Password</th> 
+                <th>Mobile</th> 
                 <th>HQ & State</th>
                 <th style="min-width: 200px">Manager</th>
-                <th>Action</th>
+                <th>Status</th>
             </tr>
         </thead>
 
         <tbody>
             @forelse ($data as $index => $item)
                 @php
-                    $area ='';
-                    $areaDetail = DB::table('user_areas')->where('user_id','=',$item->id)->get();
-                    if(!empty($areaDetail)) {
-                        foreach($areaDetail as $key => $obj) {
-                            $area .= $obj->name;
-                            if((count($areaDetail) - 1) != $key) $area .= ', ';
-                        }
-                    }
+                   
 				
                 @endphp
 				
@@ -108,9 +105,20 @@
                             {{$item->title}} {{$item->name}}
                         </p>
                         <p class="small text-muted">{{$item->employee_id}}</p>
+                        <div class="row__action">
+                            <form action="{{ route('admin.users.destroy',$item->id) }}" method="POST">
+                                <a href="{{ route('admin.users.edit', $item->id) }}">Edit</a>
+                                <a href="{{ route('admin.users.show', $item->id) }}">View</a>
+                                <a href="{{ route('admin.users.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
+                                
+                                @csrf
+                                @method('DELETE')
+                            <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link">Delete</button> 
+                            </form>
+                        </div>
                     </td>
                     <td>
-                        {{ $item->designation ? $item->designation : userTypeName($item->user_type) }}
+                        {{ $item->designation ? $item->designation : userTypeName($item->type) }}
                     </td>
                     <td>
                         <p class="small text-dark">{{$item->mobile}}</p>
@@ -122,21 +130,20 @@
                     <td>
                         {{$item->city}}, {{$item->state}}
 
-                        @if($item->type == 6)
-                                <p class="small text-dark">{{$area}}</p>
-						@endif
+                        
                     </td>
                     <td>
-                        <p class="small text-muted">{!! findManagerDetails($item->name, $item->type) !!}</p>
+                        <p class="small text-muted">{!! findManagerDetails($item->id, $item->type) !!}</p>
                     </td>
-                    <td>
-                        <div class="btn-group">
+                    <td><span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span></td>
+                    {{--<td>
+                        {{-- <div class="btn-group">
                             <a href="{{ route('admin.users.show', $item->id) }}" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" title="View details">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </a>
 
                             {{-- distributor edit --}}
-                            @if ($item->user_type == 5)
+                            {{-- @if ($item->user_type == 5)
                                 @php
                                     $retailerListTableData = DB::table('retailer_list_of_occ')->select('id')->where('distributor_name', $item->name)->where('area',$item->city)->first();
                                 @endphp
@@ -145,9 +152,9 @@
                                     <a href="{{ route('admin.distributor.edit', $retailerListTableData->id) }}" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" title="Edit details">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </a>
-                                @endif
+                                @endif --}}
                             {{-- store edit --}}
-                            @elseif ($item->user_type == 6)
+                            {{-- @elseif ($item->user_type == 6)
                                 @php
                                     $retailerListTableData = DB::table('retailer_list_of_occ')->select('id')->where('retailer', $item->name)->first();
                                 @endphp
@@ -156,9 +163,9 @@
                                     <a href="{{ route('admin.store.edit', $retailerListTableData->id) }}" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" title="Edit details">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                     </a>
-                                @endif
+                                @endif --}}
                             {{-- Other users Edit --}}
-                            @else
+                            {{-- @else
                                 <a href="{{ route('admin.user.edit', $item->id) }}" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" title="Edit details">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                 </a>
@@ -172,19 +179,19 @@
                                 <a href="{{ route('admin.user.status', $item->id) }}" data-bs-toggle="tooltip" title="This user is INACTIVE. Tap to ACTIVATE" class="btn btn-sm btn-danger">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-x"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
                                 </a>
-                            @endif
+                            @endif --}}
 
                             {{-- reset password button --}}
-                            @php
+                            {{-- @php
                                 $fullName = $item->name;
                                 $explodedName = explode(' ', $fullName);
                             @endphp
                             <a href="javascript: void(0)" onclick="ResetPasswordModal({{$item->id}})" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" title="Reset Password">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            </a>
+                            </a> --}}
 
                             {{-- Distributor only - Range setup option --}}
-                            @if ($item->type == 5)
+                            {{-- @if ($item->type == 5)
                                 @php
                                     $rangeCount = DB::table('distributor_ranges')->selectRaw('COUNT(id) AS id')->where('distributor_id', $item->id)->count();
                                 @endphp
@@ -193,9 +200,9 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                                 </a>
                             @endif
-                        </div>
-                        
-                    </td>
+                        </div> 
+                         
+                    </td>--}}
                 </tr>
                
             @endforeach
@@ -224,20 +231,20 @@
 
 @section('script')
 <script>
-    $('select[name="state_id"]').on('change', (event) => {
-        var value = $('select[name="state_id"]').val();
-
+    $('select[name="state"]').on('change', (event) => {
+        var value = $('select[name="state"]').val();
+      
         $.ajax({
-            url: '{{url("/")}}/admin/state-wise-area/'+value,
+            url: '{{url("/")}}/admin/users/state/'+value,
             method: 'GET',
             success: function(result) {
                 var content = '';
-                var slectTag = 'select[name="area_id"]';
+                var slectTag = 'select[name="area"]';
                 var displayCollection =  "All";
 
                 content += '<option value="" selected>'+displayCollection+'</option>';
                 $.each(result.data.area, (key, value) => {
-                    content += '<option value="'+value.area_id+'">'+value.area+'</option>';
+                    content += '<option value="'+value.area+'">'+value.area+'</option>';
                 });
                 $(slectTag).html(content).attr('disabled', false);
             }
@@ -247,7 +254,7 @@
 <script>
     function ResetPasswordModal(userId) {
         $.ajax({
-            url: "{{route('admin.user.password.generate')}}",
+            url: "{{route('admin.users.password.generate')}}",
             type: 'post',
             data: {
                 _token: '{{csrf_token()}}',
@@ -256,7 +263,7 @@
             success: function(resp) {
                 // console.log(resp);
                 var content = '';
-                var url = "{{url('/')}}/admin/user/password/reset";
+                var url = "{{url('/')}}/admin/users/password/reset";
 
                 if (resp.status == 200) {
                     content += `

@@ -26,28 +26,24 @@
                                      <label for="distributor_name">Distributor *</label>
                                     <div class="form-floating mb-3">
                                         <p class="small text-danger">({{$data->team->distributors->name}})</p>
-                                        <select class="form-select select2" id="distributor_name"  multiple="multiple" name="distributor_id[]" aria-label="Floating label select example">
+                                        <select class="form-select select2" id="distributor_name"  name="distributor_id" aria-label="Floating label select example">
                                             <option value="" selected disabled>Select</option>
                                             @foreach ($data->allDistributors as $item)
-                                            @php
-                                                $cat = explode(",", $data->team->distributors->name);
-                                               
-                                                $isSelected = in_array($item->name,$cat) ? "selected='selected'" : "";
-                                            @endphp
-                                                <option value="{{$item->bussiness_name}}" {{is_array($cat) && in_array($item->name, $cat) ? 'selected' : '' }}>{{$item->name}}</option>
+                                            
+                                                <option value="{{$item->id}}" {{($item->id== $data->team->distributors->id) ? 'selected' : '' }}>{{$item->name}}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    @error('distributor_name') <p class="small text-danger">{{$message}}</p> @enderror
+                                    @error('distributor_id') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
                             </div>
-                            @if($data->stores->users->type==6)
+                          
                             <div class="col-md-4">
                                 <div class="form-group">
-									<label for="ase">ASE *</label>
+									<label for="ase">Sales Person(ASE/ASM) *</label>
                                     <div class="form-floating mb-3">
 										<p class="small text-danger">({{$data->stores->users->name}})</p>
-                                        <select class="form-select select2" id="ase" name="ase_id[]" multiple="multiple" aria-label="Floating label select example">
+                                        <select class="form-select select2" id="ase" name="ase_id"  aria-label="Floating label select example">
                                             <option value="" selected disabled>Select</option>
                                             @foreach ($data->users as $item)
 											@php
@@ -59,31 +55,10 @@
                                         </select>
                                         
                                     </div>
-                                    <p class="small text-danger">ASE depends on Distributor</p>
+                                    <p class="small text-danger">ASE/ASM depends on Distributor</p>
                                 </div>
                             </div>
-                            @else
-                            <div class="col-md-4">
-                                <div class="form-group">
-									<label for="ase">ASM *</label>
-                                    <div class="form-floating mb-3">
-										<p class="small text-danger">({{$data->stores->users->name}})</p>
-                                        <select class="form-select select2" id="ase" name="asm_id[]" multiple="multiple" aria-label="Floating label select example">
-                                            <option value="" selected disabled>Select</option>
-                                            @foreach ($data->asms as $item)
-											@php
-                                                $user = explode(",", $data->stores->user_id);
-                                                $isSelected = in_array($item->id,$user) ? "selected='selected'" : "";
-                                            @endphp
-                                                <option value="{{$item->id}}" {{is_array($user) && in_array($item->id, $user) ? 'selected' : '' }}>{{$item->name}}</option>
-                                            @endforeach
-                                        </select>
-                                        
-                                    </div>
-                                    <p class="small text-danger">ASE depends on Distributor</p>
-                                </div>
-                            </div>
-                            @endif
+                            
                         </div>
 
                         <div class="row mb-2">
@@ -248,7 +223,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
-                                        <select class="form-select select2" id="area" name="area" aria-label="Floating label select example" readonly>
+                                        <select class="form-select select2" id="area" name="area_id" aria-label="Floating label select example" readonly>
                                             <option value="{{$data->stores->area_id}}" selected>{{$data->stores->areas->name}}</option>
                                         </select>
                                         <!--<label for="area">City/ Area *</label>-->

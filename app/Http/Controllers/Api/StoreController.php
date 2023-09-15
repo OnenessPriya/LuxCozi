@@ -83,7 +83,7 @@ class StoreController extends Controller
 			$store->email	 = $request->email?? null;
 			$store->address	 = $request->address?? null;
 			$store->state_id	 = $request->state_id?? null;
-			$store->city	 = $request->area_id?? null;
+			$store->city	 = $request->city?? null;
 			$store->pin	 = $request->pin?? null;
 			$store->area_id	 = $request->area_id?? null;
 			$store->date_of_birth	 = $request->date_of_birth?? null;

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Notification;
-
+use App\Models\Team;
 $datetime = date('Y-m-d H:i:s');
 
 if (!function_exists('in_array_r')) {
@@ -58,7 +58,7 @@ if (!function_exists('orderProductsUpdatedMatrix')) {
             foreach($productsArr as $key => $product) {
                 //dd($product);
                 if (!in_array($product['size_id'], $childrenSizes)) {
-                    $matchString = $product['product']['style_no'].'-'.$product['color']['name'];
+                    $matchString = $product['product']['name'].'-'.$product['color']['name'];
 
                     if (!in_array_r($matchString, $newProductArr)) {
                         $newProductArr[] = [
@@ -110,7 +110,7 @@ if (!function_exists('orderProductsUpdatedMatrixChild')) {
 
             foreach($productsArr as $key => $product) {
                 if (in_array($product['size_id'], $childrenSizes)) {
-                    $matchString = $product['product']['style_no'].'-'.$product['color']['name'];
+                    $matchString = $product['product']['name'].'-'.$product['color']['name'];
 
                     if (!in_array_r($matchString, $newProductArr)) {
                         $newProductArr[] = [
@@ -193,5 +193,102 @@ if (!function_exists('generateOrderNumber')) {
             $shortOrderCode = "PR";
             
         }
+    }
+}
+
+if (!function_exists('findManagerDetails')) {
+    function findManagerDetails($userName, $userType ) {
+        switch ($userType) {
+            case 1:
+                $namagerDetails = "";
+                break;
+            case 2:
+                $query=Team::select('nsm_id')->where('zsm_id',$userName)->groupby('zsm_id')->with('nsm')->first();
+               
+                if ($query) {
+                    $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name;
+                } else {
+                    $namagerDetails = "";
+                }
+                break;
+            case 3:
+                $query=Team::select('nsm_id','zsm_id')->where('rsm_id',$userName)->groupby('rsm_id')->with('nsm','zsm')->first();
+                
+                if ($query) {
+                    $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
+                    <br> 
+                    <span class='text-dark'>ZSM:</span> ".$query->zsm->name;
+                } else {
+                    $namagerDetails = "";
+                }
+                break;
+            case 4:
+                $query=Team::select('nsm_id','zsm_id','rsm_id')->where('sm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm')->first();
+                
+                if ($query) {
+                    $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
+                    <br> 
+                    <span class='text-dark'>ZSM:</span> ".$query->zsm->name." 
+                    <br> 
+                    <span class='text-dark'>RSM:</span> ".$query->rsm->name;
+                } else {
+                    $namagerDetails = "";
+                }
+                break;
+                case 5:
+                    $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id')->where('asm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm')->first();
+                    
+                    if ($query) {
+                        $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
+                        <br> 
+                        <span class='text-dark'>ZSM:</span> ".$query->zsm->name." 
+                        <br> 
+                        <span class='text-dark'>RSM:</span> ".$query->rsm->name."
+                        <br> 
+                        <span class='text-dark'>SM:</span> ".$query->sm->name;
+                    } else {
+                        $namagerDetails = "";
+                    }
+                    break;
+                case 6:
+                        $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id','asm_id')->where('ase_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm','asm')->first();
+                        
+                        if ($query) {
+                            $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
+                            <br> 
+                            <span class='text-dark'>ZSM:</span> ".$query->zsm->name." 
+                            <br> 
+                            <span class='text-dark'>RSM:</span> ".$query->rsm->name."
+                            <br> 
+                            <span class='text-dark'>SM:</span> ".$query->sm->name."
+                            <br> 
+                            <span class='text-dark'>ASM:</span> ".$query->asm->name;
+                        } else {
+                            $namagerDetails = "";
+                        }
+                        break;
+            default: 
+                $namagerDetails = "";
+                break;
+        }
+
+        return $namagerDetails;
+    }
+}
+
+if (!function_exists('userTypeName')) {
+    function userTypeName($userType ) {
+        switch ($userType) {
+            case 1: $userTypeDetail = "NSM";break;
+            case 2: $userTypeDetail = "ZSM";break;
+            case 3: $userTypeDetail = "RSM";break;
+            case 4: $userTypeDetail = "SM";break;
+            case 5: $userTypeDetail = "ASM";break;
+            case 6: $userTypeDetail = "ASE";break;
+            case 7: $userTypeDetail = "Distributor";break;
+            case 8: $userTypeDetail = "Retailer";break;
+            default: $userTypeDetail = "";break;
+        }
+        return $userTypeDetail;
     }
 }

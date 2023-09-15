@@ -94,11 +94,7 @@
                                         </form>
                                     </div>
                                     
-                                    {{--<div class="search-filter-right-el">
-                                        <a href="{{ route('admin.stores.inactive') }}" class="btn btn-outline-danger btn-sm">
-                                            <iconify-icon icon="prime:plus-circle"></iconify-icon> Inactive Store List
-                                        </a>
-                                    </div>--}}
+                                   
                                     
                                    
                                 </div>

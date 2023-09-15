@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Activity;
 use App\Models\UserArea;
 use App\Models\User;
+use App\Models\UserAttendance;
 use App\Models\Visit;
 use DB;
 use Illuminate\Support\Facades\Validator;
@@ -38,7 +39,15 @@ class VisitController extends Controller
             ];
 
             $resp = DB::table('visits')->insertGetId($data);
-
+            $record=UserAttendance::where('user_id',$request->user_id)->where('entry_date',$request->start_date)->first();
+            if(empty($record))
+            {
+                $attendance=new UserAttendance();
+                $attendance->user_id=$request->user_id;
+                $attendance->entry_date=$request->start_date;
+                $attendance->start_time=$request->start_time;
+                $attendance->save();
+            }
             return response()->json(['error' => false, 'resp' => 'Visit started', 'visit_id' => $resp]);
         } else {
             return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
@@ -69,7 +78,14 @@ class VisitController extends Controller
             ];
 
             DB::table('visits')->where('id', $request->visit_id)->update($data);
-
+            $visitData=Visit::where('id',$request->visit_id)->first();
+            $record=UserAttendance::where('user_id',$visitData->user_id)->where('entry_date',$request->end_date)->first();
+            if(!empty($record))
+            {
+                $attendance=UserAttendance::findOrfail($record->id);
+                $attendance->end_time=$request->end_time;
+                $attendance->save();
+            }
             return response()->json(['error' => false, 'resp' => 'Visit ended', 'data' => $data]);
         } else {
             return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
@@ -167,4 +183,48 @@ class VisitController extends Controller
         } 
          
      }
+
+     //other activity
+     public function otheractivityStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "user_id" => "required",
+            "date" => "required",
+            "time" => "required",
+            "type" => "required",
+            "reason" => "nullable"
+        ]);
+
+        if (!$validator->fails()) {
+            $data = [
+                "user_id" => $request->user_id,
+                "date" => $request->date,
+                "time" => $request->time,
+                "type" => $request->type,
+                "reason" => $request->comment,
+                "created_at" => date('Y-m-d H:i:s'),
+                "updated_at" => date('Y-m-d H:i:s'),
+            ];
+
+            $resp = DB::table('other_activities')->insertGetId($data);
+            $record=UserAttendance::where('user_id',$request->user_id)->where('entry_date',$request->date)->first();
+            if(empty($record))
+            {
+                $attendance=new UserAttendance();
+                $attendance->user_id=$request->user_id;
+                $attendance->entry_date=$request->date;
+                $attendance->start_time=$request->time;
+                $attendance->type=$request->type;
+                $attendance->save();
+            }
+            if( $resp){
+                return response()->json(['error' => false, 'resp' => 'Activity stored successfully', 'data' => $resp]);
+            }else{
+                return response()->json(['error'=>true, 'resp'=>'Something happend']);
+            }
+           
+        } else {
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+        }
+    }
 }

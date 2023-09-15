@@ -88,7 +88,7 @@
                                 <thead>
                                     @if(count(orderProductsUpdatedMatrix($orderData)) > 0)
                                     <tr>
-                                         <th style="font-size: 13px; min-width:200px; border-top:2px solid #000; width: 242px;">Name of Quality Shape & Unit</th>
+                                    <th style="font-size: 13px; min-width:200px; border-top:2px solid #000; width: 242px;">Name of Quality Shape & Unit</th>
                                     <th style="font-size: 13px; border-left:2px solid #000; border-top:2px solid #000;">75</th>
                                     <th style="font-size: 13px; border-left:2px solid #000; border-top:2px solid #000;">80</th>
                                     <th style="font-size: 13px; border-left:2px solid #000; border-top:2px solid #000;">85</th>

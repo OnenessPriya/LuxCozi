@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use DB;
 use Carbon\Carbon;
 use App\Models\Team;
+use App\Models\Store;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -20,14 +21,14 @@ class SMController extends Controller
                  
          $activeASEreport=Activity::where('type','Visit Started')->whereDate('created_at', '=', Carbon::now())->whereIn('user_id',$aseDetails)->pluck('user_id')->toArray();
                  
-         $inactiveASE=Team::select(DB::raw("users.id as id"),DB::raw("users.name as name"),DB::raw("users.mobile as mobile"),DB::raw("users.state as state"),DB::raw("users.city as city"))->join('users', 'teams.ase_id', '=', 'users.id')->where('teams.asm_id', '=', $userId)->whereNotIn('users.id',$activeASEreport)->groupby('teams.ase_id')->orderby('teams.ase_id')->get();
+         $inactiveASE=Team::select(DB::raw("users.id as id"),DB::raw("users.name as name"),DB::raw("users.mobile as mobile"),DB::raw("users.state as state"),DB::raw("users.city as city"))->join('users', 'teams.ase_id', '=', 'users.id')->where('teams.sm_id', '=', $userId)->whereNotIn('users.id',$activeASEreport)->groupby('teams.ase_id')->orderby('teams.ase_id')->get();
              
          return response()->json(['error' => false, 'resp' => 'Inactive ASE report - Team wise', 'data' => $inactiveASE]);
          
     }
 
     // store wise team report
-    public function storeReportASM(Request $request)
+    public function storeReportSM(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'area_id' => ['required'],
@@ -127,7 +128,7 @@ class SMController extends Controller
     }
 
     //product wise team report
-    public function productReportASM(Request $request)
+    public function productReportSM(Request $request)
     {
         \DB::connection()->enableQueryLog();
         $validator = Validator::make($request->all(), [
@@ -141,9 +142,6 @@ class SMController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $userName = User::findOrFail($request->ase_id);
-            $userName = $userName->name;
-
             $retailerResp = $resp = [];
 
             if ( !empty($request->date_from) || !empty($request->date_to) ) {
@@ -198,7 +196,7 @@ class SMController extends Controller
                 INNER JOIN orders o ON o.id = op.order_id
                 INNER JOIN stores s ON s.id = o.store_id
                 INNER JOIN teams t ON s.id = t.store_id
-                WHERE t.asm_id = ".$request->user_id."
+                WHERE t.sm_id = ".$request->user_id."
                 AND (DATE(op.created_at) BETWEEN '".$from."' AND '".$to."')
                 ".$collectionQuery."
                 ".$categoryQuery."
@@ -212,7 +210,7 @@ class SMController extends Controller
                 INNER JOIN orders o ON o.id = op.order_id
                 INNER JOIN stores s ON s.id = o.store_id
                 INNER JOIN teams t ON s.id = t.store_id
-                WHERE t.asm_id = ".$request->user_id."
+                WHERE t.sm_id = ".$request->user_id."
                 AND (DATE(op.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')
                 GROUP BY op.product_id
                 ORDER BY op.id DESC");
@@ -229,9 +227,46 @@ class SMController extends Controller
 			$resp[] = [
 				'secondary_sales' => $retailerResp,
 			];
-         	return response()->json(['error' => false, 'resp' => 'ASM report - Product wise', 'data' => $resp]);
+         	return response()->json(['error' => false, 'resp' => 'SM report - Product wise', 'data' => $resp]);
         } else {
             return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
     }
+
+    //notification list
+    public function notificationList(Request $request){
+		$validator = Validator::make($request->all(), [
+			'user_id' => ['required'],
+			'pageNo' => ['nullable'],
+		]);
+		
+		if (!$validator->fails()) {
+			$user_id = $request->user_id;
+          	$pageNo =$request->pageNo;
+			if(!$pageNo){
+               $page=1;
+             }else{
+              $page=$pageNo;
+			  }
+              $limit=20;
+              $offset=($page-1)*$limit;
+			  $notifications = DB::select("select * from notifications where receiver_id='$user_id' ORDER BY id desc LIMIT ".$limit." OFFSET ".$offset."");
+			  $notificationCount=DB::table('notifications')->where('receiver_id','=',$user_id)->count();
+			  $count= (int) ceil($notificationCount / $limit);
+				return response()->json(['error' => false, 'message' => 'User wise notification list', 'data' => $notifications,'count'=>$count]);
+			
+			
+		}else{
+			return response()->json(['error' => true, 'message' => 'Please send a valid user']);
+		}
+	}
+	//notification update
+	public function readNotification(Request $request){
+		$id = $request->id;
+		$read_time = date("Y-m-d G:i:s");
+		
+		DB::select("update notifications set read_flag=1, read_at='$read_time' where id='$id'");
+		
+		return response()->json(['error' => false, 'message' => 'Notification date updated successfully']);
+	}
 }

@@ -147,4 +147,86 @@ class AreaController extends Controller
             return redirect()->route('admin.areas.create')->withInput($request->all());
         }
     }
+
+     //area csv upload
+     public function areaCSVUpload(Request $request)
+     {
+         if (!empty($request->file)) {
+             $file = $request->file('file');
+             $filename = $file->getClientOriginalName();
+             $extension = $file->getClientOriginalExtension();
+             $tempPath = $file->getRealPath();
+             $fileSize = $file->getSize();
+             $mimeType = $file->getMimeType();
+ 
+             $valid_extension = array("csv");
+             $maxFileSize = 50097152;
+             if (in_array(strtolower($extension), $valid_extension)) {
+                 if ($fileSize <= $maxFileSize) {
+                     $location = 'public/uploads/csv';
+                     $file->move($location, $filename);
+                     // $filepath = public_path($location . "/" . $filename);
+                     $filepath = $location . "/" . $filename;
+ 
+                     // dd($filepath);
+ 
+                     $file = fopen($filepath, "r");
+                     $importData_arr = array();
+                     $i = 0;
+                     while (($filedata = fgetcsv($file, 10000, ",")) !== FALSE) {
+                         $num = count($filedata);
+                         // Skip first row
+                         if ($i == 0) {
+                             $i++;
+                             continue;
+                         }
+                         for ($c = 0; $c < $num; $c++) {
+                             $importData_arr[$i][] = $filedata[$c];
+                         }
+                         $i++;
+                     }
+                     fclose($file);
+                     $successCount = 0;
+ 
+                     foreach ($importData_arr as $importData) {
+                        $count = $total = 0;
+                        $commaSeperatedCats = '';
+                        foreach ($importData[1] as $cateKey => $catVal) {
+                            $catExistCheck = State::where('name', $catVal)->first();
+                            if ($catExistCheck) {
+                                $insertDirCatId = $catExistCheck->id;
+                                $commaSeperatedCats = $insertDirCatId;
+                            } else {
+                                $dirCat = new State();
+                                $dirCat->name = $catVal;
+                                $dirCat->status = 1;
+                                $dirCat->save();
+                                $insertDirCatId = $dirCat->id;
+
+                                $commaSeperatedCats = $insertDirCatId;
+                            }
+                        }
+                         $insertData = array(
+                             "name" => isset($importData[0]) ? $importData[0] : null,
+                             "state" => isset($commaSeperatedCats) ? $commaSeperatedCats : null,
+                             "STATUS" => 1
+                         );
+ 
+                         $resp = Area::insertData($insertData, $successCount);
+                         $successCount = $resp['successCount'];
+                     }
+ 
+                     Session::flash('message', 'CSV Import Complete. Total no of entries: ' . count($importData_arr) . '. Successfull: ' . $successCount . ', Failed: ' . (count($importData_arr) - $successCount));
+                 } else {
+                     Session::flash('message', 'File too large. File must be less than 50MB.');
+                 }
+             } else {
+                 Session::flash('message', 'Invalid File Extension. supported extensions are ' . implode(', ', $valid_extension));
+             }
+         } else {
+             Session::flash('message', 'No file found.');
+         }
+ 
+         return redirect()->back();
+     }
 }
