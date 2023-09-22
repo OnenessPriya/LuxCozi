@@ -41,25 +41,25 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+       
         $request->validate([
-            "name" => "required|string|max:255",
-            "description" => "nullable|string",
-            "icon_path" => "nullable|mimes:jpg,jpeg,png,svg,gif|max:10000000"
+            "name" => "required|string|max:255"
+           
         ]);
         $collection = $request->except('_token');
         $upload_path = "uploads/category/";
         $data = new Category;
         $data->name = $collection['name'];
-        $data->description = $collection['description'];
+        $data->description = $collection['description'] ?? '';
         $data->slug = slugGenerate($collection['name'],'categories');
-        $catData = Category::select('position')->latest('id')->first();
-       
-            if (!empty($catData->position)) {
-                $new_position = (int) $catData->position + 1;
-            } else {
-                $new_position = 1;
-            }
-            $data->position = $new_position;
+        //$catData = Category::select('position')->latest('id')->first();
+       // if (empty($catData)) {
+            // if (!empty($data->position)) {
+            //     $new_position = (int) $data->position + 1;
+            // } else {
+            //     $new_position = 1;
+            // }
+            // $data->position = $new_position;
             // icon image
             if(isset($collection['icon_path'])){
                 $image = $collection['icon_path'];
@@ -77,7 +77,7 @@ class CategoryController extends Controller
                 $data->image_path = $upload_path.$uploadedImage;
             }
             // banner image
-            if(isset($params['banner_image'])){
+            if(isset($collection['banner_image'])){
                 $image = $collection['banner_image'];
                 $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
                 $image->move($upload_path, $imageName);
@@ -85,7 +85,7 @@ class CategoryController extends Controller
                 $data->banner_image = $upload_path.$uploadedImage;
             }
             // sketch icon
-            if(isset($params['sketch_icon'])){
+            if(isset($collection['sketch_icon'])){
                 $image = $collection['sketch_icon'];
                 $imageName = time().".".mt_rand().".".$image->getClientOriginalName();
                 $image->move($upload_path, $imageName);
@@ -93,7 +93,7 @@ class CategoryController extends Controller
                 $data->sketch_icon = $upload_path.$uploadedImage;
             }
             $data->save();
-        
+        //}
         if ($data) {
             return redirect()->route('admin.categories.index');
         } else {

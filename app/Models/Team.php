@@ -18,7 +18,9 @@ class Team extends Model
     public function distributors() {
         return $this->belongsTo('App\Models\User', 'distributor_id', 'id');
     }
-   
+    public function vp() {
+        return $this->belongsTo('App\Models\User', 'vp_id', 'id');
+    }
     public function rsm() {
         return $this->belongsTo('App\Models\User', 'rsm_id', 'id');
     }
@@ -37,8 +39,7 @@ class Team extends Model
     public function ase() {
         return $this->belongsTo('App\Models\User', 'ase_id', 'id');
     }
-    public function store() {
+     public function store() {
         return $this->belongsTo('App\Models\Store', 'store_id', 'id');
     }
-    
 }

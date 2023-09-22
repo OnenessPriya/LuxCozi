@@ -425,9 +425,10 @@ class StoreController extends Controller
       //user no order reason list
     public function noOrderreason(Request $request)
     {
-        if (isset($request->user_id) || isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+        if (isset($request->user_id) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
 
             $user_id = $request->user_id ? $request->user_id : '';
+            $asm=$request->asm ? $request->asm : '';
             $store_id = $request->store_id ? $request->store_id : '';
             $comment = $request->comment ? $request->comment : '';
             $keyword = $request->keyword ? $request->keyword : '';
@@ -436,6 +437,9 @@ class StoreController extends Controller
 
             $query->when($user_id, function($query) use ($user_id) {
                 $query->where('user_id', $user_id);
+            });
+            $query->when($asm, function($query) use ($asm) {
+                $query->where('user_id', $asm);
             });
             $query->when($store_id, function($query) use ($store_id) {
                 $query->where('store_id', $store_id);
@@ -448,22 +452,24 @@ class StoreController extends Controller
             });
 
             $data = $query->latest('id')->paginate(25);
+           
         } else {
             $data = UserNoOrderReason::latest('id')->paginate(25);
         }
-
+        $zsm=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
         $ases = User::select('id', 'name')->where('type', 6)->orWhere('type', 5)->orderBy('name')->get();
         $stores = Store::select('id', 'name')->where('status',1)->orderBy('name')->get();
         $reasons = NoOrderReason::select('noorderreason')->orderBy('noorderreason')->get();
     
-        return view('admin.store.noorder',compact('data', 'ases', 'stores', 'reasons','request'));
+        return view('admin.store.noorder',compact('data', 'ases', 'stores', 'reasons','request','zsm'));
     }
     //csv export of no order reason list
     public function noOrderreasonCSV(Request $request)
     {
-        if (isset($request->user_id) || isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+        if (isset($request->user_id) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
 
-            $user_id = $request->user_id ? $request->user_id : '';
+            $user_id = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
             $store_id = $request->store_id ? $request->store_id : '';
             $comment = $request->comment ? $request->comment : '';
             $keyword = $request->keyword ? $request->keyword : '';
@@ -472,6 +478,9 @@ class StoreController extends Controller
 
             $query->when($user_id, function($query) use ($user_id) {
                 $query->where('user_id', $user_id);
+            });
+            $query->when($asm, function($query) use ($asm) {
+                $query->where('user_id', $asm);
             });
             $query->when($store_id, function($query) use ($store_id) {
                 $query->where('store_id', $store_id);
@@ -483,9 +492,10 @@ class StoreController extends Controller
                 $query->where('comment', 'like', '%'.$keyword.'%');
             });
 
-            $data = $query->latest('id')->paginate(25);
+            $data = $query->latest('id')->get();
+            
         } else {
-            $data = UserNoOrderReason::latest('id')->paginate(25);
+            $data = UserNoOrderReason::latest('id')->get();
         }
         if (count($data) > 0) {
             $delimiter = ",";

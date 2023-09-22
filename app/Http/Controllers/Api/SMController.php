@@ -8,6 +8,7 @@ use DB;
 use Carbon\Carbon;
 use App\Models\Team;
 use App\Models\Store;
+use App\Models\User;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -26,106 +27,150 @@ class SMController extends Controller
          return response()->json(['error' => false, 'resp' => 'Inactive ASE report - Team wise', 'data' => $inactiveASE]);
          
     }
+    
+    //ase wise store order count
+      private function aseWiseStoreData($ase_id,$asm_id,$date_from,$date_to,$collection,$category,$style_no){
+		
 
-    // store wise team report
-    public function storeReportSM(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'area_id' => ['required'],
-            'date_from' => ['nullable'],
-            'date_to' => ['nullable'],
-            'collection' => ['nullable'],
-            'category' => ['nullable'],
-            'orderBy' => ['nullable'],
-            'style_no' => ['nullable'],
-        ]);
-         DB::enableQueryLog();
-        if (!$validator->fails()) {
+		$total_quantity = 0;
+		if($ase_id!=0){
+				if ( !empty($date_from) || !empty($date_to) ) {
+					// date from
+					if (!empty($date_from)) {
+						$from = date('Y-m-d', strtotime($date_from));
+					} else {
+						$from = date('Y-m-01');
+					}
 
-            $retailers = Store::select('id','name','address','area_id','state_id','pin')->where('area_id',$request->area_id)->orderby('name')->get();
-            $retailerResp = $resp = [];
+					// date to
+					if (!empty($date_to)) {
+						$to = date('Y-m-d', strtotime($date_to));
+					} else {
+						$to = date('Y-m-d', strtotime('+1 day'));
+					}
 
-            foreach($retailers as $retailer) {
-                if ( !empty($request->date_from) || !empty($request->date_to) ) {
-                    // date from
-                    if (!empty($request->date_from)) {
-                        $from = date('Y-m-d', strtotime($request->date_from));
-                    } else {
-                        $from = date('Y-m-01');
-                    }
+					// collection
+					if (!isset($collection) || $collection == '10000') {
+						$collectionQuery = "";
+					} else {
+						$collectionQuery = " AND p.collection_id = ".$collection;
+					}
 
-                    // date to
-                    if (!empty($request->date_to)) {
-                        $to = date('Y-m-d', strtotime($request->date_to));
-                    } else {
-                        $to = date('Y-m-d', strtotime('+1 day'));
-                    }
+					// category
+					if ($category == '10000' || !isset($category)) {
+						$categoryQuery = "";
+					} else {
+						$categoryQuery = " AND p.cat_id = ".$category;
+					}
 
-                    // collection
-                    if (!isset($request->collection) || $request->collection == '10000') {
-                        $collectionQuery = "";
-                    } else {
-                        $collectionQuery = " AND p.collection_id = ".$request->collection;
-                    }
-
-                    // category
-                    if ($request->category == '10000' || !isset($request->category)) {
-                        $categoryQuery = "";
-                    } else {
-                        $categoryQuery = " AND p.cat_id = ".$request->category;
-                    }
-
-                    // style no
-                    if (!isset($request->style_no)) {
+					 // style no
+                    if (empty($style_no)) {
+						//dd($style_no);
                         $styleNoQuery = "";
                     } else {
-                        $styleNoQuery = " AND p.style_no LIKE '%".$request->style_no."%'";
+                        $styleNoQuery = " AND p.style_no LIKE '%".$style_no."%'";
                     }
+					// order by
+					$orderByQuery = "op.id ASC";
 
-                    // order by
-                    if ($request->orderBy == 'date_asc') {
-                        $orderByQuery = "op.id ASC";
-                    } elseif ($request->orderBy == 'qty_asc') {
-                        $orderByQuery = "qty ASC";
-                    } elseif ($request->orderBy == 'qty_desc') {
-                        $orderByQuery = "qty DESC";
-                    } else {
-                        $orderByQuery = "op.id DESC";
-                    }
+					$report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o
+							INNER JOIN order_products AS op ON op.order_id = o.id
+							INNER JOIN products p ON p.id = op.product_id
+						    WHERE o.user_id='".$asm_id."' OR o.user_id = '".$ase_id."' 
+							".$collectionQuery."
+							".$categoryQuery."
+							".$styleNoQuery."
+							AND (date(o.created_at) BETWEEN '".$from."' AND '".$to."')
+							ORDER BY ".$orderByQuery);
+				} else {
+					$report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o INNER JOIN order_products AS op ON op.order_id = o.id WHERE o.user_id='".$asm_id."' OR o.user_id = '".$ase_id."'  AND (date(o.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')");
+				}
 
-                    $report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o
-                    INNER JOIN order_products AS op ON op.order_id = o.id
-                    INNER JOIN products p ON p.id = op.product_id
-                    WHERE o.store_id = '".$retailer->id."'
-                    ".$collectionQuery."
-                    ".$categoryQuery."
-                    ".$styleNoQuery."
-                    AND (date(o.created_at) BETWEEN '".$from."' AND '".$to."')
-                    ORDER BY ".$orderByQuery);
-                } else {
-                    $report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o INNER JOIN order_products AS op ON op.order_id = o.id WHERE o.store_id = '".$retailer->id."' AND (date(o.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')");
-                }
 
-                $retailerResp[] = [
-                    'store_id' => $retailer->id,
-                    'store_name' => $retailer->name,
-                    'address' => $retailer->address,
-                    'area' => $retailer->areas->name,
-                    'state' => $retailer->states->name,
-                    'pin' => $retailer->pin,
-                    'quantity' => $report[0]->qty
-                ];
-            }
+				$quantity = $report[0]->qty;
 
-            $resp[] = [
-                'secondary_sales' => $retailerResp,
-            ];
+				//echo $quantity."<br>";
+				$total_quantity+=$quantity;
 
-            return response()->json(['error' => false, 'resp' => 'ASM report - Store wise', 'data' => $resp]);
-        } else {
-            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
-        }
-    }
+		
+		}
+		
+		return $total_quantity;
+	}
+
+    //team wise report
+    public function storeReportSM(Request $request)
+	{
+		$validator = Validator::make($request->all(), [
+			'user_id' => ['required'],
+			'date_from' => ['nullable'],
+			'date_to' => ['nullable'],
+			'area_id' => ['nullable'],
+			'collection' => ['nullable'],
+			'category' => ['nullable'],
+			'orderBy' => ['nullable'],
+			'style_no' => ['nullable'],
+		]);
+
+		$aseResp = $resp = [];
+
+		if (!$validator->fails()) {
+			$user = User::findOrFail($request->user_id);
+			$userName = $user->name;
+			$area_id = $request->area_id;
+
+			$asm_arr_result = DB::select("SELECT DISTINCT asm_id as asm_n from teams where sm_id='$request->user_id' and asm_id is not null");
+			
+			foreach($asm_arr_result as $asm){
+				$asmResult = $asm->asm_n;
+				$asm_data=User::findOrFail($asm->asm_n);
+                $asm_name=$asm_data->name;
+                $asm_id =$asm_data->id;
+				if($area_id!=''){
+					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and area_id='$area_id' and ase_id is not null");
+				}else{
+					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and ase_id is not null");
+				}
+				
+
+				$asm_total_quantity = 0;
+				
+				foreach($ase_arr_result as $ase){
+					$ase_name = $ase->ase_n;
+					$user_result = DB::select("SELECT IFNULL(id, 0) as id from users where id='$ase_name'");
+
+					if(count($user_result)>0){
+						$ase_id = $user_result[0]->id;
+					}else{
+						$ase_id = 0;
+					}
+
+					$total_quantity = 0;
+
+					if($ase_id!=0){
+						$total_quantity = $this->aseWiseStoreData($ase_id,$asmResult,$request->date_from,$request->date_to,$request->collection,$request->category,$request->style_no);
+					}
+
+					$asm_total_quantity+=$total_quantity;
+
+				}
+				
+				$asmResp[] = [
+				                 'asm_id' => $asm_id,
+								'asm' => $asm_name,
+								'quantity' => $asm_total_quantity
+							];
+			}
+
+			$resp[] = [
+				'secondary_sales' => $asmResp,
+			];
+
+			return response()->json(['error' => false, 'message' => 'SM report - Team wise', 'data' => $resp]);
+		} else {
+			return response()->json(['error' => true, 'message' => $validator->errors()->first()]);
+		}
+	}
 
     //product wise team report
     public function productReportSM(Request $request)
@@ -232,7 +277,7 @@ class SMController extends Controller
             return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
         }
     }
-
+    
     //notification list
     public function notificationList(Request $request){
 		$validator = Validator::make($request->all(), [

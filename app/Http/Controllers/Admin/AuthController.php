@@ -69,10 +69,10 @@ class AuthController extends Controller
     {
         
         $data = (object)[];
-        $data->zsm = User::select('name')->where('type',1)->get();
-        $data->nsm = User::select('name')->where('type',2)->get();
+        $data->nsm = User::select('name')->where('type',1)->get();
+        $data->zsm = User::select('name')->where('type',2)->get();
         $data->rsm = User::select('name')->where('type',3)->get();
-        $data->sm = User::select('name')->where('type',5)->get();
+        $data->sm = User::select('name')->where('type',4)->get();
         $data->asm = User::select('name')->where('type',5)->get();
         $data->ase = User::select('name')->where('type',6)->get();
         $data->distributor =User::select('name')->where('type',7)->get();

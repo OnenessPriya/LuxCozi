@@ -46,6 +46,7 @@ class VisitController extends Controller
                 $attendance->user_id=$request->user_id;
                 $attendance->entry_date=$request->start_date;
                 $attendance->start_time=$request->start_time;
+                $attendance->type='store-visit';
                 $attendance->save();
             }
             return response()->json(['error' => false, 'resp' => 'Visit started', 'visit_id' => $resp]);
@@ -78,8 +79,7 @@ class VisitController extends Controller
             ];
 
             DB::table('visits')->where('id', $request->visit_id)->update($data);
-            $visitData=Visit::where('id',$request->visit_id)->first();
-            $record=UserAttendance::where('user_id',$visitData->user_id)->where('entry_date',$request->end_date)->first();
+            $record=UserAttendance::where('user_id',$request->user_id)->where('entry_date',$request->end_date)->first();
             if(!empty($record))
             {
                 $attendance=UserAttendance::findOrfail($record->id);
@@ -103,13 +103,13 @@ class VisitController extends Controller
         if (empty($data->visit)) {
                 return response()->json(['error'=>true, 'resp'=>'Start Your Visit']);
             } else {
-                return response()->json(['error'=>false, 'resp'=>'Visit already started','area'=>$data->visit->areas->name,'visit_id'=>$data->visit->id,'user'=>$data->user]);
+                return response()->json(['error'=>false, 'resp'=>'Visit already started','area'=>$data->visit->areas->id,'area_name'=>$data->visit->areas->name,'visit_id'=>$data->visit->id,'user'=>$data->user]);
             } 
 		
 	}
 
     //activity list
-    public function activityList(Request $request)
+   public function activityList(Request $request)
     {
         $validator = Validator::make($request->all(), [
             "user_id" => "required",
@@ -183,16 +183,18 @@ class VisitController extends Controller
         } 
          
      }
-
+     
+     
      //other activity
      public function otheractivityStore(Request $request)
     {
+        
         $validator = Validator::make($request->all(), [
             "user_id" => "required",
             "date" => "required",
             "time" => "required",
             "type" => "required",
-            "reason" => "nullable"
+            "reason" => "required"
         ]);
 
         if (!$validator->fails()) {
@@ -201,7 +203,7 @@ class VisitController extends Controller
                 "date" => $request->date,
                 "time" => $request->time,
                 "type" => $request->type,
-                "reason" => $request->comment,
+                "reason" => $request->reason,
                 "created_at" => date('Y-m-d H:i:s'),
                 "updated_at" => date('Y-m-d H:i:s'),
             ];
@@ -215,6 +217,7 @@ class VisitController extends Controller
                 $attendance->entry_date=$request->date;
                 $attendance->start_time=$request->time;
                 $attendance->type=$request->type;
+                $attendance->other_activities_id=$resp;
                 $attendance->save();
             }
             if( $resp){

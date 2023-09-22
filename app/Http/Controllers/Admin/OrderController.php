@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderProduct;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Color;
 use App\Models\Size;
 use App\Models\State;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\UserLogin;
 use App\Models\Team;
+use DB;
 class OrderController extends Controller
 {
     //store wise order report
@@ -219,8 +222,8 @@ class OrderController extends Controller
                     $row->users->state ?? '',
                     $row->users->city ?? '',
                     $row->users->pin ?? '',
-                    $productDetails->name,
-                    $productDetails->style_no,
+                    $productDetails->name?? '',
+                    $productDetails->style_no?? '',
                     $color->name,
                     $size->name,
                     $row['qty'],
@@ -393,6 +396,250 @@ class OrderController extends Controller
             //output all remaining data on a file pointer
             fpassthru($f);
         }
+    }
+
+    //area wise sales report
+    public function areawiseOrder(Request $request)
+    {
+        $data = (object) [];
+        $from =  date('Y-m-01');
+        $to =  date('Y-m-d', strtotime('+1 day'));
+        if(isset($request->date_from) || isset($request->date_to) || isset($request->state_id)||isset($request->area_id)) 
+		{
+            $from = $request->date_from ? $request->date_from : date('Y-m-01');
+            $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
+            $state = $request->state_id ?? '';
+            $area = $request->area_id ?? '';
+            // all order products
+            $query1 = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("areas.name as area"),DB::raw("states.name as state"))->join('orders', 'orders.id', 'order_products.order_id')->join('stores', 'stores.id', 'orders.store_id')->join('areas', 'stores.area_id', 'areas.id')->join('states', 'stores.state_id', 'states.id');
+            
+            $query1->when($state, function($query1) use ($state) {
+                $query1->where('stores.state_id', $state);
+            });
+            $query1->when($area, function($query1) use ($area) {
+                $query1->where('stores.area_id', $area);
+            })
+			->whereBetween('order_products.created_at', [$from, $to]);
+            $data->all_orders = $query1->groupby('stores.area_id')
+            ->paginate(50);
+           
+        }else{
+            $data->all_orders = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("areas.name as area"),DB::raw("states.name as state"))->join('orders', 'orders.id', 'order_products.order_id')->join('stores', 'stores.id', 'orders.store_id')->join('states', 'stores.state_id', 'states.id')->join('areas', 'stores.area_id', 'areas.id')->whereBetween('orders.created_at', [$from, $to])->groupby('stores.area_id')->paginate(50);
+            
+        }
+        $state = State::where('status',1)->groupBy('name')->orderBy('name')->get();
+        return view('admin.order.area-order', compact('data','state','request'));
+    }
+
+        //area wise order report csv download
+        public function areacsvExport(Request $request)
+        {
+            $data = (object) [];
+            $from =  date('Y-m-01');
+            $to =  date('Y-m-d', strtotime('+1 day'));
+            if(isset($request->date_from) || isset($request->date_to) || isset($request->state_id)||isset($request->area_id)) 
+            {
+                $from = $request->date_from ? $request->date_from : date('Y-m-01');
+                $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
+                $state = $request->state_id ?? '';
+                $area = $request->area_id ?? '';
+                // all order products
+                $query1 = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("areas.name as area"),DB::raw("states.name as state"))->join('orders', 'orders.id', 'order_products.order_id')->join('stores', 'stores.id', 'orders.store_id')->join('areas', 'stores.area_id', 'areas.id')->join('states', 'stores.state_id', 'states.id');
+                
+                $query1->when($state, function($query1) use ($state) {
+                    $query1->where('stores.state_id', $state);
+                });
+                $query1->when($area, function($query1) use ($area) {
+                    $query1->where('stores.area_id', $area);
+                })
+                ->whereBetween('order_products.created_at', [$from, $to]);
+                $data->all_orders = $query1->groupby('stores.area_id')
+                ->paginate(50);
+               
+            }else{
+                $data->all_orders = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("areas.name as area"),DB::raw("states.name as state"))->join('orders', 'orders.id', 'order_products.order_id')->join('stores', 'stores.id', 'orders.store_id')->join('states', 'stores.state_id', 'states.id')->join('areas', 'stores.area_id', 'areas.id')->whereBetween('orders.created_at', [$from, $to])->groupby('stores.area_id')->paginate(50);
+                
+            }
+    
+            if (count($data->all_orders) > 0) {
+                $delimiter = ",";
+                $filename = "lux-area-wise-sales-report-".date('Y-m-d').".csv";
+    
+                // Create a file pointer 
+                $f = fopen('php://memory', 'w');
+    
+                // Set column headers 
+                $fields = array('SR', 'AREA', 'STATE','QUANTITY');
+                fputcsv($f, $fields, $delimiter); 
+    
+                $count = 1;
+    
+                foreach($data->all_orders as $row) {
+                   
+                   
+                    $lineData = array(
+                        $count,
+                        $row['area'] ?? '',
+                        $row['state'] ?? '',
+                        $row['qty'] ?? '',
+                       
+                    );
+    
+                    fputcsv($f, $lineData, $delimiter);
+    
+                    $count++;
+                }
+    
+                // Move back to beginning of file
+                fseek($f, 0);
+    
+                // Set headers to download file rather than displayed
+                header('Content-Type: text/csv');
+                header('Content-Disposition: attachment; filename="' . $filename . '";');
+    
+                //output all remaining data on a file pointer
+                fpassthru($f);
+            }
+        }
+
+        //category wise sales report
+        public function categorywiseOrder(Request $request)
+        {
+            $data = (object) [];
+            $from =  date('Y-m-01');
+            $to =  date('Y-m-d', strtotime('+1 day'));
+            if(isset($request->date_from) || isset($request->date_to)) 
+            {
+                $from = $request->date_from ? $request->date_from : date('Y-m-01');
+                $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
+                $state = $request->state_id ?? '';
+                $area = $request->area_id ?? '';
+                // all order products
+                $query1 = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("categories.name as category"),DB::raw("users.name as name"))->join('orders', 'orders.id', 'order_products.order_id')->join('users', 'users.id', 'orders.user_id')->join('products', 'products.id', 'order_products.product_id')->join('categories', 'categories.id', 'products.cat_id')
+                
+                ->whereBetween('order_products.created_at', [$from, $to]);
+                $data->all_orders = $query1->groupby('orders.id')
+                ->paginate(50);
+               
+            }else{
+                $data->all_orders = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("categories.name as category"),DB::raw("users.name as name"))->join('orders', 'orders.id', 'order_products.order_id')->join('users', 'users.id', 'orders.user_id')->join('products', 'products.id', 'order_products.product_id')->join('categories', 'categories.id', 'products.cat_id')
+                
+                ->whereBetween('order_products.created_at', [$from, $to])->groupby('orders.id')->paginate(50);
+               
+            }
+            $category = Category::where('status',1)->groupBy('name')->orderBy('name')->get();
+            return view('admin.order.category-order', compact('data','category','request'));
+        }
+
+          //category wise sales report
+          public function categorycsvExport(Request $request)
+          {
+              $data = (object) [];
+              $from =  date('Y-m-01');
+              $to =  date('Y-m-d', strtotime('+1 day'));
+              if(isset($request->date_from) || isset($request->date_to)) 
+              {
+                  $from = $request->date_from ? $request->date_from : date('Y-m-01');
+                  $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
+                  $state = $request->state_id ?? '';
+                  $area = $request->area_id ?? '';
+                  // all order products
+                  $query1 = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("categories.name as category"),DB::raw("users.name as name"))->join('orders', 'orders.id', 'order_products.order_id')->join('users', 'users.id', 'orders.user_id')->join('products', 'products.id', 'order_products.product_id')->join('categories', 'categories.id', 'products.cat_id')
+                  
+                  ->whereBetween('order_products.created_at', [$from, $to]);
+                  $data->all_orders = $query1->groupby('orders.id')
+                  ->paginate(50);
+                 
+              }else{
+                  $data->all_orders = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("categories.name as category"),DB::raw("users.name as name"))->join('orders', 'orders.id', 'order_products.order_id')->join('users', 'users.id', 'orders.user_id')->join('products', 'products.id', 'order_products.product_id')->join('categories', 'categories.id', 'products.cat_id')
+                  
+                  ->whereBetween('order_products.created_at', [$from, $to])->groupby('orders.id')->paginate(50);
+                 
+              }
+              
+            if (count($data->all_orders) > 0) {
+                $delimiter = ",";
+                $filename = "lux-category-wise-sales-report-".date('Y-m-d').".csv";
+    
+                // Create a file pointer 
+                $f = fopen('php://memory', 'w');
+    
+                // Set column headers 
+                $fields = array('SR', 'EMPLOYEE', 'CATEGORY','QUANTITY');
+                fputcsv($f, $fields, $delimiter); 
+    
+                $count = 1;
+    
+                foreach($data->all_orders as $row) {
+                   
+                   
+                    $lineData = array(
+                        $count,
+                        $row['name'] ?? '',
+                        $row['category'] ?? '',
+                        $row['qty'] ?? '',
+                       
+                    );
+    
+                    fputcsv($f, $lineData, $delimiter);
+    
+                    $count++;
+                }
+    
+                // Move back to beginning of file
+                fseek($f, 0);
+    
+                // Set headers to download file rather than displayed
+                header('Content-Type: text/csv');
+                header('Content-Disposition: attachment; filename="' . $filename . '";');
+    
+                //output all remaining data on a file pointer
+                fpassthru($f);
+            }
+             
+          }
+
+           //login report
+    public function loginReport(Request $request)
+    {
+        if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||  isset($request->date_from)|| isset($request->date_to)) {
+
+            $ase = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
+            $sm=$request->sm ? $request->sm : '';
+            $rsm=$request->rsm ? $request->rsm : '';
+            $zsm=$request->zsm ? $request->zsm : '';
+            $date_from = $request->date_from ? $request->date_from : '';
+            $date_to = $request->date_to ? $request->date_to : '';
+            $query = UserLogin::query();
+
+            $query->when($ase, function($query) use ($ase) {
+                $query->where('user_id', $ase);
+            });
+            $query->when($asm, function($query) use ($asm) {
+                $query->where('user_id', $asm);
+            });
+            $query->when($rsm, function($query) use ($rsm) {
+                $query->where('user_id', $rsm);
+            });
+            $query->when($sm, function($query) use ($sm) {
+                $query->where('user_id', $sm);
+            });
+            $query->when($zsm, function($query) use ($zsm) {
+                $query->where('user_id', $zsm);
+            });
+
+            $data = $query->latest('id')->with('users')->paginate(25);
+           
+        } else {
+            $data = UserLogin::latest('id')->with('users')->paginate(25);
+           
+        }
+        $zsm=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
+        $ases = User::select('id', 'name')->where('type', 6)->orWhere('type', 5)->orderBy('name')->get();
+        
+    
+        return view('admin.report.login-report',compact('data', 'ases','request','zsm'));
     }
 
 }

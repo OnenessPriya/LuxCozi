@@ -10,7 +10,7 @@
                             <div class="col-md-4">
                                <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} Entries</p>
                             </div>
-                            <div class="col-12 col-md-8">
+                            <div class="col-12 col-md-12">
                                 <form action="{{ route('admin.areas.index')}}" method="GET">
                                     <div class="search-filter-right">
                                         <div class="search-filter-right-el">
@@ -24,12 +24,16 @@
                                 <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter" data-bs-toggle="tooltip" title="Clear Filter">
                                     <iconify-icon icon="basil:cross-outline"></iconify-icon>
                                 </a>
+                                 {{-- <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger mt-2">Bulk upload</a>--}}
                                         </div>
                                         <div class="search-filter-right-el">
                                              <a href="{{ route('admin.areas.create') }}" class="btn btn-danger btn-sm">
                        <iconify-icon icon="prime:plus-circle"></iconify-icon> Create New Area
                     </a>
                                         </div>
+                                        
+                                            
+                                      
                                     </div>
                                 </form>
                             </div>
@@ -37,37 +41,6 @@
 							
                             </div>
             
-            <!--<div class="row align-items-center">-->
-            <!--    <div class="col-12 text-end mb-3">-->
-            <!--        <a href="{{ route('admin.areas.create') }}" class="btn btn-danger btn-sm">-->
-            <!--            Create New Area-->
-            <!--        </a>-->
-            <!--    </div>-->
-            <!--    <div class="col-md-3">-->
-            <!--        <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} Entries</p>-->
-            <!--    </div>-->
-
-            <!--    <div class="col-md-9 text-end">-->
-            <!--        <form class="row align-items-end justify-content-end" action="{{ route('admin.areas.index')}}" method="GET">-->
-            <!--            <div class="col-auto">-->
-            <!--                <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">-->
-            <!--            </div>-->
-            <!--            <div class="col-auto">-->
-            <!--                <div class="btn-group">-->
-            <!--                    <button type="submit" class="btn btn-danger btn-sm">-->
-            <!--                        Filter-->
-            <!--                    </button>-->
-
-            <!--                    <a href="{{ url()->current() }}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="Clear Filter">-->
-            <!--                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>-->
-            <!--                    </a>-->
-
-                                
-            <!--                </div>-->
-            <!--            </div>-->
-            <!--        </form>-->
-            <!--    </div>-->
-            <!--</div>-->
         </div>
     </div>
 
@@ -125,11 +98,32 @@
     </div>
 
 </section>
-<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+{{-- bulk upload variation modal --}}
+<div class="modal fade" id="csvUploadModal" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                Bulk Upload
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ route('admin.areas.csv.upload') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                    <input type="file" name="file" class="form-control" accept=".csv">
+                    <br>
+                    <a href="{{ asset('admin/static/product-variation-sample.csv') }}">Download Sample CSV</a>
+                    <br>
+                    <button type="submit" class="btn btn-danger mt-3" id="csvImportBtn">Import <i class="fas fa-upload"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @endsection
 
 @section('script')
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 <script>
 
 </script>

@@ -1,7 +1,14 @@
 <?php
 
 use App\Models\Notification;
+use App\Models\Order;
+use App\Models\OrderProduct;
+use App\Models\Store;
+use App\Models\State;
 use App\Models\Team;
+use App\Models\User;
+use App\Models\UserLogin;
+use App\Models\Activity;
 $datetime = date('Y-m-d H:i:s');
 
 if (!function_exists('in_array_r')) {
@@ -157,7 +164,7 @@ if (!function_exists('generateOrderNumber')) {
         if ($type == "secondary") {
             $shortOrderCode = "SC";
             $orderData = Order::select('sequence_no')->latest('id')->first();
-
+             
             if (!empty($orderData)) {
                 if (!empty($orderData->sequence_no)) {
                     $new_sequence_no = (int) $orderData->sequence_no + 1;
@@ -169,10 +176,10 @@ if (!function_exists('generateOrderNumber')) {
 
                 $store_id = $id;
                 $storeData = Store::where('id', $store_id)->with('states:id,name','areas:id,name')->first();
-
+               
                 if (!empty($storeData)) {
                     $state = $storeData->states->name;
-
+                    
                     if ($state != "UP CENTRAL" || $state != "UP East" || $state != "UP WEST") {
                         $stateCodeData = State::where('name', $state)->first();
                         $stateCode = $stateCodeData->code;
@@ -182,8 +189,8 @@ if (!function_exists('generateOrderNumber')) {
                         elseif ($state == "UP WEST") $stateCode = "UPW";
                     }
 
-                    $order_no = "ONN-".date('Y').'-'.$shortOrderCode.'-'.$stateCode.'-'.$ordNo;
-
+                    $order_no = "Lux-".date('Y').'-'.$shortOrderCode.'-'.$stateCode.'-'.$ordNo;
+                   
                     return [$order_no, $new_sequence_no];
                 } else {
                     return false;
@@ -271,10 +278,11 @@ if (!function_exists('findManagerDetails')) {
                 $namagerDetails = "";
                 break;
         }
-
+      
         return $namagerDetails;
     }
 }
+
 
 if (!function_exists('userTypeName')) {
     function userTypeName($userType ) {
@@ -292,3 +300,92 @@ if (!function_exists('userTypeName')) {
         return $userTypeDetail;
     }
 }
+
+
+if (!function_exists('orderproductCategory')) {
+    function orderproductCategory($from,$to,$cat ) {
+        $countDetails=OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"))->join('products', 'products.id', 'order_products.product_id')->where('products.cat_id',1)->whereBetween('order_products.created_at', [$from, $to])->first();
+       
+        return $countDetails->qty;
+    }
+}
+
+function dates_month($month, $year) {
+    $num = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    $month_names = array();
+    $date_values = array();
+
+    for ($i = 1; $i <= $num; $i++) {
+        $mktime = mktime(0, 0, 0, $month, $i, $year);
+        $date = date("d (D)", $mktime);
+        $month_names[$i] = $date;
+        $date_values[$i] = date("Y-m-d", $mktime);
+    }
+    
+    return ['month_names'=>$month_names,'date_values'=>$date_values];
+}
+
+function getFirstLastDayMonth($yearmonthval){
+    // $yearmonthval = "2023-02";
+    // First day of the month.
+    $firstday = date('Y-m-01', strtotime($yearmonthval));
+    // Last day of the month.
+    $lastday = date('Y-m-t', strtotime($yearmonthval));
+    return array('firstday'=>$firstday,'lastday'=>$lastday);
+}
+
+function dates_attendance($id, $date) {
+    $day = date('D', strtotime($date));
+    
+    $date_wise_attendance = array();
+    $d=array();
+    $users = array();
+    $user = User::where('id', $id)->first();
+
+    if($user->type==2 || $user->type==3){
+        
+           // $res=UserLogin::join('other_activities', 'other_activities.user_id', 'user_logins.user_id')->where('user_logins.user_id',$id)->whereRaw("DATE_FORMAT(user_logins.created_at,'%Y-%m-%d')",$date)->get();
+            $res=DB::select("select * from user_logins where user_id='$id' and created_at like '$date%'");
+            if (!empty($res)) {
+                $d['is_present'] = 'P';
+            }else if($day=='Sun' && empty($res))
+            {
+                $d['is_present'] = 'W';
+            }else if($date > date('Y-m-d')){
+                $d['is_present'] = '-';
+            }
+            else{
+                $d['is_present'] = 'A';
+            }
+
+            array_push($date_wise_attendance, $d);
+        
+    }else{
+        
+            $res2=DB::select("select * from activities where user_id='$id' and date='$date'");
+            
+            if (!empty($res2)) {
+                $d['is_present']  = 'P';
+            }else if($day=='Sun'&& empty($res2))
+            {
+                $d['is_present'] = 'W';
+            }else if($date > date('Y-m-d')){
+                $d['is_present'] = '-';
+            }
+            else{
+                $d['is_present']  = 'A';
+            }
+
+            array_push($date_wise_attendance, $d);
+        
+    }
+
+    $data['date_wise_attendance'] = $date_wise_attendance;
+
+    array_push($users, $data);
+    
+    return [$users];
+}
+
+
+

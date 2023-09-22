@@ -84,18 +84,17 @@
                                                     </a>
                                                 </div>
                                                 <div class="search-filter-right-el">
-                                                    <a href="{{ route('admin.stores.csv.export',['date_from'=>$request->date_from,'date_to'=>$request->date_to,'ase'=>$request->ase_id,'asm'=>$request->asm_id,'distributor'=>$request->distributor_id,'state'=>$request->state_id,'area'=>$request->area_id,'keyword'=>$request->keyword]) }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
+                                        <a href="{{ route('admin.stores.csv.export',['date_from'=>$request->date_from,'date_to'=>$request->date_to,'ase'=>$request->ase_id,'asm'=>$request->asm_id,'distributor'=>$request->distributor_id,'state'=>$request->state_id,'area'=>$request->area_id,'keyword'=>$request->keyword]) }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
                                             
-                                                        <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
-                                                    </a>
-                                                </div>
+                                            <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
+                                        </a>
+                                    </div>
                                             </div>
                                              
                                         </form>
                                     </div>
                                     
-                                   
-                                    
+                                 
                                    
                                 </div>
                             </div>

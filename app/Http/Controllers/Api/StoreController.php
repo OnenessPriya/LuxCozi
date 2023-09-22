@@ -22,7 +22,7 @@ class StoreController extends Controller
     {
         $userId = $_GET['user_id'];
         $areaId = $_GET['area_id'];
-        $stores =Store::where('user_id',$userId)->where('area_id',$areaId)->where('status',1)->orderby('id','desc')->with('states:id,name','areas:id,name')->get();
+        $stores =Store::where('area_id',$areaId)->where('status',1)->orderby('id','desc')->with('states:id,name','areas:id,name')->get();
         if ($stores) {
 		    return response()->json(['error'=>false, 'resp'=>'Store data fetched successfully','data'=>$stores]);
         } else {
@@ -302,13 +302,14 @@ class StoreController extends Controller
             $data = Store::select('*');
             
             if(!empty($search)){
-                $data = $data->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status',1);
+                $data = $data->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status','=',1);
             }        
 
             $data = $data->get();
+           
             if(!empty($data)){
                 foreach($data as $item){
-                    $retailer=Team::where('store_id',$item->id)->with('distributors:id,name')->first();
+                    $retailer=Team::select('id','distributor_id')->where('store_id',$item->id)->with('distributors:id,name')->first();
                     $item->team = $retailer;
                 }
             }
@@ -340,13 +341,13 @@ class StoreController extends Controller
             $data = Store::select('*');
             
             if(!empty($search)){
-                $data = $data->where('user_id',$userId)->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status',1);
+                $data = $data->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status',1);
             }        
 
             $data = $data->get();
             if(!empty($data)){
                 foreach($data as $item){
-                    $retailer=Team::where('store_id',$item->id)->with('distributors:id,name')->first();
+                    $retailer=Team::select('id','distributor_id')->where('store_id',$item->id)->with('distributors:id,name')->first();
                     $item->team = $retailer;
                 }
             }
@@ -361,25 +362,25 @@ class StoreController extends Controller
         }
 
     }
-
-     //inactive store list user wise
-     public function inactiveStorelist(Request $request)
-     {
-         $validator = Validator::make($request->all(),[
-             'user_id' => 'required',
-             'area_id' => 'required'
-         ]);
-         if(!$validator->fails()){
-             $ase = $_GET['user_id'];
-             $area = $_GET['area_id'];
-             $stores = Store::where('user_id',$ase)->where('area_id',$area)->where('status',0)->get();
-             if ($stores) {
-                 return response()->json(['error'=>false, 'resp'=>'Store data fetched successfully','data'=>$stores]);
-             } else {
-                 return response()->json(['error' => true, 'resp' => 'Something happened']);
-             }
-         }else {
-                 return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
-             }  
-     }
+    
+    //inactive store list user wise
+    public function inactiveStorelist(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'user_id' => 'required',
+            'area_id' => 'required'
+        ]);
+        if(!$validator->fails()){
+    		$ase = $_GET['user_id'];
+    		$area = $_GET['area_id'];
+            $stores = Store::where('area_id',$area)->where('status',0)->get();
+            if ($stores) {
+                return response()->json(['error'=>false, 'resp'=>'Store data fetched successfully','data'=>$stores]);
+            } else {
+                return response()->json(['error' => true, 'resp' => 'Something happened']);
+            }
+        }else {
+                return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+            }  
+    }
 }

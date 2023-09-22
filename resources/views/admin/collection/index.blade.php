@@ -2,17 +2,17 @@
 @section('page', 'Collection')
 
 @section('content')
-<section>
+<section class="pro-sec">
     <div class="row">
         <div class="col-xl-12">
-            <div class="card search-card">
+            <div class="card">
                 <div class="card-body">
                     <div class="search__filter mb-5">
                         <div class="row align-items-center justify-content-between">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <p class="text-muted mt-1 mb-0">Showing {{$data->count()}} out of {{$data->total()}} Entries</p>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-9">
                                 <div class="search-filter-right">
                                     <div class="search-filter-right-el">
                                         <form action="{{ route('admin.collections.index')}}" method="GET">
@@ -21,7 +21,7 @@
                                                     <input type="search" name="term" id="term" class="form-control" placeholder="Search here.." value="{{app('request')->input('term')}}" autocomplete="off">
                                                 </div>
                                                 <div class="col-auto">
-                                                    <button type="submit" class="btn btn-outline-danger btn-sm"><iconify-icon icon="tabler:search"></iconify-icon> Search</button>
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm"><iconify-icon icon="tabler:search"></iconify-icon> Filter</button>
                                                 </div>
                                             </div>
                                         </form>

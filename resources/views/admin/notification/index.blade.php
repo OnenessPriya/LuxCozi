@@ -2,48 +2,73 @@
 @section('page', 'Notification')
 
 @section('content')
-<section>
-     <div class="card card-body">
-        <div class="search__filter mb-0">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} entries</p> 
-                </div>
 
-				<div class="col-md-9 text-end">
-                    <form class="row align-items-end justify-content-end" action="{{ route('admin.users.notification.index') }}">
-                        <div class="col-auto">
-                            <label for="dateFrom" class="small text-muted">Date from</label>
-                            <input type="date" name="from" id="dateFrom" class="form-control form-control-sm" value="{{ (request()->input('from')) ? request()->input('from') : '' }}">
-                        </div>
-                        <div class="col-auto">
-                            <label for="dateTo" class="small text-muted">Date to</label>
+<section class="store-sec ">
+  <div class="row">
+      <div class="col-xl-12 order-2 order-xl-1">
+          <div class="card search-card">
+              <div class="card-body">
+                  <div class="search__filter mb-5">
+                      <div class="row align-items-center justify-content-between">
+                          <div class="col-md-12 mb-3">
+                              <p class="small text-muted mt-1 mb-0">Showing {{$data->firstItem()}} - {{$data->lastItem()}} out of {{$data->total()}} entries</p> 
+                          </div>
+                          <div class="col-md-12 mb-3">
+                              <div class="search-filter-right search-filter-right-store notification-filter">
+                                  <div class="search-filter-right-el">
+                                      <form class="row align-items-end justify-content-end" action="" method="GET">
+                                          <div class="search-filter-right">
+                                              <div class="search-filter-right-el">
+                                                  <label for="dateFrom" class="small text-muted">Date from</label>
+                                                    <input type="date" name="from" id="dateFrom" class="form-control form-control-sm" value="{{ (request()->input('from')) ? request()->input('from') : '' }}">
+                                              </div>
+                                              
+                                              <div class="search-filter-right-el">
+                                                  <label for="dateTo" class="small text-muted">Date to</label>
                             <input type="date" name="to" id="dateTo" class="form-control form-control-sm" value="{{ (request()->input('to')) ? request()->input('to') : '' }}">
-                        </div>
-                        
-                        <div class="col-auto">
-                            <input type="search" name="keyword" id="keyword" class="form-control form-control-sm" placeholder="Search by keyword" value="{{app('request')->input('keyword')}}" autocomplete="off">
-                        </div>
-                        <div class="col-auto">
-                            <div class="btn-group">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    Filter
-                                </button>
-
-                                <a href="{{ url()->current() }}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="Clear Filter">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                </a>
-
-                               
-                            </div>
-                        </div>
-                    </form>
-                </div> 
-            </div>
-        </div>
-    </div> 
-
-    <table class="table" id="example5">
+                                              </div>
+                                              
+                                              <div class="search-filter-right-el">
+                                                <input type="search" name="keyword" id="keyword" class="form-control form-control-sm" placeholder="Search by keyword" value="{{app('request')->input('keyword')}}" autocomplete="off">
+                                              </div>
+                                              
+                                              <div class="search-filter-right-el">
+                                                  <button type="submit" class="btn btn-outline-danger btn-sm store-filter-btn">
+                                                      Filter
+                                                  </button>
+                                                  <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter store-filter-times" data-bs-toggle="tooltip" title="Clear Filter">
+                                                      <iconify-icon icon="basil:cross-outline"></iconify-icon>
+                                                  </a>
+                                              </div>
+                                          </div>
+                                          <div class="search-filter-right search-filter-right-store mt-2">
+                                              
+                                              
+                                              
+                                              
+                                  <!--            <div class="search-filter-right-el">-->
+                                  <!--    <a href="{{ route('admin.users.activity.csv.export') }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">-->
+                                          
+                                  <!--        <iconify-icon icon="material-symbols:download"></iconify-icon> CSV-->
+                                  <!--    </a>-->
+                                  <!--</div>-->
+                                          </div>
+                                           
+                                      </form>
+                                  </div>
+                                  
+                                  
+                                  
+                                 
+                              </div>
+                          </div>
+                          
+            
+                      </div>
+                  </div>
+                  
+                  <div class="table-responsive">
+                      <table class="table table-sm admin-table" id="example5">
         <thead>
             <tr>
                 <th>#SR</th>
@@ -107,14 +132,30 @@
             @endforelse
         </tbody>
     </table>
+                  </div>
 
-    <div class="d-flex justify-content-end">
+                  <div class="d-flex justify-content-end">
         {{ $data->appends($_GET)->links() }}
     </div> 
+              </div>
+          </div>
+      </div>
+  </div>
 </section>
+
+
 @endsection
 
 @section('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+
+<script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script>
     <script>
     </script>
 @endsection

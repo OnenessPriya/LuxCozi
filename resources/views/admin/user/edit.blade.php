@@ -6,7 +6,7 @@
 @php
 $distributorTeam=\App\Models\Team::select('nsm_id','zsm_id','rsm_id','sm_id','asm_id','ase_id')->where('distributor_id',$data->id)->groupBy('distributor_id')->first();
 @endphp
-<section>
+<section class="inner-sec1">
     <div class="row">
         <div class="col-sm-12">
             <div class="card">

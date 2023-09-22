@@ -67,7 +67,7 @@
                     <a href="#"><i class="fi fi-br-cube"></i> <span>Store </span></a>
                     <ul>
                         <li class="{{ ( request()->is('admin/stores*') ) ? 'active' : '' }}"><a href="{{ route('admin.stores.index') }}"><i class="fi fi-br-database"></i> <span>Management</span></a></li>
-                        <li class="{{ ( request()->is('admin/stores*') ) ? 'active' : '' }}"><a href="{{ route('admin.stores.noorderreason.index') }}"><i class="fi fi-br-database"></i> <span>No Order Reason List</span></a></li>
+                        <li class="{{ ( request()->is('admin/stores/noorderreason*') ) ? 'active' : '' }}"><a href="{{ route('admin.stores.noorderreason.index') }}"><i class="fi fi-br-database"></i> <span>No Sales Reason List</span></a></li>
                     </ul>
                 </li>
                 <li class="@if(request()->is('admin/users*')|| request()->is('admin/activity*')|| request()->is('admin/notification*')|| request()->is('admin/attendance*')) { {{'active'}} }  @endif">
@@ -75,15 +75,38 @@
                     <ul>
                         <li class="{{ ( request()->is('admin/users*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.index') }}"><i class="fi fi-br-database"></i> <span>Management</span></a></li>
                         <li class="{{ ( request()->is('admin/activity*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.activity.index') }}"><i class="fi fi-br-database"></i> <span>Activity List</span></a></li>
-                         <li class="{{ ( request()->is('admin/attendance*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.attendance.index') }}"><i class="fi fi-br-database"></i> <span>Attendance Sheet</span></a></li>
+                        
                         <li class="{{ ( request()->is('admin/notification*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.notification.index') }}"><i class="fi fi-br-database"></i> <span>Notification List</span></a></li>
                     </ul>
                 </li>
-                <li class="@if(request()->is('admin/orders*') ) { {{'active'}} }  @endif">
-                    <a href="#"><i class="fi fi-br-cube"></i> <span>Order Report</span></a>
+                <li class="@if(request()->is('admin/orders*')||request()->is('admin/employee/productivity*')||request()->is('admin/login/report')||request()->is('admin/attendance/daily')|| request()->is('admin/attendance/report')) { {{'active'}} }  @endif">
+                    <a href="#"><i class="fi fi-br-cube"></i> <span>Report</span></a>
                     <ul>
-                        <li class="{{ ( request()->is('admin/orders*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.index') }}"><i class="fi fi-br-database"></i> <span>Store Wise</span></a></li>
-                        <li class="{{ ( request()->is('admin/orders/product*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.product.index') }}"><i class="fi fi-br-database"></i> <span>Product Wise</span></a></li>
+                        <li class="@if(request()->is('admin/employee/productivity')||request()->is('admin/login/report')) { {{'active'}} }  @endif">
+                            <a href="#"><i class="fi fi-br-cube"></i> <span>Others</span></a>
+                            <ul>
+                                <li class="{{ ( request()->is('admin/employee/productivity') ) ? 'active' : '' }}"><a href="{{ route('admin.employee.productivity') }}"><i class="fi fi-br-database"></i> <span>Employee Productivity Report</span></a></li>
+                                <li class="{{ ( request()->is('admin/login/report') ) ? 'active' : '' }}"><a href="{{ route('admin.login.report.index') }}"><i class="fi fi-br-database"></i> <span>Login Report</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="@if(request()->is('admin/attendance/daily')|| request()->is('admin/attendance/report')) { {{'active'}} }  @endif">
+                            <a href="#"><i class="fi fi-br-cube"></i> <span>Attendance</span></a>
+                            <ul>
+                                <li class="{{ ( request()->is('admin/attendance/daily') ) ? 'active' : '' }}"><a href="{{ route('admin.users.attendance.index') }}"><i class="fi fi-br-database"></i> <span>Daily Attendance</span></a></li>
+                                <li class="{{ ( request()->is('admin/attendance/report') ) ? 'active' : '' }}"><a href="{{ route('admin.users.attendance.report') }}"><i class="fi fi-br-database"></i> <span>Attendance Report</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="@if(request()->is('admin/orders*') || request()->is('admin/orders/product*')||request()->is('admin/orders/category*')||request()->is('admin/orders/area*')) { {{'active'}} }  @endif">
+                            <a href="#"><i class="fi fi-br-cube"></i> <span>Sales</span></a>
+                            <ul>
+                                <li class="{{ ( request()->is('admin/orders*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.index') }}"><i class="fi fi-br-database"></i> <span>Store Wise Sales</span></a></li>
+                                <li class="{{ ( request()->is('admin/orders/product*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.product.index') }}"><i class="fi fi-br-database"></i> <span>Product Wise Sales</span></a></li>
+                                <li class="{{ ( request()->is('admin/orders/category*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.category.index') }}"><i class="fi fi-br-database"></i> <span>Category Wise Sales</span></a></li>
+                                <li class="{{ ( request()->is('admin/orders/area*') ) ? 'active' : '' }}"><a href="{{ route('admin.orders.area.index') }}"><i class="fi fi-br-database"></i> <span>Area Wise Sales</span></a></li>
+                                
+                            </ul>
+                        </li>
+                        
                     </ul>
                 </li>
 				{{-- reward app --}}
@@ -128,7 +151,7 @@
     <script src="{{ asset('admin/js/bootstrap.bundle.min.js') }}"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/30.0.0/classic/ckeditor.js"></script>
     <script type="text/javascript" src="{{ asset('admin/js/custom.js') }}"></script>
-
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     {{-- <script src="{{ asset('admin/js/bootstrap.bundle.min.js') }}"></script> --}}
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.4.22/sweetalert2.min.js"></script> --}}

@@ -65,18 +65,18 @@
                   </div>
                   
                  <table class="table" >
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Sales Person</th>
-                <th>Emp Id</th>
-                <th>Attendance</th>
-                <th>Time In</th>
-                <th>Time Out</th>
-                <th>Total Hours</th>
-                <th></th>
-            </tr>
-        </thead>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Sales Person</th>
+                        <th>Emp Id</th>
+                        <th>Attendance</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Total Hours</th>
+                        <th></th>
+                    </tr>
+                </thead>
         <tbody>
             @forelse ($data as $index => $item)
               @php
@@ -107,8 +107,10 @@
                     @else
                     <td> Present </td>
                     @endif
+                    @if($item->type!='leave')
                     <td> {{ $item->start_time }} </td>
                     <td> {{ $item->end_time }} </td>
+                    @endif
                     @if(!empty($item->end_time))
                     <td> {{\Carbon\Carbon::parse($item->start_time)->diffInHours($item->end_time) }} Hours</td>
                     @else
@@ -174,5 +176,5 @@
 @endsection
 
 @section('script')
-
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 @endsection

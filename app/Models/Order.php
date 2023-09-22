@@ -11,7 +11,7 @@ class Order extends Model
     public function stores() {
         return $this->belongsTo('App\Models\Store', 'store_id', 'id');
     }
-    public function users() {
+     public function users() {
         return $this->belongsTo('App\Models\User', 'user_id', 'id');
     }
     public function orderProducts() {

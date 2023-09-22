@@ -37,12 +37,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Login
 Route::post('login', [LoginController::class, 'index']);
+//check login flag
+Route::get('check/login/flag/{id}', [LoginController::class, 'checkLogin']);
+//login flag update
+Route::post('login/flag/update', [LoginController::class, 'loginflagStore']);
 //catalogue
 Route::get('catalogue', [CatalogueController::class, 'index']);
 //scheme list
 Route::get('scheme', [SchemeController::class, 'index']);
 //area list for RSM & SM & ZSM & NSM
-Route::get('area/list/{id}', [RSMController::class, 'areaList']);
+Route::get('allarea/list/{id}', [RSMController::class, 'areaList']);
 /** ASE **/
 //start-visit
 Route::post('visit/start', [VisitController::class, 'visitStart']);

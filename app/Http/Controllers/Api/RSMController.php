@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use DB;
 use Carbon\Carbon;
 use App\Models\Team;
-use App\Models\Store;
 use App\Models\User;
+use App\Models\Store;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -27,14 +27,10 @@ class RSMController extends Controller
            return response()->json(['error' => false, 'resp' => 'Inactive ASE report - Team wise', 'data' => $inactiveASE]);
            
       }
-
-      //ase wise store order count
-      private function aseWiseStoreData($ase_id,$date_from,$date_to,$collection,$category,$style_no){
-		$retailers = DB::table('stores')->select('id','store_name')->where('user_id',$ase_id)->orderby('store_name')->get();
-
+     //ase wise store order count
+      private function aseWiseStoreData($ase_id,$asm_id,$date_from,$date_to,$collection,$category,$style_no){
 		$total_quantity = 0;
-		if($ase_id!=0 && count($retailers)>0){
-			foreach($retailers as $retailer) {
+		if($ase_id!=0 && $asm_id!=0){
 				if ( !empty($date_from) || !empty($date_to) ) {
 					// date from
 					if (!empty($date_from)) {
@@ -58,7 +54,7 @@ class RSMController extends Controller
 					}
 
 					// category
-					if ($category == 'all' || !isset($category)) {
+					if ($category == '10000' || !isset($category)) {
 						$categoryQuery = "";
 					} else {
 						$categoryQuery = " AND p.cat_id = ".$category;
@@ -77,14 +73,14 @@ class RSMController extends Controller
 					$report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o
 							INNER JOIN order_products AS op ON op.order_id = o.id
 							INNER JOIN products p ON p.id = op.product_id
-							WHERE o.store_id = '".$retailer->id."'
+							WHERE o.user_id='".$asm_id."' OR o.user_id = '".$ase_id."' 
 							".$collectionQuery."
 							".$categoryQuery."
 							".$styleNoQuery."
 							AND (date(o.created_at) BETWEEN '".$from."' AND '".$to."')
 							ORDER BY ".$orderByQuery);
 				} else {
-					$report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o INNER JOIN order_products AS op ON op.order_id = o.id WHERE o.store_id = '".$retailer->id."' AND (date(o.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')");
+					$report = DB::select("SELECT IFNULL(SUM(op.qty), 0) AS qty FROM `orders` AS o INNER JOIN order_products AS op ON op.order_id = o.id  WHERE o.user_id='".$asm_id."' OR o.user_id = '".$ase_id."'  AND (date(o.created_at) BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-d', strtotime('+1 day'))."')");
 				}
 
 
@@ -93,7 +89,7 @@ class RSMController extends Controller
 				//echo $quantity."<br>";
 				$total_quantity+=$quantity;
 
-			}
+		//	}
 		}
 		
 		return $total_quantity;
@@ -120,17 +116,17 @@ class RSMController extends Controller
 			$userName = $user->name;
 			$area_id = $request->area_id;
 
-			$asm_arr_result = DB::select("SELECT DISTINCT asm_id as asm_n from teams where rsm_id='$user_id' and asm_id is not null");
-			
+			$asm_arr_result = DB::select("SELECT DISTINCT asm_id as asm_n from teams where rsm_id='$request->user_id' and asm_id is not null");
 			
 			foreach($asm_arr_result as $asm){
-				$asm = $asm->asm_n;
-				$asm_data=User::findOrFail($request->asm);
+				$asmResult = $asm->asm_n;
+				$asm_data=User::findOrFail($asm->asm_n);
                 $asm_name=$asm_data->name;
-				if($area!=''){
-					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asm' and area_id='$area_id' and ase_id is not null");
+                $asm_id =$asm_data->id;
+				if($area_id!=''){
+					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and area_id='$area_id' and ase_id is not null");
 				}else{
-					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asm' and ase_id is not null");
+					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and ase_id is not null");
 				}
 				
 
@@ -149,7 +145,7 @@ class RSMController extends Controller
 					$total_quantity = 0;
 
 					if($ase_id!=0){
-						$total_quantity = $this->aseWiseStoreData($ase_id,$request->date_from,$request->date_to,$request->collection,$request->category,$request->style_no);
+						$total_quantity = $this->aseWiseStoreData($ase_id,$asmResult,$request->date_from,$request->date_to,$request->collection,$request->category,$request->style_no);
 					}
 
 					$asm_total_quantity+=$total_quantity;
@@ -157,6 +153,7 @@ class RSMController extends Controller
 				}
 				
 				$asmResp[] = [
+				                'asm_id' => $asm_id,
 								'asm' => $asm_name,
 								'quantity' => $asm_total_quantity
 							];
@@ -172,7 +169,7 @@ class RSMController extends Controller
 		}
 	}
 
-    //product wise team report
+        //product wise team report
     public function productReportRSM(Request $request)
     {
         \DB::connection()->enableQueryLog();
@@ -314,12 +311,12 @@ class RSMController extends Controller
 		
 		return response()->json(['error' => false, 'message' => 'Notification date updated successfully']);
 	}
-
-
-	 //area list
+	
+	
+	//area list
      public function areaList(Request $request,$id)
      {
-        $data=Team::where('rsm_id',$id)->orWhere('sm_id',$id)->orWhere('zsm_id',$id)->orWhere('nsm_id',$id)->with('areas:id,name')->get();
+        $data=Team::select('area_id')->where('rsm_id',$id)->orWhere('sm_id',$id)->orWhere('zsm_id',$id)->orWhere('nsm_id',$id)->groupby('area_id')->with('areas:id,name')->get();
         if (count($data)==0) {
                  return response()->json(['error'=>true, 'resp'=>'No data found']);
         } else {

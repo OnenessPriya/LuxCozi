@@ -11,12 +11,13 @@ use App\Http\Controllers\Admin\CollectionController;
 use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\StateController;
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\SizeController;
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ReportController;
 // admin guard
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['guest:admin'])->group(function () {
@@ -53,7 +54,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/variation/image/remove', [ProductController::class, 'variationImageDestroy'])->name('products.variation.image.delete');
         //categories
         Route::resource('categories', CategoryController::class);
-        Route::get('/categories/{id}/status', [CategoryController::class, 'status'])->name('categories.status');
+        Route::get('/{id}/status', [CategoryController::class, 'status'])->name('categories.status');
         Route::get('/categories/csv/export', [CategoryController::class, 'csvExport'])->name('categories.csv.export');
         //collections
         Route::resource('collections', CollectionController::class);
@@ -65,25 +66,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //offers
         Route::resource('schemes', OfferController::class);
         Route::get('/schemes/{id}/status', [OfferController::class, 'status'])->name('schemes.status');
-        //users
+         //users
         Route::resource('users', UserController::class);
         Route::get('/users/{id}/status', [UserController::class, 'status'])->name('users.status');
         Route::get('/users/collection/{id}', [UserController::class, 'collection'])->name('users.collection');
         Route::post('/users/{id}/collection/create', [UserController::class, 'collectionCreate'])->name('users.collection.create');
 		Route::get('/collection/delete/{id}', [UserController::class, 'collectionDelete'])->name('users.collection.delete');
         Route::get('/users/state/{state}', [UserController::class, 'state'])->name('users.state');
-        Route::post('/users/area', [UserController::class, 'areaStore'])->name('users.area.store');
         Route::get('/users/csv/export', [UserController::class, 'csvExport'])->name('users.csv.export');
         Route::post('/users/password/generate', [UserController::class, 'passwordGenerate'])->name('users.password.generate');
 		Route::post('/users/password/reset', [UserController::class, 'passwordReset'])->name('users.password.reset');
         //user activity
         Route::get('/activity/list', [UserController::class, 'activityList'])->name('users.activity.index');
         Route::get('/activity/csv/export', [UserController::class, 'activityCSV'])->name('users.activity.csv.export');
-        //user attendance
-        Route::get('/attendance/list', [UserController::class, 'attendanceList'])->name('users.attendance.index');
-        Route::get('/attendance/csv/export', [UserController::class, 'attendanceCSV'])->name('users.attendance.csv.export');
         //user notification
         Route::get('/notification/list', [UserController::class, 'notificationList'])->name('users.notification.index');
+        //user attendance
+        Route::get('/attendance/daily', [UserController::class, 'attendanceList'])->name('users.attendance.index');
+        Route::get('/attendance/daily/csv', [UserController::class, 'attendanceListCSV'])->name('users.attendance.csv.download');
+        Route::get('/attendance/report', [UserController::class, 'attendanceReport'])->name('users.attendance.report');
+        Route::get('/attendance/report/csv/export', [UserController::class, 'attendanceReportCSV'])->name('users.attendance.csv.export');
+        //employee productivity
+        Route::get('/employee/productivity', [UserController::class, 'employeeProductivity'])->name('employee.productivity');
+        Route::get('/employee/productivity/report/csv', [UserController::class, 'employeeProductivityCSV'])->name('employee.productivity.csv.download');
+        //login report
+        Route::get('/login/report', [UserController::class, 'attendanceList'])->name('login.report');
+        Route::get('/login/report/csv', [UserController::class, 'attendanceListCSV'])->name('login.report.csv.download');
         //stores
         Route::resource('stores', StoreController::class);
         Route::get('/stores/{id}/status', [StoreController::class, 'status'])->name('stores.status');
@@ -105,7 +113,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //sizes
         Route::resource('sizes', SizeController::class);
         Route::get('/sizes/{id}/status', [SizeController::class, 'status'])->name('sizes.status');
-        //store wise orders
+        
+         //store wise orders
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
         //product wise order report
         Route::get('orders/product', [OrderController::class, 'productwiseOrder'])->name('orders.product.index');
@@ -115,4 +124,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders/{id}/csv/download', [OrderController::class, 'individualcsvExport'])->name('orders.report.csv');
          //product wise order csv export
         Route::get('/orders/product/csv/export', [OrderController::class, 'productcsvExport'])->name('orders.product.csv.export');
+        //category wise sales
+        Route::get('orders/category', [OrderController::class, 'categorywiseOrder'])->name('orders.category.index');
+        Route::get('/orders/category/csv/export', [OrderController::class, 'categorycsvExport'])->name('orders.category.csv.export');
+        //area wise sales
+        Route::get('orders/area', [OrderController::class, 'areawiseOrder'])->name('orders.area.index');
+        Route::get('/orders/area/csv/export', [OrderController::class, 'areacsvExport'])->name('orders.area.csv.export');
+        //zsm wise rsm
+        Route::get('rsm/list/zsmwise/{id}', [UserController::class, 'zsmwiseRsm']);
+        //rsm wise sm
+        Route::get('sm/list/rsmwise/{id}', [UserController::class, 'rsmwiseSm']);
+        //sm wise asm
+        Route::get('asm/list/smwise/{id}', [UserController::class, 'smwiseAsm']);
+        //sm wise asm and ase
+        Route::get('asm-ase/list/smwise/{id}', [UserController::class, 'smwiseAsmAse']);
+        //asm wise ase
+        Route::get('ase/list/asmwise/{id}', [UserController::class, 'asmwiseAse']);
+        //report
+        //login report
+        Route::get('login/report', [OrderController::class, 'loginReport'])->name('login.report.index');
+        Route::get('login/report/csv/export', [OrderController::class, 'loginReportcsvExport'])->name('login.report.csv.export');
+
 });

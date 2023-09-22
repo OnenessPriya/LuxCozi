@@ -97,7 +97,7 @@ class ProductController extends Controller
 
             // main image handling
             $upload_path = "public/uploads/product/";
-            if(isset($params['image'])){
+            if(isset($collectedData['image'])){
                 $image = $collectedData['image'];
                 $imageName = time() . "." . $image->getClientOriginalName();
                 $image->move($upload_path, $imageName);
@@ -215,7 +215,7 @@ class ProductController extends Controller
             // main image handling
             $upload_path = "public/uploads/product/";
             
-            if(isset($params['image'])){
+            if(isset($collectedData['image'])){
                 $image = $collectedData['image'];
                 $imageName = time() . "." . $image->getClientOriginalName();
                 $image->move($upload_path, $imageName);

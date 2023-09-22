@@ -45,7 +45,7 @@
                                     <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
                                 </a>
                             </div>
-                            <div class="search-filter-right-el">
+                             <div class="search-filter-right-el">
                                 <a href="{{ route('admin.products.create') }}" class="btn btn-outline-danger btn-sm">
                                     <iconify-icon icon="prime:plus-circle"></iconify-icon> Create
                                 </a>
@@ -54,7 +54,7 @@
                         </form>
                     </div>
                     
-                  
+                   
               
             </div>
         </div>
@@ -107,7 +107,7 @@
                             <a href="{{ route('admin.products.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
                             @csrf
                             @method('DELETE')
-                           <button type="submit" class="btn-link">Delete</button> 
+                           <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link">Delete</button> 
                         </form>
                     </div>
                 </td>

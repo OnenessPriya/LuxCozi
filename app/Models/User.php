@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use DB;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -41,4 +41,34 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    
+    
+      public static function insertData($data, $successCount) {
+        $id='';
+        $value = DB::table('users')->where('name', $data['name'])->get();
+        if($value->count() == 0) {
+            $id = DB::table('users')->insertGetId($data);
+           
+           //DB::table('users')->insert($data);
+            $successCount++;
+        $resp = [
+            "successCount" => $successCount,
+            "id" => $id,
+        ];
+        
+         return $resp;
+        } else {
+            $resp = [
+            "successCount" => 0,
+            "id" => $id,
+            ];
+            
+            return $resp;
+        }
+
+        // return $count;
+
+       
+        
+    }
 }

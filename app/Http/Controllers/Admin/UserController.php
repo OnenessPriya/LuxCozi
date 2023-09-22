@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\UserArea;
 use App\Models\UserAttendance;
 use App\Models\State;
 use App\Models\Store;
 use App\Models\Area;
+use App\Models\UserArea;
 use App\Models\Team;
 use App\Models\Activity;
 use App\Models\Visit;
@@ -80,7 +80,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-         //dd($request->all());
+        //dd($request->all());
          $request->validate([
             "name" => "required",
             "fname" => "required|string|unique:users|max:255",
@@ -403,11 +403,12 @@ class UserController extends Controller
         }
         // ASE
         elseif ($data->user->type == 6) {
-            $data->team = Team::where('ase_id', $data->user->id)->where('store_id', null)->first();
+            $data->retailerListOfOcc = Team::where('ase_id', $data->user->id)->where('store_id', null)->first();
             $data->workAreaList = UserArea::where('user_id', $data->user->id)->get();
-            $data->distributorList = Team::where('ase_id', $data->user->id)->where('distributor_id', '!=', null)->groupBy('distributor_id')->orderBy('id','desc')->with('distributors')->get();
+            $data->distributorList = Team::where('ase_id', $data->user->id)->where('distributor_id', '!=', null)->groupBy('distributor_id')->orderBy('id','desc')->get();
+			//dd($data->distributorList);
             $data->storeList = Store::where('user_id',$data->user->id)->orderBy('name')->get();
-            $data->areaDetail=Area::where('status',1)->orderby('name')->get();
+			//dd($data->user->name);
             return view('admin.user.detail.ase', compact('data', 'id', 'request'));
         }
         // Distributor
@@ -533,7 +534,7 @@ class UserController extends Controller
         }
     }
     //password generate 
-    public function passwordGenerate(Request $request)
+      public function passwordGenerate(Request $request)
     {
         $userDetail = User::findOrFail($request->userId);
         $explodedName = explode(' ', $userDetail->name);
@@ -611,7 +612,8 @@ class UserController extends Controller
 		$data = DistributorRange::where('id', $id)->delete();
         return redirect()->back()->with('success', 'Range Deleted for this Distributor');
     }
-    //areacreate for ASE
+	
+	 //areacreate for ASE
     public function areaStore(Request $request)
     {
 		$request->validate([
@@ -632,6 +634,7 @@ class UserController extends Controller
 
 		return redirect()->back()->with('success', 'Area Added successfully');
     }
+
     //activity list
     public function activityList(Request $request)
     {
@@ -786,7 +789,7 @@ class UserController extends Controller
             $date_to = $request->date_to ? $request->date_to : '';
             $keyword = $request->keyword ? $request->keyword : '';
 
-            $query = UserAttendance::join('users', 'user_attendances.user_id', 'users.id');
+            $query = UserAttendance::select('user_attendances.id','user_attendances.user_id','user_attendances.entry_date','user_attendances.type','user_attendances.start_time','user_attendances.end_time','user_attendances.other_activities_id')->join('users', 'user_attendances.user_id', 'users.id');
 
             $query->when($date_from, function($query) use ($date_from) {
                 $query->where('user_attendances.entry_date', '>=', $date_from);
@@ -799,7 +802,8 @@ class UserController extends Controller
                 $query->where('users.name', 'like', '%'.$keyword.'%');
             });
 
-            $data = $query->orderby('entry_date','desc')->groupby('entry_date','user_id')->paginate(25);
+            $data = $query->orderby('user_attendances.entry_date','desc')->groupby('user_attendances.entry_date','user_attendances.user_id')->paginate(25);
+            //dd($data);
         } else {
             $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->paginate(25);
         }
@@ -816,7 +820,7 @@ class UserController extends Controller
             $date_to = $request->date_to ? $request->date_to : '';
             $keyword = $request->keyword ? $request->keyword : '';
 
-            $query = UserAttendance::join('users', 'user_attendances.user_id', 'users.id');;
+            $query = UserAttendance::select('user_attendances.id','user_attendances.user_id','user_attendances.entry_date','user_attendances.type','user_attendances.start_time','user_attendances.end_time','user_attendances.other_activities_id')->join('users', 'user_attendances.user_id', 'users.id');
 
             $query->when($date_from, function($query) use ($date_from) {
                 $query->where('user_attendances.entry_date', '>=', $date_from);
@@ -829,9 +833,9 @@ class UserController extends Controller
                 $query->where('users.name', 'like', '%'.$keyword.'%');
             });
 
-            $data = $query->orderby('entry_date','desc')->groupby('entry_date','user_id')->paginate(25);
+            $data = $query->orderby('entry_date','desc')->groupby('entry_date','user_id')->get();
         } else {
-            $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->paginate(25);
+            $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->get();
         }
 
 
@@ -843,24 +847,231 @@ class UserController extends Controller
             $f = fopen('php://memory', 'w');
 
             // Set column headers
-            $fields = array('SR', 'SALES PERSON','SALES PERSON EMP ID', 'TYPE', 'TIME-IN', 'TIME-OUT', 'TOTAL HOURS');
+            $fields = array('SR', 'SALES PERSON','SALES PERSON EMP ID', 'USER TYPE', 'TYPE','NOTE','TIME-IN', 'TIME-OUT', 'TOTAL HOURS');
             fputcsv($f, $fields, $delimiter);
 
             $count = 1;
 
             foreach($data as $row) {
-                $datetime = date('j F, Y h:i A', strtotime($row['created_at']));
+                
                 $hours=\Carbon\Carbon::parse($row->start_time)->diffInHours($row->end_time);
                 if($row['users']['type']==6){
                     $type='ASE';
                 }
+                if($row->type=='leave'){
+                     $leave ='leave';
+                }elseif($row->type=='distributor-visit'){
+                     $leave ='Distributor Visit'; 
+                   
+                }elseif($row->type=='meeting'){
+                    $leave = 'Meeting';
+                    
+                    
+                }else{
+                    $leave ='Present';
+                }
+                if($row->type!='leave'){
+                    $startTime=$row->start_time;
+                    $endTime=$row->end_time ;
+                } 
                 $lineData = array(
                     $count,
                     $row->users->name ?? '',
                     $row->users->employee_id ?? '',
                     $type,
-                    $row->start_time,
-                    $row['end_time'],
+                    $leave,
+                    $row->otheractivity->reason ?? '',
+                    $startTime,
+                    $endTime,
+                    $hours
+                );
+
+                fputcsv($f, $lineData, $delimiter);
+
+                $count++;
+            }
+
+            // Move back to beginning of file
+            fseek($f, 0);
+
+            // Set headers to download file rather than displayed
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+            //output all remaining data on a file pointer
+            fpassthru($f);
+        }
+    }
+
+
+    //zsm wise rsm list
+    public function zsmwiseRsm(Request $request,$id)
+    {
+       $data=Team::where('zsm_id',$id)->with('rsm:id,name')->groupby('rsm_id')->get();
+
+       if (count($data)==0) {
+                return response()->json(['error'=>true, 'resp'=>'No data found']);
+       } else {
+                return response()->json(['error'=>false, 'resp'=>'Rsm List','data'=>$data]);
+       } 
+        
+    }
+    //rsm wise sm list
+    public function rsmwiseSm(Request $request,$id)
+    {
+       $data=Team::where('rsm_id',$id)->with('sm:id,name')->groupby('sm_id')->get();
+       
+       if (count($data)==0) {
+                return response()->json(['error'=>true, 'resp'=>'No data found']);
+       } else {
+                return response()->json(['error'=>false, 'resp'=>'Sm List','data'=>$data]);
+       } 
+        
+    }
+    //sm wise asm list
+    public function smwiseAsm(Request $request,$id)
+    {
+       $data=Team::where('sm_id',$id)->with('asm:id,name')->groupby('asm_id')->get();
+       
+       if (count($data)==0) {
+                return response()->json(['error'=>true, 'resp'=>'No data found']);
+       } else {
+                return response()->json(['error'=>false, 'resp'=>'Asm List','data'=>$data]);
+       } 
+        
+    }
+    //sm wise asm and ase
+    public function smwiseAsmAse(Request $request,$id)
+    {
+       $data=Team::where('sm_id',$id)->with('asm:id,name','ase:id,name')->groupby('asm_id','ase_id')->get();
+       
+       if (count($data)==0) {
+            return response()->json(['error'=>true, 'resp'=>'No data found']);
+       } else {
+            return response()->json(['error'=>false, 'resp'=>'ASM 7 ASE List','data'=>$data]);
+       } 
+        
+    }
+     //asm wise ase list
+     public function asmwiseAse(Request $request,$id)
+     {
+        $data=Team::where('asm_id',$id)->with('ase:id,name')->groupby('ase_id')->get();
+        
+        if (count($data)==0) {
+                 return response()->json(['error'=>true, 'resp'=>'No data found']);
+        } else {
+                 return response()->json(['error'=>false, 'resp'=>'Ase List','data'=>$data]);
+        } 
+         
+     }
+
+     //attendance report for all
+     public function attendanceReport(Request $request)
+     {
+        $zsmDetails=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
+
+       // $month = !empty($request->month)?$request->month:date('Y-m');
+        if (isset($request->month) || isset($request->zsm)|| isset($request->rsm)|| isset($request->sm)|| isset($request->asm)|| isset($request->ase)) {
+            
+            $month = !empty($request->month)?$request->month:date('Y-m');
+            // $date_from = $request->date_from ? $request->date_from : '';
+            // $date_to = $request->date_to ? $request->date_to : '';
+            $zsm = $request->zsm ? $request->zsm : '';
+            $rsm = $request->rsm ? $request->rsm : '';
+            $sm = $request->sm ? $request->sm : '';
+            $asm = $request->asm ? $request->asm : '';
+            $ase = $request->ase ? $request->ase : '';
+            $data = User::where('id', $zsm)->orWhere('id', $rsm)->orWhere('id', $sm)->orWhere('id', $asm)->orWhere('id', $ase)->paginate(50);
+            
+            
+
+        } else {
+            
+            $data = User::paginate(50);
+            
+        }
+        $month = !empty($request->month)?$request->month:date('Y-m');
+        return view('admin.attendance.report', compact( 'request','zsmDetails','data','month'));
+     }
+
+     //employee productivity report for all
+     public function employeeProductivity(Request $request)
+     {
+        $zsm=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
+        return view('admin.employee-productivity.index', compact('zsm', 'request'));
+     }
+
+     //employee productivity csv export
+    public function employeeProductivityCSV(Request $request)
+    {
+        if (isset($request->date_from) || isset($request->date_to) || isset($request->zsm)|| isset($request->rsm)|| isset($request->sm)|| isset($request->asm)|| isset($request->ase)) {
+            
+            $date_to = $request->date_to ? $request->date_to : '';
+            $keyword = $request->keyword ? $request->keyword : '';
+
+            $query = UserAttendance::join('users', 'user_attendances.user_id', 'users.id')->join('teams', 'teams.ase_id', 'users.id');
+
+            $query->when($date_from, function($query) use ($date_from) {
+                $query->where('user_attendances.entry_date', '>=', $date_from);
+            });
+            $query->when($date_to, function($query) use ($date_to) {
+                $query->where('user_attendances.entry_date', '<=', $date_to);
+            });
+           
+            $query->when($keyword, function($query) use ($keyword) {
+                $query->where('users.name', 'like', '%'.$keyword.'%');
+            });
+
+            $data = $query->orderby('entry_date','desc')->groupby('entry_date','user_id')->get();
+        } else {
+            $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->get();
+        }
+
+
+        if (count($data) > 0) {
+            $delimiter = ",";
+            $filename = "lux-employee-productivty-report-".date('Y-m-d').".csv";
+
+            // Create a file pointer
+            $f = fopen('php://memory', 'w');
+
+            // Set column headers
+            $fields = array('ZSM', 'RSM','SM', 'ASM', 'EMPLOYEE','EMPLOYEE EMP ID','EMPLOYEE STATUS', 'EMPLOYEE DESIGNATION', 'EMPLOYEE AREA','TOTAL DAYS','ACTUAL RETAILING DAY','TOTAL PRESENT','LEAVE/WEEK-OF/HOLIDAY','TOTAL RETAIL COUNT','TOTAL SALES COUNT','TELEPHONIC ORDER COUNT');
+            fputcsv($f, $fields, $delimiter);
+
+            $count = 1;
+
+            foreach($data as $row) {
+                
+                $hours=\Carbon\Carbon::parse($row->start_time)->diffInHours($row->end_time);
+                if($row['users']['type']==6){
+                    $type='ASE';
+                }
+                if($row->type=='leave'){
+                     $leave ='leave';
+                }elseif($row->type=='distributor-visit'){
+                     $leave ='Distributor Visit'; 
+                   
+                }elseif($row->type=='meeting'){
+                    $leave = 'Meeting';
+                    
+                    
+                }else{
+                    $leave ='Present';
+                }
+                if($row->type!='leave'){
+                    $startTime=$row->start_time;
+                    $endTime=$row->end_time ;
+                } 
+                $lineData = array(
+                    $count,
+                    $row->users->name ?? '',
+                    $row->users->employee_id ?? '',
+                    $type,
+                    $leave,
+                    $row->otheractivity->reason ?? '',
+                    $startTime,
+                    $endTime,
                     $hours
                 );
 

@@ -64,6 +64,8 @@
                                 @php
                                     $order_id = $id;
                                     $data = \App\Models\Order::findOrFail($order_id);
+								    $user=DB::table('teams')->where('store_id',$data->store_id)->first();
+                                    $userName=DB::table('users')->where('id',$user->distributor_id)->first();
                                 @endphp
 
                                 <div class="col-6">
@@ -76,7 +78,8 @@
                                             <p><u>{{ $data->stores->address.' '.$data->stores->areas->name.' '.$data->stores->states->name.' '.$data->stores->areas->name.' '.$data->stores->pin }}</u></p>
                                             <p><strong>Booking Place:</strong> <u>{{ $data->stores->areas->name ? $data->stores->areas->name : $data->stores->areas->name }}</u></p>
                                         @endif
-                                        <p style="margin-bottom:0;"><strong>Agent:</strong> <u>{{$data->users ? $data->users->name : ''}}</u></p>
+										 <p style="margin-bottom: 5px;font-size: 14px"><strong>Distributor: </strong> <u>{{$userName ? $userName->name : ''}}</u></p>
+                                        <p style="margin-bottom:0;"><strong>Sales Person(ASE/ASM):</strong> <u>{{$data->users ? $data->users->name : ''}}</u></p>
                                     </div>
                                 </div>
                             </div>
@@ -88,7 +91,7 @@
                                 <thead>
                                     @if(count(orderProductsUpdatedMatrix($orderData)) > 0)
                                     <tr>
-                                    <th style="font-size: 13px; min-width:200px; border-top:2px solid #000; width: 242px;">Name of Quality Shape & Unit</th>
+                                         <th style="font-size: 13px; min-width:200px; border-top:2px solid #000; width: 242px;">Name of Quality Shape & Unit</th>
                                     <th style="font-size: 13px; border-left:2px solid #000; border-top:2px solid #000;">75</th>
                                     <th style="font-size: 13px; border-left:2px solid #000; border-top:2px solid #000;">80</th>
                                     <th style="font-size: 13px; border-left:2px solid #000; border-top:2px solid #000;">85</th>
