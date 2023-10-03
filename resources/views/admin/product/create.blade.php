@@ -10,6 +10,7 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-4">
+						<label for="" class="col-form-label">Category <span class="text-danger">*</span></label>
                         <select class="form-select form-select-sm select2" aria-label="Default select example" name="cat_id" id="category">
                             <option value=""  selected>Select Category</option>
                             @foreach ($category as $index => $item)
@@ -20,6 +21,7 @@
                     </div>
            
                     <div class="col-sm-4">
+						<label for="" class="col-form-label">Collection <span class="text-danger">*</span></label>
                         <select class="form-select form-select-sm select2" aria-label="Default select example" name="collection_id" id="collection">
                             <option value="" selected disabled>Select Collection</option>
                             <option value="{{ (request()->input('collection_id')) ? 'selected' :  '' }}"></option>
@@ -29,6 +31,7 @@
                 </div>
 
             <div class="form-group mb-3">
+				<label for="" class="col-form-label">Title/Name <span class="text-danger">*</span></label>
                 <input type="text" name="name" placeholder="Add Product Title" class="form-control" value="{{old('name')}}">
                 @error('name') <p class="small text-danger">{{ $message }}</p> @enderror
             </div>
@@ -211,7 +214,7 @@
         <div class="col-sm-3">
 			<div class="card shadow-sm">
                 <div class="card-header">
-                    Product Main Image
+                    Product Main Image <span class="text-danger">*</span>
                 </div>
                 <div class="card-body">
                     <div class="w-100 product__thumb">

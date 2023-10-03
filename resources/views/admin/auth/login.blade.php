@@ -13,7 +13,7 @@
       href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"
     />
 
-    <title>Lux Innerware | admin panel</title>
+    <title>Lux Cozi | admin panel</title>
   </head>
   <body>
     <!--<main class="login">-->

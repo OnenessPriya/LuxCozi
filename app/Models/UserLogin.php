@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class UserLogin extends Model
 {
     use HasFactory;
-    public function users() {
+	
+	 public function users() {
         return $this->belongsTo('App\Models\User', 'user_id', 'id');
     }
 }

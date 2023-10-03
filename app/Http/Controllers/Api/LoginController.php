@@ -59,7 +59,7 @@ class LoginController extends Controller
 		$data->login=UserLogin::where('user_id',$id)->orderby('id','desc')->first();
         $data->user=User::where('id',$id)->first();
         if (empty($data->login)) {
-            return response()->json(['error'=>true, 'resp'=>'No data found']);
+            return response()->json(['error'=>false, 'resp'=>'No data found','is_login'=>0]);
         } else {
             return response()->json(['error'=>false, 'resp'=>'Check Login Or Not','is_login'=>$data->login->is_login,'user'=>$data->user]);
         } 
@@ -80,7 +80,9 @@ class LoginController extends Controller
 
         DB::table('user_logins')->insert([
             'user_id' => $request->user_id,
-            'is_login' => $request->is_login
+            'is_login' => $request->is_login,
+			'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 		 return response()->json(['error'=>false, 'resp'=>'Login flag updated successfully']);
     }

@@ -45,7 +45,7 @@ class User extends Authenticatable
     
       public static function insertData($data, $successCount) {
         $id='';
-        $value = DB::table('users')->where('name', $data['name'])->get();
+        $value = DB::table('users')->where('name', $data['name'])->where('employee_id',$data['employee_id'])->get();
         if($value->count() == 0) {
             $id = DB::table('users')->insertGetId($data);
            
@@ -60,7 +60,7 @@ class User extends Authenticatable
         } else {
             $resp = [
             "successCount" => 0,
-            "id" => $id,
+            "id" => $value[0]->id,
             ];
             
             return $resp;

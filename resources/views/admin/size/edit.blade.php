@@ -16,7 +16,7 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="title" name="name" placeholder="name@example.com" value="{{ $data->name }}">
-                                        <label for="title">Name *</label>
+                                        <label for="title">Name <span clas="textdanger">*</span></label>
                                     </div>
                                     @error('name') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>

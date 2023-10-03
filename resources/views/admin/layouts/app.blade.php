@@ -61,6 +61,7 @@
                     <ul>
                          <li class="{{ ( request()->is('admin/states*') ) ? 'active' : '' }}"><a href="{{ route('admin.states.index') }}"><i class="fi fi-br-database"></i> <span>State</span></a></li>
                         <li class="{{ ( request()->is('admin/areas*') ) ? 'active' : '' }}"><a href="{{ route('admin.areas.index') }}"><i class="fi fi-br-database"></i> <span>Area</span></a></li>
+						 <li class="{{ ( request()->is('admin/headquaters*') ) ? 'active' : '' }}"><a href="{{ route('admin.headquaters.index') }}"><i class="fi fi-br-database"></i> <span>HeadQuater</span></a></li>
                     </ul>
                 </li>
                 <li class="@if(request()->is('admin/stores*') ) { {{'active'}} }  @endif">
@@ -71,9 +72,9 @@
                     </ul>
                 </li>
                 <li class="@if(request()->is('admin/users*')|| request()->is('admin/activity*')|| request()->is('admin/notification*')|| request()->is('admin/attendance*')) { {{'active'}} }  @endif">
-                    <a href="#"><i class="fi fi-br-cube"></i> <span>User </span></a>
+                    <a href="#"><i class="fi fi-br-cube"></i> <span>Company Setting </span></a>
                     <ul>
-                        <li class="{{ ( request()->is('admin/users*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.index') }}"><i class="fi fi-br-database"></i> <span>Management</span></a></li>
+                        <li class="{{ ( request()->is('admin/users*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.index') }}"><i class="fi fi-br-database"></i> <span>Employee Management</span></a></li>
                         <li class="{{ ( request()->is('admin/activity*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.activity.index') }}"><i class="fi fi-br-database"></i> <span>Activity List</span></a></li>
                         
                         <li class="{{ ( request()->is('admin/notification*') ) ? 'active' : '' }}"><a href="{{ route('admin.users.notification.index') }}"><i class="fi fi-br-database"></i> <span>Notification List</span></a></li>
@@ -127,7 +128,14 @@
                         <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ Auth::guard('admin')->user()->name }}
                         </button>
-                        
+                        <ul class="dropdown-menu test" aria-labelledby="dropdownMenuButton1">
+                            <li><a class="dropdown-item" href="{{route('admin.profile')}}">Profile</a></li>
+                            <li> <a class="dropdown-item" href="javascript:void(0)" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+								<i class="fi fi-br-sign-out"></i> 
+								<span>Logout</span>
+								</a>
+							</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -140,7 +148,7 @@
 
         <footer>
             <div class="row">
-                <div class="col-12 text-end">Lux Innerwear 2023-2024</div>
+                <div class="col-12 text-end">Lux Cozi 2023-2024</div>
             </div>
         </footer>
     </main>

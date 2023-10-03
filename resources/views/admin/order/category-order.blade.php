@@ -16,7 +16,7 @@
                               <div class="search-filter-right">
                                   <div class="search-filter-right-el">
                                       <form class="row align-items-end justify-content-end" action="" method="GET">
-                                          <div class="search-filter-right">
+                                          <div class="search-filter-right align-items-end ">
                                               <div class="search-filter-right-el">
                                                   <label for="date_from" class="text-muted small">Date from</label>
                                                     <input type="date" name="date_from" id="date_from" class="form-control form-control-sm" aria-label="Default select example" value="{{request()->input('date_from') ?? date('Y-m-01') }}">
@@ -27,7 +27,7 @@
                                                     <input type="date" name="date_to" id="date_to" class="form-control form-control-sm" aria-label="Default select example" value="{{request()->input('date_to') ?? date('Y-m-d') }}">
                                               </div>
                                              
-                                              <div class="search-filter-right-el">
+                                              <div class="search-filter-right-el d-flex">
                                                   <button type="submit" data-bs-toggle="tooltip" title="" class="btn btn-outline-danger btn-sm store-filter-btn" data-bs-original-title="Search"> <i class="fi fi-br-search"></i> </button>
                                                   
                                                   <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter store-filter-times" data-bs-toggle="tooltip" title="Clear Filter">

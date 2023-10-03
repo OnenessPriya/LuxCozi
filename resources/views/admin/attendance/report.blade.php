@@ -115,16 +115,18 @@
                     <table class="table" >
                         <thead>
                             <tr>
-                                {{-- <th>ZSM</th>
+                                <th>NSM</th>
+                                <th>ZSM</th>
                                 <th>RSM</th>
                                 <th>SM</th>
-                                <th>ASM</th> --}}
+                                <th>ASM</th> 
                                 <th>Employee</th>
                                 <th>Employee Id</th>
                                 <th>Employee Status</th>
                                 <th>Employee Designation</th>
-                                <th>Date of Joining</th>
-                                <th>Contact No</th>
+                                <th>Employee Date of Joining</th>
+								<th>Employee HQ</th>
+                                <th>Employee Contact No</th>
                                 {{-- <th>Total Days</th> --}}
                                 @foreach ($month_names as $months)
                                 <th>{{$months}}</th>
@@ -137,15 +139,22 @@
                     
                     @forelse ($data as $index => $item)
 
-                    
+                        @php
+                          $findTeamDetails= findTeamDetails($item->id, $item->type);
+                        @endphp
                     
                         <tr>
-                            {{-- <td> {!! findManagerDetails($item->id, $item->type) !!} </td> --}}
+                            <td> {{$findTeamDetails[0]['nsm'] ?? ''}} </td> 
+                            <td> {{$findTeamDetails[0]['zsm']?? ''}} </td> 
+                            <td> {{$findTeamDetails[0]['rsm']?? ''}} </td> 
+                            <td> {{$findTeamDetails[0]['sm']?? ''}} </td> 
+                            <td> {{$findTeamDetails[0]['asm']?? ''}} </td> 
                             <td> {{$item->name}} </td>
                             <td> {{$item->employee_id}} </td>
                             <td> <span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span> </td>
                             <td> {{$item->designation}} </td>
                             <td> {{$item->date_of_joining}} </td>
+							<td> {{$item->headquater?? ''}} </td>
                             <td> {{$item->mobile}} </td>
                             {{-- <td> {{$totaldays}} </td> --}}
 

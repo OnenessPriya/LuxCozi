@@ -53,6 +53,10 @@
                             <p class="small text-muted mb-1">Mobile number</p>
                             <h5>{{$data->user->mobile}}</h5>
                         </div>
+						<div class="col-md-4 mb-3">
+                            <p class="small text-muted mb-1">Whatsapp number</p>
+                            <h5>{{$data->user->whatsapp_no}}</h5>
+                        </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">Email address</p>
                             <h5>{{$data->user->email}}</h5>
@@ -77,6 +81,10 @@
                             <p class="small text-muted mb-1">Area</p>
                             <h5>{{$data->user->city}}</h5>
                         </div>
+						 <div class="col-md-4 mb-3">
+                            <p class="small text-muted mb-1">HQ</p>
+                            <h5>{{$data->user->headquater}}</h5>
+                        </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">Working Area List</p>
                             <h5>
@@ -95,23 +103,23 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">VP</p>
-                            <h5>{{$data->team->nsm->name}}</h5>
+                            <h5>{{$data->team->nsm->name ??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">RSM</p>
-                            <h5>{{$data->team->zsm->name}}</h5>
+                            <h5>{{$data->team->zsm->name??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">RSM</p>
-                            <h5>{{$data->team->rsm->name}}</h5>
+                            <h5>{{$data->team->rsm->name??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">RSM</p>
-                            <h5>{{$data->team->sm->name}}</h5>
+                            <h5>{{$data->team->sm->name??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">ASM</p>
-                            <h5>{{$data->team->asm->name}}</h5>
+                            <h5>{{$data->team->asm->name??''}}</h5>
                         </div>
                     </div>
 
@@ -119,24 +127,17 @@
 
                     <div class="row">
                         <div class="col-12">
-                            <p class="text-dark">Optional Contact information</p>
+                            <p class="text-dark">Optional information</p>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Alt. Mobile number 1</p>
-                            <h5>{{$data->user->alt_number1 ? $data->user->alt_number1 : 'NA'}}</h5>
+                            <p class="small text-muted mb-1">Date of Joining</p>
+                            <h5>{{$data->user->date_of_joining ? $data->user->date_of_joining : 'NA'}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Alt. Mobile number 2</p>
-                            <h5>{{$data->user->alt_number2 ? $data->user->alt_number2 : 'NA'}}</h5>
+                            <p class="small text-muted mb-1">Date of Leaving</p>
+                            <h5>{{$data->user->date_of_leaving ? $data->user->date_of_leaving : 'NA'}}</h5>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Alt. Mobile number 3</p>
-                            <h5>{{$data->user->alt_number3 ? $data->user->alt_number3 : 'NA'}}</h5>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Personal email</p>
-                            <h5>{{$data->user->personal_mail ? $data->user->personal_mail : 'NA'}}</h5>
-                        </div>
+                        
                     </div>
 
                     <hr>

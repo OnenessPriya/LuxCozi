@@ -17,7 +17,7 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="title" name="name" value="{{ old('name') ? old('name') : $data->name }}">
-                                        <label for="title">Title *</label>
+                                        <label for="title">Title <span class="text-danger">*</span></label>
                                     </div>
                                     @error('name') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
@@ -26,7 +26,7 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="code" name="code" value="{{ old('code') ? old('code') : $data->code }}">
-                                        <label for="title">Code *</label>
+                                        <label for="title">Code <span class="text-danger">*</span></label>
                                     </div>
                                     @error('code') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>

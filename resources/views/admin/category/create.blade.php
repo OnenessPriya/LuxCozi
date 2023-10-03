@@ -26,7 +26,7 @@
                             <div class="col-12 col-md-6 col-xl-12">
                                 <div class="row">
                                     <div class="col-md-6 card">
-                                        <div class="card-header p-0 mb-3">Icon <span class="text-danger">*</span></div>
+                                        <div class="card-header p-0 mb-3">Icon </div>
                                         <div class="card-body p-0">
                                             <div class="w-100 product__thumb">
                                                 <label for="icon"><img id="iconOutput" src="{{ asset('admin/images/placeholder-image.jpg') }}" /></label>

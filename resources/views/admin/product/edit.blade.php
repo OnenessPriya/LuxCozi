@@ -244,14 +244,14 @@
 
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <label class="label-control">Short Description <span class="text-danger">*</span></label>
+                        <label class="label-control">Short Description </label>
                         <textarea id="product_short_des" name="short_desc">{{$data->short_desc}}</textarea>
                         @error('short_desc') <p class="small text-danger">{{ $message }}</p> @enderror
                     </div>
                 </div>
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <label class="label-control">Description <span class="text-danger">*</span></label>
+                        <label class="label-control">Description </label>
                         <textarea id="product_des" name="desc">{{$data->desc}}</textarea>
                         @error('desc') <p class="small text-danger">{{ $message }}</p> @enderror
                     </div>
@@ -261,7 +261,7 @@
                     <div class="card-body pt-0">
                         <div class="admin__content">
                         <aside>
-                            <nav>Price <span class="text-danger">*</span></nav>
+                            <nav>Price</nav>
                         </aside>
                         <content>
                             <div class="row mb-2 align-items-center">
@@ -320,7 +320,7 @@
                         </div>
                         <div class="admin__content">
                             <aside>
-                                <nav>Data <span class="text-danger">*</span></nav>
+                                <nav>Data </nav>
                             </aside>
                             <content>
                                 <div class="row mb-2 align-items-center">
@@ -336,7 +336,7 @@
                         </div>
                         <div class="admin__content">
                             <aside>
-                                <nav>Pack <span class="text-danger">*</span></nav>
+                                <nav>Pack </nav>
                             </aside>
                             <content>
                                 <div class="row mb-2 align-items-center">
@@ -356,7 +356,7 @@
             <div class="col-sm-3">
                 <div class="card shadow-sm">
                     <div class="card-header">
-                        Product Image
+                        Product Image<span class="text-danger">*</span>
                     </div>
                     <div class="card-body">
                         <div class="w-100 product__thumb">

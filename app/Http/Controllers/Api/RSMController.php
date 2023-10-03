@@ -27,6 +27,19 @@ class RSMController extends Controller
            return response()->json(['error' => false, 'resp' => 'Inactive ASE report - Team wise', 'data' => $inactiveASE]);
            
       }
+	  public function aseListRSM(Request $request)
+	  {
+		  $userId = $_GET['user_id'];
+		  $data=Team::select('ase_id')->where('rsm_id', '=', $userId)->groupby('teams.ase_id')->orderby('teams.ase_id')->with('ase:id,name')->get();
+		  return response()->json(['error' => false, 'resp' => 'ASE report - RSM wise', 'data' => $data]);
+	  }
+	
+	public function asmListRSM(Request $request)
+	  {
+		  $userId = $_GET['user_id'];
+		  $data=Team::select('asm_id')->where('rsm_id', '=', $userId)->groupby('teams.asm_id')->orderby('teams.asm_id')->with('asm:id,name')->get();
+		  return response()->json(['error' => false, 'resp' => 'ASM report - RSM wise', 'data' => $data]);
+	  }
      //ase wise store order count
       private function aseWiseStoreData($ase_id,$asm_id,$date_from,$date_to,$collection,$category,$style_no){
 		$total_quantity = 0;

@@ -72,7 +72,7 @@ class ProductController extends Controller
             "meta_desc" => "nullable",
             "meta_keyword" => "nullable",
             "style_no" => "nullable",
-            "image" => "nullable",
+            "image" => "required",
             "color_id" => "nullable|array",
             "size_id" => "nullable|array",
         ]);

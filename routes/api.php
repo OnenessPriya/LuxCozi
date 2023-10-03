@@ -223,7 +223,10 @@ Route::post('rsm/product-wise-report', [RSMController::class, 'productReportRSM'
 Route::post('rsm/notification-list', [RSMController::class, 'notificationList']);
 //notification update
 Route::post('rsm/read-notification', [RSMController::class, 'readNotification']);
-
+// ASE report for RSM 
+Route::get('ase/list/rsm', [RSMController::class, 'aseListRSM']);
+// ASM report for RSM 
+Route::get('asm/list/rsm', [RSMController::class, 'asmListRSM']);
 //ZSM//
 //inactive ASE report for ZSM in dashboard
 Route::get('inactive/ase/report/zsm', [ZSMController::class, 'inactiveAseListZSM']);

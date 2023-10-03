@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('page', 'No Order Reason')
+@section('page', 'No Sales Reason')
 
 @section('content')
 
@@ -20,7 +20,7 @@
                                             <div class="search-filter-right">
                                                 <div class="search-filter-right-el">
                                                     <label for="state" class="text-muted small">ZSM</label>
-                                                    <select name="zsm" id="state" class="form-control form-control-sm select2">
+                                                    <select name="zsm" id="zsm" class="form-control form-control-sm select2">
                                                         <option value="" disabled>Select</option>
                                                         <option value="" selected>All</option>
                                                         @foreach ($zsm as $item)
@@ -53,13 +53,25 @@
                                                     </select>
                                                 </div>
                                                 <div class="search-filter-right-el">
-                                                    <label for="store_id" class="text-muted small">Store</label>
-                                                    <select name="store_id" id="store_id" class="form-control form-control-sm select2">
+                                                    <label for="state" class="text-muted small">State</label>
+                                                    <select name="state_id" id="state" class="form-control form-control-sm select2">
                                                         <option value="" disabled>Select</option>
                                                         <option value="" selected>All</option>
-                                                        @foreach ($stores as $store)
-                                                            <option value="{{$store->id}}" {{ request()->input('store_id') == $store->id ? 'selected' : '' }}>{{$store->name}}</option>
+                                                        @foreach ($state as $state)
+                                                            <option value="{{$state->id}}" {{ request()->input('state_id') == $state->id ? 'selected' : '' }}>{{$state->name}}</option>
                                                         @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="search-filter-right-el">
+                                                    <label class="small text-muted">Area</label>
+                                                    <select class="form-control form-control-sm select2" name="area_id" disabled>
+                                                        <option value="{{ $request->area_id }}">Select state first</option>
+                                                    </select>
+                                                </div>
+                                                <div class="search-filter-right-el">
+                                                    <label for="store_id" class="text-muted small">Store</label>
+                                                    <select class="form-control form-control-sm select2" name="store_id" disabled>
+                                                        <option value="{{ $request->store_id }}">Select area first</option>
                                                     </select>
                                                 </div>
                                                 <div class="search-filter-right-el">
@@ -112,7 +124,18 @@
                         <thead>
                             <tr>
                                 <th>#SR</th>
-                                <th>Name</th>
+                                <th>NSM</th>
+                                <th>ZSM</th>
+                                <th>RSM</th>
+                                <th>SM</th>
+                                <th>ASM</th> 
+                                <th>Employee</th>
+                                <th>Employee Id</th>
+                                <th>Employee Status</th>
+                                <th>Employee Designation</th>
+                                <th>Employee Date of Joining</th>
+                                <th>Employee HQ</th>
+                                <th>Employee Contact No</th>
                                 <th>Store Name</th>
                                 <th>Reason</th>
                                 <th>Location</th>
@@ -121,13 +144,29 @@
                         </thead>
                         <tbody>
                             @forelse ($data as $index => $item)
+                            @php
+                              $findTeamDetails= findTeamDetails($item->users->id, $item->users->type);
+                              
+                            @endphp
                                 <tr>
                                     <td>
                                         {{ $data->firstItem() + $index }}
                                     </td>
+                                    <td> {{$findTeamDetails[0]['nsm'] ?? ''}} </td> 
+                                    <td> {{$findTeamDetails[0]['zsm']?? ''}} </td> 
+                                    <td> {{$findTeamDetails[0]['rsm']?? ''}} </td> 
+                                    <td> {{$findTeamDetails[0]['sm']?? ''}} </td> 
+                                    <td> {{$findTeamDetails[0]['asm']?? ''}} </td> 
                                     <td>
                                         {{$item->users ? $item->users->name : ''}}
                                     </td>
+                                    <td> {{$item->users->employee_id ?? ''}} </td>
+                                    <td> <span class="badge bg-{{($item->users->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span> </td>
+                                    <td> {{$item->users->designation?? ''}} </td>
+                                    <td> {{$item->users->date_of_joining?? ''}} </td>
+                                    <td> {{$item->users->headquater?? ''}} </td>
+                                    <td> {{$item->users->mobile}} </td>
+                                    
                                     <td>
                                         {{$item->stores ? $item->stores->name : ''}}
                                     </td>
@@ -250,6 +289,49 @@
                 content += '<option value="" selected>'+displayCollection+'</option>';
                 $.each(result.data, (key, value) => {
                     content += '<option value="'+value.ase.id+'">'+value.ase.name+'</option>';
+                });
+                $(slectTag).html(content).attr('disabled', false);
+            }
+        });
+    });
+</script>
+<script>
+    $('select[name="state_id"]').on('change', (event) => {
+        var value = $('select[name="state_id"]').val();
+
+        $.ajax({
+            url: '{{url("/")}}/admin/state-wise-area/'+value,
+            method: 'GET',
+            success: function(result) {
+                var content = '';
+                var slectTag = 'select[name="area_id"]';
+                var displayCollection =  "All";
+
+                content += '<option value="" selected>'+displayCollection+'</option>';
+                $.each(result.data.area, (key, value) => {
+                    content += '<option value="'+value.area_id+'">'+value.area+'</option>';
+                });
+                $(slectTag).html(content).attr('disabled', false);
+            }
+        });
+    });
+</script>
+
+<script>
+    $('select[name="area_id"]').on('change', (event) => {
+        var value = $('select[name="area_id"]').val();
+
+        $.ajax({
+            url: '{{url("/")}}/api/store/?area_id='+value,
+            method: 'GET',
+            success: function(result) {
+                var content = '';
+                var slectTag = 'select[name="store_id"]';
+                var displayCollection =  "All";
+
+                content += '<option value="" selected>'+displayCollection+'</option>';
+                $.each(result.data, (key, value) => {
+                    content += '<option value="'+value.id+'">'+value.name+'</option>';
                 });
                 $(slectTag).html(content).attr('disabled', false);
             }

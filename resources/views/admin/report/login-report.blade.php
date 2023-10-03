@@ -1,5 +1,5 @@
 @extends('admin.layouts.app')
-@section('page', 'User Attendance')
+@section('page', 'Login Report')
 @section('content')
 
 <section class="store-sec ">
@@ -95,13 +95,23 @@
             
                       </div>
                   </div>
-                  
-                 <table class="table" >
+   <div class="table-responsive">
+     <table class="table" >
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Emp Name</th>
-                <th>Emp Designation</th>
+                <th>NSM</th>
+				<th>ZSM</th>
+				<th>RSM</th>
+				<th>SM</th>
+				<th>ASM</th> 
+				<th>Employee</th>
+				<th>Employee Id</th>
+				<th>Employee Status</th>
+				<th>Employee Designation</th>
+				<th>Employee Date of Joining</th>
+				<th>Employee HQ</th>
+				<th>Employee Contact No</th>
                 <th>Login Status</th>
                 <th>Login Time</th>
                 <th></th>
@@ -109,17 +119,26 @@
         </thead>
         <tbody>
             @forelse ($data as $index => $item)
-              
+              @php
+                  $findTeamDetails= findTeamDetails($item->users->id, $item->users->type);
+                              
+              @endphp
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}</td>
-                    <td>
-                     
-                        <p class="text-dark">{{$item->users ? $item->users->name : ''}}</p>
-                        {{$item->users->employee_id ?? ''}} 
-                    </td>
-                    <td>
-                        <p class="text-dark">{{$item->users ? $item->users->designation : ''}}</p>
-                    </td>
+                    <td> {{$findTeamDetails[0]['nsm'] ?? ''}} </td> 
+					<td> {{$findTeamDetails[0]['zsm']?? ''}} </td> 
+					<td> {{$findTeamDetails[0]['rsm']?? ''}} </td> 
+					<td> {{$findTeamDetails[0]['sm']?? ''}} </td> 
+					<td> {{$findTeamDetails[0]['asm']?? ''}} </td> 
+					<td>
+						{{$item->users ? $item->users->name : ''}}
+					</td>
+					<td> {{$item->users->employee_id ?? ''}} </td>
+					<td> <span class="badge bg-{{($item->users->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span> </td>
+					<td> {{$item->users->designation?? ''}} </td>
+					<td> {{$item->users->date_of_joining?? ''}} </td>
+					<td> {{$item->users->headquater?? ''}} </td>
+					<td> {{$item->users->mobile}} </td>
                    
                     @if($item->is_login=='')
                     <td> Inactive 
@@ -140,7 +159,7 @@
             @endforelse
         </tbody>
     </table>
-
+</div>
     <div class="d-flex justify-content-end">
         {{ $data->appends($_GET)->links() }}
     </div>

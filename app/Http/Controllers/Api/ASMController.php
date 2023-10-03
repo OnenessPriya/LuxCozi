@@ -183,26 +183,26 @@ class ASMController extends Controller
 				
 				// notification to RSM
 				$loggedInUser = $name;
-				$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '$request->user_id' ");
+				$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '$request->user_id' GROUP BY t.rsm_id");
 				foreach($rsm as $value){
 					sendNotification($store->user_id, $value->rsm_id, 'store-add', '', $store->name. '  added by '  .$loggedInUser ,' Store ' .$store->name. ' added');
 				}
 
 				// notification to SM
 				$loggedInUser = $name;
-				$sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '$request->user_id' ");
+				$sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '$request->user_id' GROUP BY t.sm_id");
 				foreach($sm as $value){
 					sendNotification($store->user_id, $value->sm_id, 'store-add', '', $store->name. '  added by ' .$loggedInUser ,'Store ' .$store->name.' added  ');
 				}
                 // notification to ZSM
 				$loggedInUser = $name;
-				$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '$request->user_id'  ");
+				$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '$request->user_id'  GROUP BY t.zsm_id");
 				foreach($zsm as $value){
 					sendNotification($store->user_id, $value->zsm_id, 'store-add', '', $store->name. '  added by ' .$loggedInUser ,'Store ' .$store->name.' added  ');
 				}
                 // notification to NSM
 				$loggedInUser = $name;
-				$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '$request->user_id'");
+				$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '$request->user_id' GROUP BY t.nsm_id");
 				foreach($nsm as $value){
 					sendNotification($store->user_id, $value->nsm_id, 'store-add', '', $store->name. '  added by ' .$loggedInUser ,'Store ' .$store->name.' added  ');
 				}
@@ -489,27 +489,27 @@ class ASMController extends Controller
     
                 // notification to SM
     			$loggedInUser = $aseName;
-                $sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '".$collectedData['user_id']."'");
+                $sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '".$collectedData['user_id']."' GROUP BY t.sm_id");
                 foreach($sm as $value){
                     sendNotification($collectedData['user_id'], $value->sm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
                 }
     			// notification to RSM
     			$loggedInUser = $aseName;
-    			$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '".$collectedData['user_id']."'");
+    			$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '".$collectedData['user_id']."' GROUP BY t.rsm_id");
     			foreach($rsm as $value){
     				sendNotification($collectedData['user_id'], $value->rsm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
     			}
     			
     			// notification to ZSM
     			$loggedInUser = $aseName;
-    			$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '".$collectedData['user_id']."'");
+    			$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '".$collectedData['user_id']."' GROUP BY t.zsm_id");
     			foreach($zsm as $value){
     				sendNotification($collectedData['user_id'], $value->zsm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
     			}
     
                 // notification to NSM
     			$loggedInUser = $aseName;
-    			$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '".$collectedData['user_id']."'");
+    			$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '".$collectedData['user_id']."' GROUP BY t.nsm_id");
     			foreach($nsm as $value){
     				sendNotification($collectedData['user_id'], $value->nsm_id, 'secondary-order-place', 'front.user.order', $totalOrderQty.' new order placed by ' .$loggedInUser ,$totalOrderQty.' new order placed from  '.$name);
     			}

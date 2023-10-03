@@ -16,14 +16,16 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="title" name="name" placeholder="name@example.com" value="{{ $data->name }}">
-                                        <label for="title">Name *</label>
+                                        <label for="title">Name <span class="text-danger">*</span></label>
                                     </div>
                                     @error('name') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
+									<label for="title">State <span class="text-danger">*</span></label>
                                     <div class="form-floating mb-3">
+										
                                         <select class="form-control form-control-sm select2" name="cat_id" id="cat_id">
                                             <option value="" selected disabled>Select</option>
                                             @foreach ($states as $index => $item)

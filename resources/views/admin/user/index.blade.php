@@ -71,11 +71,11 @@
                                                         <iconify-icon icon="prime:plus-circle"></iconify-icon> Create
                                                     </a>
                                                 </div>
-                                                <div class="search-filter-right-el">
+                                                {{--<div class="search-filter-right-el">
                                                     <a href="{{ route('admin.users.create') }}" class="btn btn-outline-danger btn-sm">
                                                         <iconify-icon icon="prime:plus-circle"></iconify-icon>Distributor  Create
                                                     </a>
-                                                </div>
+                                                </div>--}}
                                                 <div class="search-filter-right-el">
                                                     <a href="#csvUploadModal" data-bs-toggle="modal" class="btn btn-danger"> <iconify-icon icon="prime:plus-circle"></iconify-icon>Distributor Bulk upload</a>
                                                </div>
@@ -120,7 +120,7 @@
                               @forelse ($data as $index => $item)
                                     @php
                                         $area ='';
-                                        $areaDetail = DB::table('user_areas')->where('user_id','=',$item->id)->get();
+                                        $areaDetail = DB::table('user_areas')->where('user_id','=',$item->id)->groupby('area_id')->get();
                                         
                                         if(!empty($areaDetail)) {
                                             foreach($areaDetail as $key => $obj) {
@@ -201,7 +201,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" action="{{ route('admin.areas.csv.upload') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
+                <form method="post" action="{{ route('admin.users.csv.upload') }}" enctype="multipart/form-data" id="borrowerCsvUpload">@csrf
                     <input type="file" name="file" class="form-control" accept=".csv">
                     <br>
                     <a href="{{ asset('admin/user.csv') }}">Download Sample CSV</a>

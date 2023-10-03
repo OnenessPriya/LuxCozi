@@ -152,7 +152,7 @@ class StoreController extends Controller
             'address' => 'required',
             'area_id' => 'nullable',
             'state_id' => 'nullable',
-            'city_id' => 'nullable',
+            'city' => 'nullable',
             'pin' => 'required|integer|digits:6',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000000',
         ]);
@@ -211,7 +211,7 @@ class StoreController extends Controller
         $store->address = $request->address ?? null;
         $store->area_id = $request->area_id;
         $store->state_id = $request->state_id;
-        $store->city = $request->area_id;
+        $store->city = $request->city;
         $store->pin = $request->pin ?? null;
 		$store->contact_person_fname = $request->contact_person_fname ?? null;
 		$store->contact_person_lname = $request->contact_person_lname ?? null;
@@ -422,25 +422,28 @@ class StoreController extends Controller
         }
     }
     
-      //user no order reason list
+       //user no order reason list
     public function noOrderreason(Request $request)
     {
-        if (isset($request->user_id) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+        if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
 
-            $user_id = $request->user_id ? $request->user_id : '';
+            $user_id = $request->ase ? $request->ase : '';
             $asm=$request->asm ? $request->asm : '';
             $store_id = $request->store_id ? $request->store_id : '';
             $comment = $request->comment ? $request->comment : '';
             $keyword = $request->keyword ? $request->keyword : '';
 
             $query = UserNoorderreason::query();
-
-            $query->when($user_id, function($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            });
+            if(!empty($request->ase))
+            {
+                $query->when($user_id, function($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                });
+           }else{
             $query->when($asm, function($query) use ($asm) {
                 $query->where('user_id', $asm);
             });
+           }
             $query->when($store_id, function($query) use ($store_id) {
                 $query->where('store_id', $store_id);
             });
@@ -460,13 +463,13 @@ class StoreController extends Controller
         $ases = User::select('id', 'name')->where('type', 6)->orWhere('type', 5)->orderBy('name')->get();
         $stores = Store::select('id', 'name')->where('status',1)->orderBy('name')->get();
         $reasons = NoOrderReason::select('noorderreason')->orderBy('noorderreason')->get();
-    
-        return view('admin.store.noorder',compact('data', 'ases', 'stores', 'reasons','request','zsm'));
+        $state = State::where('status',1)->groupBy('name')->orderBy('name')->get();
+        return view('admin.store.noorder',compact('data', 'ases', 'stores', 'reasons','request','zsm','state'));
     }
     //csv export of no order reason list
     public function noOrderreasonCSV(Request $request)
     {
-        if (isset($request->user_id) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+        if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
 
             $user_id = $request->ase ? $request->ase : '';
             $asm=$request->asm ? $request->asm : '';
@@ -476,12 +479,17 @@ class StoreController extends Controller
 
             $query = UserNoorderreason::query();
 
-            $query->when($user_id, function($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            });
-            $query->when($asm, function($query) use ($asm) {
-                $query->where('user_id', $asm);
-            });
+            if(!empty($request->ase))
+            {
+                $query->when($user_id, function($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                });
+            }else{
+                $query->when($asm, function($query) use ($asm) {
+                    $query->where('user_id', $asm);
+                });
+            }
+            
             $query->when($store_id, function($query) use ($store_id) {
                 $query->where('store_id', $store_id);
             });
@@ -505,7 +513,7 @@ class StoreController extends Controller
             $f = fopen('php://memory', 'w');
 
             // Set column headers
-            $fields = array('SR', 'STORE', 'USER', 'COMMENT', 'DESCRIPTION', 'LOCATION', 'DATETIME');
+            $fields = array('SR', 'NSM', 'ZSM','RSM','SM','ASM','Employee','Employee Id','Employee Status','Employee Designation','Employee Date of Joining','Employee HQ','Employee Contact No','Store',  'Comment', 'Description', 'Location', 'DateTime');
             fputcsv($f, $fields, $delimiter);
 
             $count = 1;
@@ -515,11 +523,22 @@ class StoreController extends Controller
 
                 $store = Store::select('name')->where('id', $row['store_id'])->first();
                 $ase = User::select('name', 'mobile', 'state', 'city', 'pin')->where('id', $row['user_id'])->first();
-
+                $findTeamDetails= findTeamDetails($row->users->id, $row->users->type);
                 $lineData = array(
                     $count,
+                    $findTeamDetails[0]['nsm'] ?? '',
+                    $findTeamDetails[0]['zsm']?? '',
+                    $findTeamDetails[0]['rsm']?? '',
+                    $findTeamDetails[0]['sm']?? '',
+                    $findTeamDetails[0]['asm']?? '',
+                    $row->users ? $row->users->name : '',
+                    $row->users->employee_id ?? '',
+                    ($row->users->status == 1)  ? 'Active' : 'Inactive',
+                    $row->users->designation?? '',
+                    $row->users->date_of_joining?? '',
+                    $row->users->headquater?? '',
+                    $row->users->mobile,
                     $store->name ?? '',
-                    $ase->name ?? '',
                     $row['comment'],
                     $row['description'],
                     $row['location'],

@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\HQController;
 // admin guard
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['guest:admin'])->group(function () {
@@ -26,10 +27,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
         Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post');
         Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
-        Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
+       
     });
     // dashboard
         Route::get('/dashboard', [AuthController::class, 'show'])->name('dashboard');
+	    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+        Route::post('/profile',[AuthController::class, 'update'])->name('profile.update');
+	    Route::post('reset-password', [AuthController::class, 'changePassword'])->name('reset.password.post');
         Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
         // products
         Route::resource('products', ProductController::class);
@@ -68,11 +72,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/schemes/{id}/status', [OfferController::class, 'status'])->name('schemes.status');
          //users
         Route::resource('users', UserController::class);
+	    //team create
+        Route::post('/users/team/add', [UserController::class, 'userTeamAdd'])->name('users.team.add');
+        //team edit
+        Route::post('/users/team/update/{id}', [UserController::class, 'userTeamEdit'])->name('users.team.update');
+        //team delete
+        Route::get('/users/team/destroy/{id}', [UserController::class, 'userTeamDestroy'])->name('users.team.delete');
+	
         Route::get('/users/{id}/status', [UserController::class, 'status'])->name('users.status');
         Route::get('/users/collection/{id}', [UserController::class, 'collection'])->name('users.collection');
         Route::post('/users/{id}/collection/create', [UserController::class, 'collectionCreate'])->name('users.collection.create');
 		Route::get('/collection/delete/{id}', [UserController::class, 'collectionDelete'])->name('users.collection.delete');
         Route::get('/users/state/{state}', [UserController::class, 'state'])->name('users.state');
+		Route::post('/users/area', [UserController::class, 'areaStore'])->name('users.area.store');
         Route::get('/users/csv/export', [UserController::class, 'csvExport'])->name('users.csv.export');
         Route::post('/users/password/generate', [UserController::class, 'passwordGenerate'])->name('users.password.generate');
 		Route::post('/users/password/reset', [UserController::class, 'passwordReset'])->name('users.password.reset');
@@ -89,9 +101,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //employee productivity
         Route::get('/employee/productivity', [UserController::class, 'employeeProductivity'])->name('employee.productivity');
         Route::get('/employee/productivity/report/csv', [UserController::class, 'employeeProductivityCSV'])->name('employee.productivity.csv.download');
-        //login report
-        Route::get('/login/report', [UserController::class, 'attendanceList'])->name('login.report');
-        Route::get('/login/report/csv', [UserController::class, 'attendanceListCSV'])->name('login.report.csv.download');
+      
         //stores
         Route::resource('stores', StoreController::class);
         Route::get('/stores/{id}/status', [StoreController::class, 'status'])->name('stores.status');
@@ -107,6 +117,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('areas', AreaController::class);
         Route::get('/areas/{id}/status', [AreaController::class, 'status'])->name('areas.status');
         Route::post('/areas/csv/upload', [AreaController::class, 'areaCSVUpload'])->name('areas.csv.upload');
+	   //HeadQuater
+        Route::resource('headquaters', HQController::class);
+        Route::get('/headquaters/{id}/status', [HQController::class, 'status'])->name('headquaters.status');
+        Route::post('/headquaters/csv/upload', [HQController::class, 'headquaterCSVUpload'])->name('headquaters.csv.upload');
         //colors
         Route::resource('colors', ColorController::class);
         Route::get('/colors/{id}/status', [ColorController::class, 'status'])->name('colors.status');
@@ -144,5 +158,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //login report
         Route::get('login/report', [OrderController::class, 'loginReport'])->name('login.report.index');
         Route::get('login/report/csv/export', [OrderController::class, 'loginReportcsvExport'])->name('login.report.csv.export');
-
+		Route::post('/user/csv/upload', [AreaController::class, 'userCSVUpload'])->name('users.csv.upload');
 });

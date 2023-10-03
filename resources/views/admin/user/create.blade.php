@@ -29,7 +29,7 @@
                                             <option value="7" >Distributor</option>
                                         </select>
                                         <label>Type <span class="text-danger">*</span> </label>
-                                        @error('user_type') <p class="small text-danger">{{ $message }}</p> @enderror
+                                        @error('type') <p class="small text-danger">{{ $message }}</p> @enderror
                                 
                                     </div>
                                 </div>
@@ -38,7 +38,7 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="designation" name="designation" placeholder="name@example.com" value="{{ old('designation') ? old('designation') : '' }}">
-                                        <label for="designation">Designation *</label>
+                                        <label for="designation">Designation <span class="text-danger">*</span></label>
                                     </div>
                                     @error('designation') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
@@ -47,7 +47,7 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="employee_id" name="employee_id" placeholder="name@example.com" value="{{ old('employee_id') ? old('employee_id') : '' }}">
-                                        <label for="employee_id">Employee ID</label>
+                                        <label for="employee_id">Employee ID<span class="text-danger">*</span></label>
                                     </div>
                                     @error('employee_id') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
@@ -78,7 +78,7 @@
                                 <div class="form-group ">
                                     <div class="form-floating mb-3">
                                         <label class="label-control">Full Name <span class="text-danger">*</span> </label>
-                                        <input type="text" name="name" placeholder="" class="form-control" value=" {{request()->input('fname') . ' '  . request()->input('lname')}}">
+                                        <input type="text" name="name" placeholder="" class="form-control" value=" {{old('name')}}">
                                         @error('name') <p class="small text-danger">{{ $message }}</p> @enderror
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
-                                        <label class="label-control">Email <span class="text-danger">*</span> </label>
+                                        <label class="label-control">Email  </label>
                                         <input type="email" name="email" placeholder="" class="form-control" value="{{old('email')}}">
                                         @error('email') <p class="small text-danger">{{ $message }}</p> @enderror
                                     </div>
@@ -106,7 +106,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
-                                        <label class="label-control">WhatsApp Number <span class="text-danger">*</span> </label>
+                                        <label class="label-control">WhatsApp Number </label>
                                         <input type="number" name="whatsapp_no" placeholder="" class="form-control" value="{{old('whatsapp_no')}}">
                                         @error('whatsapp_no') <p class="small text-danger">{{ $message }}</p> @enderror
                                     </div>
@@ -119,6 +119,7 @@
                         <div class="row mb-2">
                             <div class="col-md-4">
                                 <div class="form-group">
+									<label for="state">State <span class="text-danger">*</span></label>
                                     <div class="form-floating mb-3">
                                         <select class="form-select" id="state" name="state" aria-label="Floating label select example">
                                             <option value="" selected disabled>Select</option>
@@ -126,7 +127,7 @@
                                                 <option value="{{ $item->name }}">{{ $item->name }}</option>
                                             @endforeach
                                         </select>
-                                            <label for="state">State *</label>
+                                            
                                     </div>
                                     @error('state') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
@@ -134,13 +135,29 @@
                             
                             <div class="col-md-4">
                                 <div class="form-group">
+									 <label for="area">City/ Area</label>
                                     <div class="form-floating mb-3">
                                         <select class="form-select" id="area" name="area" aria-label="Floating label select example" disabled>
                                             <option value="">Select State first</option>
                                         </select>
-                                        <label for="area">City/ Area *</label>
+                                       
                                     </div>
                                     @error('area') <p class="small text-danger">{{$message}}</p> @enderror
+                                </div>
+                            </div>
+							<div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="state">HQ </label>
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select select2" id="headquater" name="headquater" aria-label="Floating label select example">
+                                            <option value="" selected disabled>Select</option>
+                                            @foreach ($hq as $index => $item)
+                                                <option value="{{ $item->name }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                           
+                                    </div>
+                                    @error('headquater') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
                             </div>
                             <div class="col-md-4">

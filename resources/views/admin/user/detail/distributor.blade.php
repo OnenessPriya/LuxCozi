@@ -108,27 +108,7 @@
 
                     <hr>
 
-                    <div class="row">
-                        <div class="col-12">
-                            <p class="text-dark">Optional Contact information</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Alt. Mobile number 1</p>
-                            <h5>{{$data->user->alt_number1 ? $data->user->alt_number1 : 'NA'}}</h5>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Alt. Mobile number 2</p>
-                            <h5>{{$data->user->alt_number2 ? $data->user->alt_number2 : 'NA'}}</h5>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Alt. Mobile number 3</p>
-                            <h5>{{$data->user->alt_number3 ? $data->user->alt_number3 : 'NA'}}</h5>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">Personal email</p>
-                            <h5>{{$data->user->personal_mail ? $data->user->personal_mail : 'NA'}}</h5>
-                        </div>
-                    </div>
+              
 					@if(count($data->storeList)>0)
 					 <div class="row">
                         <div class="col-12">

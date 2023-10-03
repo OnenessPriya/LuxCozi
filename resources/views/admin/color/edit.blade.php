@@ -16,7 +16,7 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="text" class="form-control" id="title" name="name" placeholder="name@example.com" value="{{ $data->name }}">
-                                        <label for="title">Title *</label>
+                                        <label for="title">Title <span clas="textdanger">*</span></label>
                                     </div>
                                     @error('name') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
@@ -25,9 +25,9 @@
                                 <div class="form-group">
                                     <div class="form-floating mb-3">
                                         <input type="color" class="form-control" id="code" name="code" placeholder="name@example.com" value="{{$data->code}}">
-                                        <label for="title">Code *</label>
+										<label for="title">Code <span clas="textdanger">*</span></label>
                                     </div>
-                                    @error('name') <p class="small text-danger">{{$message}}</p> @enderror
+                                    @error('code') <p class="small text-danger">{{$message}}</p> @enderror
                                 </div>
                             </div>
                         </div>

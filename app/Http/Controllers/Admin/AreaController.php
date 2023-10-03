@@ -158,6 +158,7 @@ class AreaController extends Controller
     //user csv upload
      public function userCSVUpload(Request $request)
      {
+		 //dd($request->all());
          if (!empty($request->file)) {
              $file = $request->file('file');
              $filename = $file->getClientOriginalName();

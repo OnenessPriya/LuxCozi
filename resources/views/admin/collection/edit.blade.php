@@ -52,65 +52,7 @@
                                 </div>
                                 @error('icon_path') <p class="small text-danger">{{ $message }}</p> @enderror
                             </div>
-                            <div class="col-md-6 card">
-                                <div class="card-header p-0 mb-3">Sketch Icon <span class="text-danger">*</span></div>
-                                <div class="card-body p-0">
-                                    <div class="w-100 product__thumb">
-                                        <label for="sketch_icon"><img id="outputSketch" src="{{ asset($data->sketch_icon) }}" /></label>
-                                    </div>
-                                    <input type="file" name="sketch_icon" id="sketch_icon" accept="image/*" onchange="loadSketch(event)" class="d-none">
-                                    <script>
-                                        var loadSketch = function(event) {
-                                            var outputSketch = document.getElementById('outputSketch');
-                                            outputSketch.src = URL.createObjectURL(event.target.files[0]);
-                                            outputSketch.onload = function() {
-                                                URL.revokeObjectURL(outputSketch.src) // free memory
-                                            }
-                                        };
-                                    </script>
-                                </div>
-                                @error('sketch_icon') <p class="small text-danger">{{ $message }}</p> @enderror
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 card">
-                                <div class="card-header p-0 mb-3">Image <span class="text-danger">*</span></div>
-                                <div class="card-body p-0">
-                                    <div class="w-100 product__thumb">
-                                        <label for="thumbnail"><img id="output" src="{{ asset($data->image_path) }}" /></label>
-                                    </div>
-                                    <input type="file" name="image_path" id="thumbnail" accept="image/*" onchange="loadFile(event)" class="d-none">
-                                    <script>
-                                        var loadFile = function(event) {
-                                            var output = document.getElementById('output');
-                                            output.src = URL.createObjectURL(event.target.files[0]);
-                                            output.onload = function() {
-                                                URL.revokeObjectURL(output.src) // free memory
-                                            }
-                                        };
-                                    </script>
-                                </div>
-                                @error('image_path') <p class="small text-danger">{{ $message }}</p> @enderror
-                            </div>
-                            <div class="col-md-6 card">
-                                <div class="card-header p-0 mb-3">Banner Image <span class="text-danger">*</span></div>
-                                <div class="card-body p-0">
-                                    <div class="w-100 product__thumb">
-                                        <label for="banner"><img id="bannerOutput" src="{{ asset($data->banner_image) }}" /></label>
-                                    </div>
-                                    <input type="file" name="banner_image" id="banner" accept="image/*" onchange="loadBanner(event)" class="d-none">
-                                    <script>
-                                        let loadBanner = function(event) {
-                                            let output = document.getElementById('bannerOutput');
-                                            output.src = URL.createObjectURL(event.target.files[0]);
-                                            output.onload = function() {
-                                                URL.revokeObjectURL(output.src) // free memory
-                                            }
-                                        };
-                                    </script>
-                                </div>
-                                @error('banner_image') <p class="small text-danger">{{ $message }}</p> @enderror
-                            </div>
+                            
                         </div>
                         <div class="form-group">
                             <button type="submit" class="btn btn-sm btn-danger">Update Collection</button>

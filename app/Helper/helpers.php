@@ -9,6 +9,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Models\UserLogin;
 use App\Models\Activity;
+use Carbon\Carbon;
 $datetime = date('Y-m-d H:i:s');
 
 if (!function_exists('in_array_r')) {
@@ -213,7 +214,7 @@ if (!function_exists('findManagerDetails')) {
                 $query=Team::select('nsm_id')->where('zsm_id',$userName)->groupby('zsm_id')->with('nsm')->first();
                
                 if ($query) {
-                    $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name;
+                    $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name?? '';
                 } else {
                     $namagerDetails = "";
                 }
@@ -231,7 +232,7 @@ if (!function_exists('findManagerDetails')) {
                 break;
             case 4:
                 $query=Team::select('nsm_id','zsm_id','rsm_id')->where('sm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm')->first();
-                
+                 //dd($query);
                 if ($query) {
                     $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
                     <br> 
@@ -243,8 +244,8 @@ if (!function_exists('findManagerDetails')) {
                 }
                 break;
                 case 5:
-                    $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id')->where('asm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm')->first();
-                    
+                   $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id')->where('asm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm')->first();
+                    //dd($userName);
                     if ($query) {
                         $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
                         <br> 
@@ -263,7 +264,7 @@ if (!function_exists('findManagerDetails')) {
                         if ($query) {
                             $namagerDetails = "<span class='text-dark'>NSM:</span> ".$query->nsm->name." 
                             <br> 
-                            <span class='text-dark'>ZSM:</span> ".$query->zsm->name." 
+                            <span class='text-dark'>ZSM:</span> ".$query->zsm->name ." 
                             <br> 
                             <span class='text-dark'>RSM:</span> ".$query->rsm->name."
                             <br> 
@@ -278,7 +279,7 @@ if (!function_exists('findManagerDetails')) {
                 $namagerDetails = "";
                 break;
         }
-      
+
         return $namagerDetails;
     }
 }
@@ -300,16 +301,6 @@ if (!function_exists('userTypeName')) {
         return $userTypeDetail;
     }
 }
-
-
-if (!function_exists('orderproductCategory')) {
-    function orderproductCategory($from,$to,$cat ) {
-        $countDetails=OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"))->join('products', 'products.id', 'order_products.product_id')->where('products.cat_id',1)->whereBetween('order_products.created_at', [$from, $to])->first();
-       
-        return $countDetails->qty;
-    }
-}
-
 function dates_month($month, $year) {
     $num = cal_days_in_month(CAL_GREGORIAN, $month, $year);
     $month_names = array();
@@ -387,5 +378,127 @@ function dates_attendance($id, $date) {
     return [$users];
 }
 
+if (!function_exists('findTeamDetails')) {
+    function findTeamDetails($userName, $userType ) {
+        $namagerDetails = array();
+        $team_wise_attendance =array();
+        switch ($userType) {
+            case 1:
+                $namagerDetails[] = "";
+                break;
+            case 2:
+                $query=Team::select('nsm_id')->where('zsm_id',$userName)->groupby('zsm_id')->with('nsm')->first();
+               
+                if ($query) {
+                    $namagerDetails['nsm'] = $query->nsm->name?? '';
+                    $namagerDetails['zsm'] = "";
+                    $namagerDetails['rsm'] = "";
+                    $namagerDetails['sm'] = "";
+                    $namagerDetails['asm'] = "";
+                } else {
+                    $namagerDetails[] = "";
+                }
+                break;
+            case 3:
+                $query=Team::select('nsm_id','zsm_id')->where('rsm_id',$userName)->groupby('rsm_id')->with('nsm','zsm')->first();
+                
+                if ($query) {
+                    $namagerDetails['nsm'] = $query->nsm->name?? '';
+                    $namagerDetails['zsm'] = $query->zsm->name?? '';
+                    $namagerDetails['rsm'] = "";
+                    $namagerDetails['sm'] = "";
+                    $namagerDetails['asm'] = "";
+                } else {
+                    $namagerDetails[] = "";
+                }
+                break;
+            case 4:
+                $query=Team::select('nsm_id','zsm_id','rsm_id')->where('sm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm')->first();
+                
+                if ($query) {
+                    $namagerDetails['nsm'] = $query->nsm->name?? '';
+                    $namagerDetails['zsm'] = $query->zsm->name?? '';
+                    $namagerDetails['rsm'] = $query->rsm->name?? '';
+                    $namagerDetails['sm'] = "";
+                    $namagerDetails['asm'] = "";
+                } else {
+                    $namagerDetails[] = "";
+                }
+                break;
+                case 5:
+                    $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id')->where('asm_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm')->first();
+                    
+                    if ($query) {
+                        $namagerDetails['nsm'] = $query->nsm->name?? '';
+                        $namagerDetails['zsm'] = $query->zsm->name?? '';
+                        $namagerDetails['rsm'] = $query->rsm->name?? '';
+                        $namagerDetails['sm'] = $query->sm->name?? '';
+                        $namagerDetails['asm'] = "";
+                    } else {
+                        $namagerDetails[]= "";
+                    }
+                    break;
+                case 6:
+                        $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id','asm_id')->where('ase_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm','asm')->first();
+                        
+                        if ($query) {
+                            $namagerDetails['nsm'] = $query->nsm->name ?? '';
+                            $namagerDetails['zsm'] = $query->zsm->name?? '';
+                            $namagerDetails['rsm'] = $query->rsm->name?? '';
+                            $namagerDetails['sm'] = $query->sm->name?? '';
+                            $namagerDetails['asm'] = $query->asm->name?? '';
+                        } else {
+                            $namagerDetails[] = "";
+                        }
+                        break;
+            default: 
+                $namagerDetails[] = "";
+                break;
+        }
+        array_push($team_wise_attendance, $namagerDetails);
+      
+        return $team_wise_attendance;
+    }
+}
+
+function daysCount($from, $to,$userId) {
+    $days=array();
+    $d=array();
+    $to = \Carbon\Carbon::parse($to);
+    $from = \Carbon\Carbon::parse($from);
+   
+        $years = $to->diffInYears($from);
+        $months = $to->diffInMonths($from);
+        $weeks = $to->diffInWeeks($from);
+        $days = $to->diffInDays($from);
+        $hours = $to->diffInHours($from);
+        $minutes = $to->diffInMinutes($from);
+        $seconds = $to->diffInSeconds($from);
+        $d['total_days']  = $days;
+        $res2=DB::select("select * from activities where user_id='$userId' and (DATE(date) BETWEEN '".$from."' AND '".$to."') GROUP BY date");
+        $d['work_count'] = count($res2);
+        $leave=DB::select("select * from other_activities where user_id='$userId' and (DATE(date) BETWEEN '".$from."' AND '".$to."') and type='leave' GROUP BY date");
+        $d['leave_count'] = count($leave);
+        $sundays = intval($days / 7) + ($from->format('N') + $days % 7 >= 7);
+        $d['weekend_count'] = $sundays;
+        $storeCount=DB::select("select * from stores where user_id='$userId' and (DATE(created_at) BETWEEN '".$from."' AND '".$to."') GROUP BY created_at");
+        $d['store_count'] = count($storeCount);
+        $orderCount =DB::select("SELECT  IFNULL(SUM(op.qty), 0) AS product_count FROM `order_products` op
+        INNER JOIN orders o ON o.id = op.order_id
+        WHERE o.user_id = ".$userId."
+        AND (DATE(op.created_at) BETWEEN '".$from."' AND '".$to."')
+        GROUP BY o.user_id
+         ");
+         $d['order_count'] = $orderCount[0]->product_count ?? '';
+         $orderoncallCount =DB::select("SELECT  IFNULL(SUM(op.qty), 0) AS product_count FROM `order_products` op
+        INNER JOIN orders o ON o.id = op.order_id
+        WHERE o.user_id = ".$userId." AND o.order_type='order-on-call'
+        AND (DATE(op.created_at) BETWEEN '".$from."' AND '".$to."')
+        GROUP BY o.user_id
+         ");
+         $d['order_on_call_count'] = $orderoncallCount[0]->product_count ?? '';
+        //dd($d);
+    return $d;
+}
 
 

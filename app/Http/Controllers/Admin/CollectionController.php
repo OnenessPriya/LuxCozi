@@ -144,9 +144,7 @@ class CollectionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            "name" => "required|string|max:255",
-            "description" => "nullable|string",
-            "icon_path" => "nullable|mimes:jpg,jpeg,png,svg,gif|max:10000000"
+            "name" => "required|string|max:255"
         ]);
         $collection = $request->except('_token');
         $upload_path = "uploads/collection/";

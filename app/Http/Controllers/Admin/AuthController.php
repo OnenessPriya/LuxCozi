@@ -10,11 +10,14 @@ use App\Models\User;
 use App\Models\Store; 
 use App\Models\OrderProduct; 
 use AuthenticatesUsers;
+use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
-    public function __construct() {
+	protected $redirectTo = '/admin/dashboard';
+    /*public function __construct() {
         $this->middleware('guest')->except('logout');
-    }
+		
+    }*/
     /**
      * Display a listing of the resource.
      *
@@ -69,12 +72,12 @@ class AuthController extends Controller
     {
         
         $data = (object)[];
-        $data->nsm = User::select('name')->where('type',1)->get();
-        $data->zsm = User::select('name')->where('type',2)->get();
-        $data->rsm = User::select('name')->where('type',3)->get();
-        $data->sm = User::select('name')->where('type',4)->get();
-        $data->asm = User::select('name')->where('type',5)->get();
-        $data->ase = User::select('name')->where('type',6)->get();
+        $data->nsm = User::select('name')->where('type',1)->where('mobile','!=','')->get();
+        $data->zsm = User::select('name')->where('type',2)->where('mobile','!=','')->get();
+        $data->rsm = User::select('name')->where('type',3)->where('mobile','!=','')->get();
+        $data->sm = User::select('name')->where('type',4)->where('mobile','!=','')->get();
+        $data->asm = User::select('name')->where('type',5)->where('mobile','!=','')->get();
+        $data->ase = User::select('name')->where('type',6)->where('mobile','!=','')->get();
         $data->distributor =User::select('name')->where('type',7)->get();
         $data->store = Store::where('status','=', 1)->count();
         $data->secondary = OrderProduct::where('created_at', '>', date('Y-m-d'))->sum('qty');
@@ -99,9 +102,22 @@ class AuthController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $request->validate([
+            "name" => "required|string|max:255",
+            "email" => "nullable|string",
+           
+        ]);
+        $updateRequest = $request->all();
+        $id = Auth::guard('admin')->user()->id;
+		$admin = Admin::findOrfail($id);
+        $collection = collect($request)->except('_token');
+        if ($collection->has('name')) {
+            $admin->name = $collection['name'];
+            $admin->save();
+        }
+        return redirect()->back()->with('success','Profile updated successfully.');
     }
 
     /**
@@ -117,4 +133,38 @@ class AuthController extends Controller
         $request->session()->regenerate();
         return redirect()->guest(route('admin.login'));
     }
+	
+	//show my profile
+     public function profile(Request $request)
+    {
+		$profile = Admin::findOrFail(Auth::guard('admin')->user()->id);
+        return view('admin.profile.index', compact('profile'));
+    }
+
+   
+	
+	 public function changePassword(Request $request) {
+        $request->validate([
+            "current_password" => "required|string|min:6|",
+            "new_password" => "required|string|min:6|",
+            "new_confirm_password" => "required|string|min:6|",
+        ]);
+        $id = Auth::guard('admin')->user()->id;
+        $info =  Admin::findOrfail($id);
+		$collection = collect($request)->except('_token');
+        if ($collection->has('current_password')) {
+            $info->update(['password'=> Hash::make($collection['new_password'])]);
+        }
+
+        if ($info) {
+			Auth::guard('admin')->logout();
+			$request->session()->flush();
+			$request->session()->regenerate();
+        	return redirect()->guest(route('admin.login'))->with('success','Password updated successfully.' );
+          // return redirect()->back()->with('success','Password updated successfully.' );
+        } else {
+			return redirect()->back()->with('failure','failed' );
+        }
+    }
+
 }

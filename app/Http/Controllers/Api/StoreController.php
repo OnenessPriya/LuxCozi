@@ -20,7 +20,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $_GET['user_id'];
+        //$userId = $_GET['user_id'];
         $areaId = $_GET['area_id'];
         $stores =Store::where('area_id',$areaId)->where('status',1)->orderby('id','desc')->with('states:id,name','areas:id,name')->get();
         if ($stores) {
@@ -150,32 +150,32 @@ class StoreController extends Controller
 				sendNotification($store->user_id, 'admin', 'store-add', 'admin.store.index', $store->name. '  added by ' .$loggedInUser , '  Store ' .$store->name.' added');
 				// notification to ASM
 				$loggedInUser = $name;
-				$asm = DB::select("SELECT u.id as asm_id FROM `teams` t  INNER JOIN users u ON u.id = t.asm_id where t.ase_id = '$request->user_id'");
+				$asm = DB::select("SELECT u.id as asm_id FROM `teams` t  INNER JOIN users u ON u.id = t.asm_id where t.ase_id = '$request->user_id' GROUP BY t.asm_id");
 				foreach($asm as $value){
 					sendNotification($store->user_id, $value->asm_id, 'store-add', 'front.store.index', $store->name. '  added by ' .$loggedInUser , '  Store ' .$store->name.' added');
 				}
 				// notification to RSM
 				$loggedInUser = $name;
-				$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '$request->user_id' ");
+				$rsm = DB::select("SELECT u.id as rsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.rsm_id where t.ase_id = '$request->user_id' GROUP BY t.rsm_id");
 				foreach($rsm as $value){
 					sendNotification($store->user_id, $value->rsm_id, 'store-add', '', $store->name. '  added by '  .$loggedInUser ,' Store ' .$store->name. ' added');
 				}
 
 				// notification to SM
 				$loggedInUser = $name;
-				$sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '$request->user_id' ");
+				$sm = DB::select("SELECT u.id as sm_id FROM `teams` t  INNER JOIN users u ON u.id = t.sm_id where t.ase_id = '$request->user_id' GROUP BY t.sm_id");
 				foreach($sm as $value){
 					sendNotification($store->user_id, $value->sm_id, 'store-add', '', $store->name. '  added by ' .$loggedInUser ,'Store ' .$store->name.' added  ');
 				}
                 // notification to ZSM
 				$loggedInUser = $name;
-				$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '$request->user_id'  ");
+				$zsm = DB::select("SELECT u.id as zsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.zsm_id where t.ase_id = '$request->user_id'  GROUP BY t.zsm_id");
 				foreach($zsm as $value){
 					sendNotification($store->user_id, $value->zsm_id, 'store-add', '', $store->name. '  added by ' .$loggedInUser ,'Store ' .$store->name.' added  ');
 				}
                 // notification to NSM
 				$loggedInUser = $name;
-				$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '$request->user_id'");
+				$nsm = DB::select("SELECT u.id as nsm_id FROM `teams` t  INNER JOIN users u ON u.id = t.nsm_id where t.ase_id = '$request->user_id' GROUP BY t.nsm_id");
 				foreach($nsm as $value){
 					sendNotification($store->user_id, $value->nsm_id, 'store-add', '', $store->name. '  added by ' .$loggedInUser ,'Store ' .$store->name.' added  ');
 				}

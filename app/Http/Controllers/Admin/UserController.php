@@ -16,6 +16,7 @@ use App\Models\Visit;
 use App\Models\Notification;
 use App\Models\DistributorRange;
 use App\Models\Collection;
+use App\Models\HeadQuater;
 use DB;
 use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
@@ -69,7 +70,8 @@ class UserController extends Controller
     {
         $users = User::all();
         $stateDetails=State::where('status',1)->orderby('name')->groupby('name')->get();
-        return view('admin.user.create', compact('users','stateDetails'));
+		$hq=HeadQuater::where('status',1)->orderby('name')->groupby('name')->get();
+        return view('admin.user.create', compact('users','stateDetails','hq'));
     }
 
     /**
@@ -83,26 +85,23 @@ class UserController extends Controller
         //dd($request->all());
          $request->validate([
             "name" => "required",
-            "fname" => "required|string|unique:users|max:255",
-            "lname" => "required|string|unique:users|max:255",
-            "email" => "nullable|string|max:255|unique:users,email",
+            "fname" => "required|string|max:255",
+            "lname" => "required|string|max:255",
+            "email" => "nullable|string|max:255",
             "mobile" => "required|integer|digits:10",
             "whatsapp_no" => "nullable|integer|digits:10",
-            "dob" => "nullable",
-            "gender" => "nullable|string",
-            "user_type" => "nullable",
+            "type" => "required",
+			 "designation" =>"required",
             "employee_id" => "required|string|min:1",
             "address" => "nullable|string",
             "landmark" => "nullable|string",
             "state" => "required|string",
-            "city" => "required|string",
-            "aadhar_no" => "nullable|string",
-            "pan_no" => "nullable|string",
-            "pin" => "nullable|integer|digits:6",
-            "password" => "required",
-            "image"    =>"nullable|mimes:jpg,jpeg,png,svg,gif|max:10000000"
+            "area" => "nullable|string",
+            "headquater" => "nullable|string",
+            "password" => "required"
+            
         ]);
-
+		
         $collectedData = $request->except('_token');
         $newEntry = new User;
         $newEntry->fname = $collectedData['fname'];
@@ -111,19 +110,13 @@ class UserController extends Controller
         $newEntry->email = $collectedData['email'];
         $newEntry->mobile = $collectedData['mobile'];
         $newEntry->whatsapp_no = $collectedData['whatsapp_no'];
-        $newEntry->dob = $collectedData['dob'];
-        $newEntry->gender = $collectedData['gender'];
         $newEntry->employee_id = $collectedData['employee_id'];
         $newEntry->type = $collectedData['type'];
-        $newEntry->address = $collectedData['address'];
-        $newEntry->landmark = $collectedData['landmark'];
         $newEntry->state = $collectedData['state'];
-        $newEntry->city = $collectedData['city'];
-        $newEntry->pin = $collectedData['pin'];
-        $newEntry->aadhar_no = $collectedData['aadhar_no'];
-        $newEntry->pan_no = $collectedData['pan_no'];
+        $newEntry->city = $collectedData['area'];
+        $newEntry->headquater = $collectedData['headquater'] ?? '';
         $newEntry->password = Hash::make($collectedData['password']);
-        if($newEntry->image){
+        if(!empty($collectedData->image)){
         $upload_path = "uploads/user/";
         $image = $collectedData['image'];
         $imageName = time() . "." . $image->getClientOriginalName();
@@ -249,7 +242,7 @@ class UserController extends Controller
 
             $data->team = $query->paginate(25);
             
-            return view('admin.user.detail.rsm', compact('data', 'id', 'request'));
+            return view('admin.user.detail.zsm', compact('data', 'id', 'request'));
         }
          // SM
          elseif ($data->user->type == 3) {
@@ -301,7 +294,7 @@ class UserController extends Controller
             
             return view('admin.user.detail.rsm', compact('data', 'id', 'request'));
         }
-        // RSM
+        // SM
         elseif ($data->user->type == 4) {
             $user_type = $request->user_type ? $request->user_type : '';
             $name = $request->name ? $request->name : '';
@@ -349,7 +342,7 @@ class UserController extends Controller
 
             $data->team = $query->paginate(25);
             
-            return view('admin.user.detail.rsm', compact('data', 'id', 'request'));
+            return view('admin.user.detail.sm', compact('data', 'id', 'request'));
         }
         // ASM
         elseif ($data->user->type == 5) {
@@ -404,11 +397,11 @@ class UserController extends Controller
         // ASE
         elseif ($data->user->type == 6) {
             $data->retailerListOfOcc = Team::where('ase_id', $data->user->id)->where('store_id', null)->first();
-            $data->workAreaList = UserArea::where('user_id', $data->user->id)->get();
+            $data->workAreaList = UserArea::where('user_id', $data->user->id)->groupby('area_id')->get();
             $data->distributorList = Team::where('ase_id', $data->user->id)->where('distributor_id', '!=', null)->groupBy('distributor_id')->orderBy('id','desc')->get();
-			//dd($data->distributorList);
+			 $data->areaDetail= Area::orderby('name')->get();
             $data->storeList = Store::where('user_id',$data->user->id)->orderBy('name')->get();
-			//dd($data->user->name);
+			$data->team = Team::where('ase_id', $data->user->id)->first();
             return view('admin.user.detail.ase', compact('data', 'id', 'request'));
         }
         // Distributor
@@ -439,15 +432,15 @@ class UserController extends Controller
     {
         $data=User::findOrfail($id);
         $data->stateDetails = State::where('status',1)->orderby('name')->groupby('name')->get();
-        $data->allNSM = User::select('name')->where('type', '=', 1)->groupBy('name')->orderBy('name')->get();
-        $data->allZSM = User::select('name')->where('type', '=', 2)->groupBy('name')->orderBy('name')->get();
-        $data->allRSM = User::select('name')->where('type', '=', 3)->groupBy('name')->orderBy('name')->get();
-        $data->allSM = User::select('name')->where('type', '=', 4)->groupBy('name')->orderBy('name')->get();
-        $data->allASM = User::select('name')->where('type', '=', 5)->groupBy('name')->orderBy('name')->get();
-        $data->allASE = User::select('name')->where('type', '=', 6)->groupBy('name')->orderBy('name')->get();
-        $data->allDistributor = User::select('name')->where('type', '=', 7)->groupBy('name')->orderBy('name')->get();
-        
-        return view('admin.user.edit', compact('data'));
+        $data->allNSM = User::select('name','id')->where('type', '=', 1)->groupBy('name')->orderBy('name')->get();
+        $data->allZSM = User::select('name','id')->where('type', '=', 2)->groupBy('name')->orderBy('name')->get();
+        $data->allRSM = User::select('name','id')->where('type', '=', 3)->groupBy('name')->orderBy('name')->get();
+        $data->allSM = User::select('name','id')->where('type', '=', 4)->groupBy('name')->orderBy('name')->get();
+        $data->allASM = User::select('name','id')->where('type', '=', 5)->groupBy('name')->orderBy('name')->get();
+        $data->allASE = User::select('name','id')->where('type', '=', 6)->groupBy('name')->orderBy('name')->get();
+        $data->allDistributor = User::select('name','id')->where('type', '=', 7)->groupBy('name')->orderBy('name')->get();
+        $hq=HeadQuater::where('status',1)->orderby('name')->groupby('name')->get();
+        return view('admin.user.edit', compact('data','hq'));
     }
 
     /**
@@ -457,16 +450,17 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
+       //dd($request->all());
         $request->validate([
-            "type" => "required|integer|in:1,2,3,4,5,6",
+            "type" => "required|integer",
             "designation" => "nullable|string|max:255",
             "name" => "required|string|max:255",
             "fname" => "required|string|max:255",
             "lname" => "required|string|max:255",
-            "employee_id" => "required|string|max:255",
-            "mobile" => "required|integer|digits:10",
+            "employee_id" => "nullable|string|max:255",
+            "mobile" => "nullable|integer|digits:10",
             "email" => "nullable|string|max:255",
             "state" => "required|string|max:255",
             "area" => "nullable|string|max:255"
@@ -480,18 +474,18 @@ class UserController extends Controller
         $updateEntry->fname = $request->fname;
         $updateEntry->lname = $request->lname;
         $updateEntry->mobile = $request->mobile;
+        $updateEntry->whatsapp_no = $request->whatsapp_no;
         $updateEntry->employee_id = $request->employee_id;
         $updateEntry->email = $request->email;
         $updateEntry->state = $request->state;
         if(!empty($request->area)){
          $updateEntry->city = $request->area;
         }
+        $updateEntry->headquater = $request['headquater'];
         // password
         if(!empty($request->password)) $updateEntry->password = Hash::make($request->password);
 
         $updateEntry->save();
-		// insert into Team
-        $teamDetails =  Team::select('nsm_id','zsm_id','rsm_id','sm_id','asm_id','ase_id')->where('distributor_id',$id)->groupBy('distributor_id')->first();
         if ($updateEntry) {
             return redirect()->route('admin.users.edit', $id)->with('success', 'User detail updated successfully');
         } else {
@@ -537,8 +531,8 @@ class UserController extends Controller
       public function passwordGenerate(Request $request)
     {
         $userDetail = User::findOrFail($request->userId);
-        $explodedName = explode(' ', $userDetail->name);
-        $var1 = ucwords(strtolower($explodedName[0]));
+        $explodedName = $userDetail->fname;
+        $var1 = ucwords($explodedName);
 
         $state = $userDetail->state;
             $var2 = strtoupper($userDetail->employee_id);
@@ -635,14 +629,16 @@ class UserController extends Controller
 		return redirect()->back()->with('success', 'Area Added successfully');
     }
 
-    //activity list
+ //activity list
     public function activityList(Request $request)
     {
-        if (isset($request->date_from) || isset($request->date_to) || isset($request->user_id)) {
+        if (isset($request->date_from) || isset($request->date_to) || isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm)) {
             $date_from = $request->date_from ? $request->date_from : '';
             $date_to = $request->date_to ? $request->date_to : '';
-            $user_id = $request->user_id ? $request->user_id : '';
-
+            $user_id = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
+            $rsm=$request->rsm ? $request->rsm : '';
+            $zsm=$request->zsm ? $request->zsm : '';
             $query = Activity::query();
 
             $query->when($date_from, function($query) use ($date_from) {
@@ -652,27 +648,45 @@ class UserController extends Controller
                 $query->where('date', '<=', $date_to);
             });
            
-            $query->when($user_id, function($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            });
+            if(!empty($request->ase))
+            {
+                $query->when($user_id, function($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                });
+            }elseif(!empty($request->asm)){
+                $query->when($asm, function($query) use ($asm) {
+                    $query->where('user_id', $asm);
+                });
+            }elseif(!empty($request->rsm)){
+                $query->when($rsm, function($query) use ($rsm) {
+                    $query->where('user_id', $rsm);
+                });
+            }else{
+                $query->when($zsm, function($query) use ($zsm) {
+                    $query->where('user_id', $zsm);
+                });
+            }
 
             $data = $query->latest('id')->paginate(25);
         } else {
             $data = Activity::latest('id')->paginate(25);
         }
         $user = User::select('id','name')->where('type',6)->orWhere('type',5)->where('name', '!=', null)->orderBy('name')->get();
-        return view('admin.activity.index', compact('data', 'request','user'));
+        $zsm=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
+        return view('admin.activity.index', compact('data', 'request','user','zsm'));
     
     }
 
-    //activity csv export
+       //activity csv export
     public function activityCSV(Request $request)
     {
-        if (isset($request->date_from) || isset($request->date_to) || isset($request->user_id)) {
+        if (isset($request->date_from) || isset($request->date_to) || isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm)) {
             $date_from = $request->date_from ? $request->date_from : '';
             $date_to = $request->date_to ? $request->date_to : '';
-            $user_id = $request->user_id ? $request->user_id : '';
-
+            $user_id = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
+            $rsm=$request->rsm ? $request->rsm : '';
+            $zsm=$request->zsm ? $request->zsm : '';
             $query = Activity::query();
 
             $query->when($date_from, function($query) use ($date_from) {
@@ -682,13 +696,28 @@ class UserController extends Controller
                 $query->where('date', '<=', $date_to);
             });
            
-            $query->when($user_id, function($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            });
+            if(!empty($request->ase))
+            {
+                $query->when($user_id, function($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                });
+            }elseif(!empty($request->asm)){
+                $query->when($asm, function($query) use ($asm) {
+                    $query->where('user_id', $asm);
+                });
+            }elseif(!empty($request->rsm)){
+                $query->when($rsm, function($query) use ($rsm) {
+                    $query->where('user_id', $rsm);
+                });
+            }else{
+                $query->when($zsm, function($query) use ($zsm) {
+                    $query->where('user_id', $zsm);
+                });
+            }
 
-            $data = $query->latest('id')->with('users')->get();
+            $data = $query->latest('id')->paginate(25);
         } else {
-            $data = Activity::latest('id')->with('users')->get();
+            $data = Activity::latest('id')->paginate(25);
         }
 
 
@@ -700,18 +729,31 @@ class UserController extends Controller
             $f = fopen('php://memory', 'w');
 
             // Set column headers
-            $fields = array('SR', 'USER', 'TYPE', 'COMMENT', 'LOCATION', 'DATETIME');
+            $fields = array('SR','NSM', 'ZSM','RSM','SM','ASM','Employee','Employee Id','Employee Status','Employee Designation','Employee Date of Joining','Employee HQ','Employee Contact No', 'Type', 'Date','Time','Comment', 'Location', 'DateTime');
             fputcsv($f, $fields, $delimiter);
 
             $count = 1;
 
             foreach($data as $row) {
                 $datetime = date('j F, Y h:i A', strtotime($row['created_at']));
-
+                $findTeamDetails= findTeamDetails($row->users->id, $row->users->type);
                 $lineData = array(
                     $count,
-                    $row->users->name ?? '',
-                    $row['users']['type'],
+                    $findTeamDetails[0]['nsm'] ?? '',
+                    $findTeamDetails[0]['zsm']?? '',
+                    $findTeamDetails[0]['rsm']?? '',
+                    $findTeamDetails[0]['sm']?? '',
+                    $findTeamDetails[0]['asm']?? '',
+                    $row->users ? $row->users->name : '',
+                    $row->users->employee_id ?? '',
+                    ($row->users->status == 1)  ? 'Active' : 'Inactive',
+                    $row->users->designation?? '',
+                    $row->users->date_of_joining?? '',
+                    $row->users->headquater?? '',
+                    $row->users->mobile,
+                    $row['type'],
+                    $row['date'],
+                    $row['time'],
                     $row['comment'],
                     $row['location'],
                     $datetime
@@ -782,13 +824,16 @@ class UserController extends Controller
 
 
       //attendance list
-    public function attendanceList(Request $request)
+public function attendanceList(Request $request)
     {
-        if (isset($request->date_from) || isset($request->date_to) || isset($request->keyword)) {
+        if (isset($request->date_from) || isset($request->date_to) || isset($request->keyword)||isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm)) {
             $date_from = $request->date_from ? $request->date_from : '';
             $date_to = $request->date_to ? $request->date_to : '';
             $keyword = $request->keyword ? $request->keyword : '';
-
+            $user_id = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
+            $rsm=$request->rsm ? $request->rsm : '';
+            $zsm=$request->zsm ? $request->zsm : '';
             $query = UserAttendance::select('user_attendances.id','user_attendances.user_id','user_attendances.entry_date','user_attendances.type','user_attendances.start_time','user_attendances.end_time','user_attendances.other_activities_id')->join('users', 'user_attendances.user_id', 'users.id');
 
             $query->when($date_from, function($query) use ($date_from) {
@@ -797,29 +842,53 @@ class UserController extends Controller
             $query->when($date_to, function($query) use ($date_to) {
                 $query->where('user_attendances.entry_date', '<=', $date_to);
             });
-           
+            
             $query->when($keyword, function($query) use ($keyword) {
                 $query->where('users.name', 'like', '%'.$keyword.'%');
             });
 
-            $data = $query->orderby('user_attendances.entry_date','desc')->groupby('user_attendances.entry_date','user_attendances.user_id')->paginate(25);
+            if(!empty($request->ase))
+            {
+                $query->when($user_id, function($query) use ($user_id) {
+                    $query->where('user_attendances.user_id', $user_id);
+                });
+            }elseif(!empty($request->asm)){
+                $query->when($asm, function($query) use ($asm) {
+                    $query->where('user_attendances.user_id', $asm);
+                });
+            }elseif(!empty($request->rsm)){
+                $query->when($rsm, function($query) use ($rsm) {
+                    $query->where('user_attendances.user_id', $rsm);
+                });
+            }else{
+                $query->when($zsm, function($query) use ($zsm) {
+                    $query->where('user_attendances.user_id', $zsm);
+                });
+            }
+
+            $data = $query->whereNotIn('users.type', [1,4,7])->orderby('user_attendances.entry_date','desc')->groupby('user_attendances.entry_date','user_attendances.user_id')->paginate(25);
             //dd($data);
         } else {
             $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->paginate(25);
         }
-        
-        return view('admin.attendance.index', compact('data', 'request'));
+        $zsmDetails=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
+
+        return view('admin.attendance.index', compact('data', 'request','zsmDetails'));
     
     }
 
+    
     //attendance csv export
-    public function attendanceCSV(Request $request)
+    public function attendanceListCSV(Request $request)
     {
-        if (isset($request->date_from) || isset($request->date_to) || isset($request->keyword)) {
+        if (isset($request->date_from) || isset($request->date_to) || isset($request->keyword)||isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm)) {
             $date_from = $request->date_from ? $request->date_from : '';
             $date_to = $request->date_to ? $request->date_to : '';
             $keyword = $request->keyword ? $request->keyword : '';
-
+            $user_id = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
+            $rsm=$request->rsm ? $request->rsm : '';
+            $zsm=$request->zsm ? $request->zsm : '';
             $query = UserAttendance::select('user_attendances.id','user_attendances.user_id','user_attendances.entry_date','user_attendances.type','user_attendances.start_time','user_attendances.end_time','user_attendances.other_activities_id')->join('users', 'user_attendances.user_id', 'users.id');
 
             $query->when($date_from, function($query) use ($date_from) {
@@ -828,14 +897,34 @@ class UserController extends Controller
             $query->when($date_to, function($query) use ($date_to) {
                 $query->where('user_attendances.entry_date', '<=', $date_to);
             });
-           
+            
             $query->when($keyword, function($query) use ($keyword) {
                 $query->where('users.name', 'like', '%'.$keyword.'%');
             });
 
-            $data = $query->orderby('entry_date','desc')->groupby('entry_date','user_id')->get();
+            if(!empty($request->ase))
+            {
+                $query->when($user_id, function($query) use ($user_id) {
+                    $query->where('user_attendances.user_id', $user_id);
+                });
+            }elseif(!empty($request->asm)){
+                $query->when($asm, function($query) use ($asm) {
+                    $query->where('user_attendances.user_id', $asm);
+                });
+            }elseif(!empty($request->rsm)){
+                $query->when($rsm, function($query) use ($rsm) {
+                    $query->where('user_attendances.user_id', $rsm);
+                });
+            }else{
+                $query->when($zsm, function($query) use ($zsm) {
+                    $query->where('user_attendances.user_id', $zsm);
+                });
+            }
+
+            $data = $query->whereNotIn('users.type', [1,4,7])->orderby('user_attendances.entry_date','desc')->groupby('user_attendances.entry_date','user_attendances.user_id')->paginate(25);
+            //dd($data);
         } else {
-            $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->get();
+            $data = UserAttendance::orderby('entry_date','desc')->groupby('entry_date','user_id')->paginate(25);
         }
 
 
@@ -847,13 +936,13 @@ class UserController extends Controller
             $f = fopen('php://memory', 'w');
 
             // Set column headers
-            $fields = array('SR', 'SALES PERSON','SALES PERSON EMP ID', 'USER TYPE', 'TYPE','NOTE','TIME-IN', 'TIME-OUT', 'TOTAL HOURS');
+            $fields = array('SR', 'NSM', 'ZSM','RSM','SM','ASM','Employee','Employee Id','Employee Status','Employee Designation','Employee Date of Joining','Employee HQ','Employee Contact No', 'TYPE','NOTE','TIME-IN', 'TIME-OUT', 'TOTAL HOURS');
             fputcsv($f, $fields, $delimiter);
 
             $count = 1;
 
             foreach($data as $row) {
-                
+                $findTeamDetails= findTeamDetails($row->users->id, $row->users->type);
                 $hours=\Carbon\Carbon::parse($row->start_time)->diffInHours($row->end_time);
                 if($row['users']['type']==6){
                     $type='ASE';
@@ -876,9 +965,19 @@ class UserController extends Controller
                 } 
                 $lineData = array(
                     $count,
-                    $row->users->name ?? '',
+                    $findTeamDetails[0]['nsm'] ?? '',
+                    $findTeamDetails[0]['zsm']?? '',
+                    $findTeamDetails[0]['rsm']?? '',
+                    $findTeamDetails[0]['sm']?? '',
+                    $findTeamDetails[0]['asm']?? '',
+                    $row->users ? $row->users->name : '',
                     $row->users->employee_id ?? '',
-                    $type,
+                    ($row->users->status == 1)  ? 'Active' : 'Inactive',
+                    $row->users->designation?? '',
+                    $row->users->date_of_joining?? '',
+                    $row->users->headquater?? '',
+                    $row->users->mobile,
+                    
                     $leave,
                     $row->otheractivity->reason ?? '',
                     $startTime,
@@ -902,9 +1001,9 @@ class UserController extends Controller
             fpassthru($f);
         }
     }
-
-
-    //zsm wise rsm list
+	
+	
+	//zsm wise rsm list
     public function zsmwiseRsm(Request $request,$id)
     {
        $data=Team::where('zsm_id',$id)->with('rsm:id,name')->groupby('rsm_id')->get();
@@ -981,24 +1080,43 @@ class UserController extends Controller
             $sm = $request->sm ? $request->sm : '';
             $asm = $request->asm ? $request->asm : '';
             $ase = $request->ase ? $request->ase : '';
-            $data = User::where('id', $zsm)->orWhere('id', $rsm)->orWhere('id', $sm)->orWhere('id', $asm)->orWhere('id', $ase)->paginate(50);
+            $data = User::whereNotIn('type', [1,4,7])->where('id', $zsm)->orWhere('id', $rsm)->orWhere('id', $asm)->orWhere('id', $ase)->paginate(50);
             
             
 
         } else {
             
-            $data = User::paginate(50);
+            $data = User::whereNotIn('type', [1,4,7])->paginate(50);
             
         }
         $month = !empty($request->month)?$request->month:date('Y-m');
         return view('admin.attendance.report', compact( 'request','zsmDetails','data','month'));
      }
 
-     //employee productivity report for all
+       //employee productivity report for all
      public function employeeProductivity(Request $request)
      {
-        $zsm=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
-        return view('admin.employee-productivity.index', compact('zsm', 'request'));
+        $zsmDetails=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();
+        if (isset($request->date_from)||isset($request->date_to) || isset($request->zsm)|| isset($request->rsm)|| isset($request->sm)|| isset($request->asm)|| isset($request->ase)) {
+            $date_from = $request->date_from ? $request->date_from : '';
+            $date_to = $request->date_to ? $request->date_to : '';
+            $zsm = $request->zsm ? $request->zsm : '';
+            $rsm = $request->rsm ? $request->rsm : '';
+            $sm = $request->sm ? $request->sm : '';
+            $asm = $request->asm ? $request->asm : '';
+            $ase = $request->ase ? $request->ase : '';
+            $data = User::whereNotIn('type', [1,2,3,4,7])->where('id', $asm)->orWhere('id', $ase)->paginate(50);
+            
+            
+
+        } else {
+            
+            $data = User::whereNotIn('type', [1,2,3,4,7])->paginate(50);
+            
+        }
+        $date_from = !empty($request->month)?$request->month:date('Y-m-01');
+        $date_to = !empty($request->month)?$request->month:date('Y-m-d');
+        return view('admin.employee-productivity.index', compact('zsmDetails', 'request','data','date_from','date_to'));
      }
 
      //employee productivity csv export
@@ -1090,5 +1208,71 @@ class UserController extends Controller
             //output all remaining data on a file pointer
             fpassthru($f);
         }
+    }
+	
+
+//team create
+    public function userTeamAdd(Request $request)
+    {
+        //dd($request->all());
+		$request->validate([
+			"distributor_id" => "required|integer",
+			"ase_id" => "required|integer",
+            "stateId" => "required",
+            "stateId" => "required",
+		]);
+        $state_id=State::where('name',$request->stateId)->first();
+        $area_id=Area::where('name',$request->areaId)->first();
+		$newEntry = new Team;
+        $newEntry->state_id = $state_id->id;
+        $newEntry->area_id = $area_id->id;
+		$newEntry->distributor_id = $request['distributor_id'];
+        $newEntry->nsm_id = $request['nsm_id'];
+        $newEntry->zsm_id = $request['zsm_id'];
+        $newEntry->rsm_id = $request['rsm_id'];
+        $newEntry->sm_id = $request['sm_id'];
+        $newEntry->asm_id = $request['asm_id'];
+        $newEntry->ase_id = $request['ase_id'];
+		$newEntry->save();
+        if($newEntry){
+		    return redirect()->back()->with('success', 'Team Added to this Distributor');
+        }
+    }
+
+     //team update
+     public function userTeamEdit(Request $request,$id)
+     {
+         //dd($request->all());
+         $request->validate([
+             "distributor_id" => "required|integer",
+             "ase_id" => "required|integer",
+             "stateId" => "required",
+             "stateId" => "required",
+         ]);
+         $state_id=State::where('name',$request->stateId)->first();
+         $area_id=Area::where('name',$request->areaId)->first();
+         $newEntry = Team::findOrfail($id);
+         $newEntry->state_id = $state_id->id ?? '';
+		 if(!empty($request->areaId)){
+        	 $newEntry->area_id = $area_id->id ?? '';
+		 }
+         $newEntry->distributor_id = $request['distributor_id'] ?? '';
+         $newEntry->nsm_id = $request['nsm_id'] ?? '';
+         $newEntry->zsm_id = $request['zsm_id'] ?? '';
+         $newEntry->rsm_id = $request['rsm_id'] ?? '';
+         $newEntry->sm_id = $request['sm_id'] ?? '';
+         $newEntry->asm_id = $request['asm_id'] ?? '';
+         $newEntry->ase_id = $request['ase_id'] ?? '';
+         $newEntry->save();
+         if($newEntry){
+             return redirect()->back()->with('success', 'Team Updated to this Distributor');
+         }
+     }
+
+    //team delete
+    public function userTeamDestroy(Request $request,$id)
+    {
+		$data = Team::where('id', $id)->delete();
+        return redirect()->back()->with('success', 'Team data Deleted for this Distributor');
     }
 }

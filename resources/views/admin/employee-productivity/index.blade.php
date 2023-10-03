@@ -16,14 +16,14 @@
                             <div class="col-md-12 mb-3">
                                 <div class="search-filter-right">
                                     <div class="search-filter-right-el">
-                                        <form class="row align-items-end" action="{{ route('admin.employee.productivity.csv.download') }}" method="GET">
+                                        <form class="row align-items-end" action="{{ route('admin.employee.productivity') }}" method="GET">
                                             <div class="search-filter-right">
                                                 <div class="search-filter-right-el">
                                                     <label for="state" class="text-muted small">ZSM</label>
                                                     <select name="zsm" id="state" class="form-control form-control-sm select2">
                                                         <option value="" disabled>Select</option>
                                                         <option value="" selected>All</option>
-                                                        @foreach ($zsm as $item)
+                                                        @foreach ($zsmDetails as $item)
                                                             <option value="{{$item->id}}" {{ request()->input('zsm') == $item->id ? 'selected' : '' }}>{{$item->name}}</option>
                                                         @endforeach
                                                     </select>
@@ -65,18 +65,18 @@
                                             <div class="search-filter-right search-filter-right-store mt-4">
                                                 <div class="search-filter-right-el">
                                                     <button type="submit" class="btn btn-outline-danger btn-sm store-filter-btn">
-                                                        Download
+                                                        Filter
                                                     </button>
                                                     <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter store-filter-times" data-bs-toggle="tooltip" title="Clear Filter">
                                                         <iconify-icon icon="basil:cross-outline"></iconify-icon>
                                                     </a>
                                                 </div>
-                                                {{-- <div class="search-filter-right-el">
-                                                    <a href="{{ route('admin.employee.productivity.csv.download') }}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
+                                                <div class="search-filter-right-el">
+                                                    <a id="btnExport" href="javascript:void(0);" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
                                                         
                                                         <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
                                                     </a>
-                                                </div> --}}
+                                                </div> 
                                             </div>
                                              
                                         </form>
@@ -91,7 +91,76 @@
 							
                         </div>
                     </div>
-                    
+                    <div class="table-responsive">
+                        <div id="tableWrap">
+                        <table class="table" >
+                            <thead>
+                                <tr>
+                                    <th>NSM</th>
+                                    <th>ZSM</th>
+                                    <th>RSM</th>
+                                    <th>SM</th>
+                                    <th>ASM</th> 
+                                    <th>Employee</th>
+                                    <th>Employee Id</th>
+                                    <th>Employee Status</th>
+                                    <th>Employee Designation</th>
+                                    <th>Employee Date of Joining</th>
+                                    <th>Employee Date of Leaving</th>
+									<th>Employee HQ</th>
+                                    <th>Employee Contact No</th>
+                                    <th>Total Days</th>
+                                    <th>Total Present</th>
+                                    <th>Leave/Weekly Off</th>
+                                    <th>Absent</th>
+                                    <th>% Present</th>
+                                    <th>Total Retail Count</th>
+                                    <th>Total Sales Count(Qty)</th>
+                                    <th>Telephonic Orders Count(Qty)</th>
+                                </tr>
+                            </thead>
+                        <tbody>
+                        
+                        @forelse ($data as $index => $item)
+    
+                            @php
+                              $findTeamDetails= findTeamDetails($item->id, $item->type);
+                              $daysCount=daysCount($date_from,$date_to,$item->id);
+                            @endphp
+                        
+                            <tr>
+                                <td> {{$findTeamDetails[0]['nsm'] ?? ''}} </td> 
+                                <td> {{$findTeamDetails[0]['zsm']?? ''}} </td> 
+                                <td> {{$findTeamDetails[0]['rsm']?? ''}} </td> 
+                                <td> {{$findTeamDetails[0]['sm']?? ''}} </td> 
+                                <td> {{$findTeamDetails[0]['asm']?? ''}} </td> 
+                                <td> {{$item->name}} </td>
+                                <td> {{$item->employee_id}} </td>
+                                <td> <span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span> </td>
+                                <td> {{$item->designation}} </td>
+                                <td> {{$item->date_of_joining}} </td>
+                                <td> {{$item->date_of_leaving}} </td>
+								<td> {{$item->headquater}} </td>
+                                <td> {{$item->mobile}} </td>
+                                <td> {{$daysCount['total_days'] ?? ''}} </td> 
+                                <td> {{$daysCount['work_count'] ?? ''}} </td>
+                                <td> {{($daysCount['leave_count']+$daysCount['weekend_count']) ?? ''}} </td>
+                                <td> {{($daysCount['total_days']-$daysCount['work_count'])-($daysCount['leave_count']+$daysCount['weekend_count']) ?? ''}} </td>
+                                <td> {{number_format((float)($daysCount['work_count']/$daysCount['total_days'])*100, 2, '.', '') ?? ''}} %</td>
+                                <td> {{$daysCount['store_count'] ?? ''}} </td> 
+                                <td> {{$daysCount['order_count'] ?? ''}} </td>
+                                <td> {{$daysCount['order_on_call_count'] ?? ''}} </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="100%" class="small text-muted">No data found</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+                <div class="d-flex justify-content-end">
+                    {{ $data->appends($_GET)->links() }}
+                </div>
                 </div>
             </div>
         </div>
@@ -181,6 +250,19 @@
                 });
                 $(slectTag).html(content).attr('disabled', false);
             }
+        });
+    });
+</script>
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script>
+    $(function() {
+        $('#btnExport').click(function() {
+            console.log("hello");
+            //$('#tblHead').css("display","block");
+            var url = 'data:application/vnd.ms-excel,' + encodeURIComponent($('#tableWrap').html())
+            location.href = url
+            return false
+            $('#tblHead').css("display", "none");
         });
     });
 </script>

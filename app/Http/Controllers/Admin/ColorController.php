@@ -44,7 +44,7 @@ class ColorController extends Controller
     {
         $request->validate([
             "name" => "required|string|max:255",
-            
+            "code" => "required",
         ]);
         $collection = $request->except('_token');
         $data = new Color;
@@ -94,7 +94,7 @@ class ColorController extends Controller
     {
         $request->validate([
             "name" => "required|string|max:255",
-            
+            "code" => "required",
         ]);
         $collection = $request->except('_token');
         $data =  Color::findOrfail($id);

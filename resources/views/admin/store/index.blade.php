@@ -67,7 +67,23 @@
                                                         <option value="{{ $request->area_id }}">Select state first</option>
                                                     </select>
                                                 </div>
-                                                
+                                                <!--<div class="search-filter-right-el">-->
+                                                <!--    <label class="small text-muted">Area</label>-->
+                                                <!--    <select class="form-control form-control-sm select2" name="area_id" disabled>-->
+                                                <!--        <option value="{{ $request->area_id }}">Select state first</option>-->
+                                                <!--    </select>-->
+                                                <!--</div>-->
+                                                <!--<div class="search-filter-right-el">-->
+                                                <!--    <input type="search" name="keyword" id="term" class="form-control form-control-sm" placeholder="Search by name/ contact" value="{{app('request')->input('keyword')}}" autocomplete="off">-->
+                                                <!--</div>-->
+                                                <!--<div class="search-filter-right-el">-->
+                                                <!--    <button type="submit" class="btn btn-outline-danger btn-sm">-->
+                                                <!--        <iconify-icon icon="carbon:filter"></iconify-icon> Filter-->
+                                                <!--    </button>-->
+                                                <!--    <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter" data-bs-toggle="tooltip" title="Clear Filter">-->
+                                                <!--        <iconify-icon icon="basil:cross-outline"></iconify-icon>-->
+                                                <!--    </a>-->
+                                                <!--</div>-->
                                                 
                                             </div>
                                             <div class="search-filter-right search-filter-right-store mt-4">
@@ -94,7 +110,12 @@
                                         </form>
                                     </div>
                                     
-                                 
+                                    {{--<div class="search-filter-right-el">
+                                        <a href="{{ route('admin.stores.inactive') }}" class="btn btn-outline-danger btn-sm">
+                                            <iconify-icon icon="prime:plus-circle"></iconify-icon> Inactive Store List
+                                        </a>
+                                    </div>--}}
+                                    
                                    
                                 </div>
                             </div>

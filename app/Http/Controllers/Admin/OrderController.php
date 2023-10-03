@@ -13,8 +13,8 @@ use App\Models\Size;
 use App\Models\State;
 use App\Models\Store;
 use App\Models\User;
-use App\Models\UserLogin;
 use App\Models\Team;
+use App\Models\UserLogin;
 use DB;
 class OrderController extends Controller
 {
@@ -397,8 +397,7 @@ class OrderController extends Controller
             fpassthru($f);
         }
     }
-
-    //area wise sales report
+	//area wise sales report
     public function areawiseOrder(Request $request)
     {
         $data = (object) [];
@@ -518,13 +517,13 @@ class OrderController extends Controller
                 $query1 = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("categories.name as category"),DB::raw("users.name as name"))->join('orders', 'orders.id', 'order_products.order_id')->join('users', 'users.id', 'orders.user_id')->join('products', 'products.id', 'order_products.product_id')->join('categories', 'categories.id', 'products.cat_id')
                 
                 ->whereBetween('order_products.created_at', [$from, $to]);
-                $data->all_orders = $query1->groupby('orders.id')
+                $data->all_orders = $query1->groupby('products.cat_id')
                 ->paginate(50);
                
             }else{
                 $data->all_orders = OrderProduct::select(DB::raw("(SUM(order_products.qty)) as qty"),DB::raw("categories.name as category"),DB::raw("users.name as name"))->join('orders', 'orders.id', 'order_products.order_id')->join('users', 'users.id', 'orders.user_id')->join('products', 'products.id', 'order_products.product_id')->join('categories', 'categories.id', 'products.cat_id')
                 
-                ->whereBetween('order_products.created_at', [$from, $to])->groupby('orders.id')->paginate(50);
+                ->whereBetween('order_products.created_at', [$from, $to])->groupby('products.cat_id')->paginate(50);
                
             }
             $category = Category::where('status',1)->groupBy('name')->orderBy('name')->get();
@@ -598,8 +597,7 @@ class OrderController extends Controller
             }
              
           }
-
-           //login report
+	 //login report
     public function loginReport(Request $request)
     {
         if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||  isset($request->date_from)|| isset($request->date_to)) {
@@ -640,6 +638,101 @@ class OrderController extends Controller
         
     
         return view('admin.report.login-report',compact('data', 'ases','request','zsm'));
+    }
+	
+	  //csv download
+    public function loginReportcsvExport(Request $request)
+    {
+        if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||  isset($request->date_from)|| isset($request->date_to)) {
+
+            $ase = $request->ase ? $request->ase : '';
+            $asm=$request->asm ? $request->asm : '';
+            $sm=$request->sm ? $request->sm : '';
+            $rsm=$request->rsm ? $request->rsm : '';
+            $zsm=$request->zsm ? $request->zsm : '';
+            $date_from = $request->date_from ? $request->date_from : '';
+            $date_to = $request->date_to ? $request->date_to : '';
+            $query = UserLogin::query();
+
+            $query->when($ase, function($query) use ($ase) {
+                $query->where('user_id', $ase);
+            });
+            $query->when($asm, function($query) use ($asm) {
+                $query->where('user_id', $asm);
+            });
+            $query->when($rsm, function($query) use ($rsm) {
+                $query->where('user_id', $rsm);
+            });
+            $query->when($sm, function($query) use ($sm) {
+                $query->where('user_id', $sm);
+            });
+            $query->when($zsm, function($query) use ($zsm) {
+                $query->where('user_id', $zsm);
+            });
+
+            $data = $query->latest('id')->with('users')->paginate(25);
+           
+        } else {
+            $data = UserLogin::latest('id')->with('users')->paginate(25);
+           
+        }
+        if (count($data) > 0) {
+            $delimiter = ",";
+            $filename = "lux-login-report-".date('Y-m-d').".csv";
+
+            // Create a file pointer
+            $f = fopen('php://memory', 'w');
+
+            // Set column headers
+            $fields = array('SR', 'NSM', 'ZSM','RSM','SM','ASM','Employee','Employee Id','Employee Status','Employee Designation','Employee Date of Joining','Employee HQ','Employee Contact No','Login Status',  'Time');
+            fputcsv($f, $fields, $delimiter);
+
+            $count = 1;
+
+            foreach($data as $row) {
+                $datetime = date('j F, Y h:i A', strtotime($row['created_at']));
+                if($row->is_login==''){
+                    $is_login='Inactive';
+                   
+                }else{
+                     $is_login= 'Logged In';
+                }
+                $store = Store::select('name')->where('id', $row['store_id'])->first();
+                $ase = User::select('name', 'mobile', 'state', 'city', 'pin')->where('id', $row['user_id'])->first();
+                $findTeamDetails= findTeamDetails($row->users->id, $row->users->type);
+                $lineData = array(
+                    $count,
+                    $findTeamDetails[0]['nsm'] ?? '',
+                    $findTeamDetails[0]['zsm']?? '',
+                    $findTeamDetails[0]['rsm']?? '',
+                    $findTeamDetails[0]['sm']?? '',
+                    $findTeamDetails[0]['asm']?? '',
+                    $row->users ? $row->users->name : '',
+                    $row->users->employee_id ?? '',
+                    ($row->users->status == 1)  ? 'Active' : 'Inactive',
+                    $row->users->designation?? '',
+                    $row->users->date_of_joining?? '',
+                    $row->users->headquater?? '',
+                    $row->users->mobile,
+                    $is_login ?? '',
+                    $datetime
+                );
+
+                fputcsv($f, $lineData, $delimiter);
+
+                $count++;
+            }
+
+            // Move back to beginning of file
+            fseek($f, 0);
+
+            // Set headers to download file rather than displayed
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+            //output all remaining data on a file pointer
+            fpassthru($f);
+        }
     }
 
 }
