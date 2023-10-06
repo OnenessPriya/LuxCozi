@@ -52,7 +52,7 @@ class StoreController extends Controller
         $validator = Validator::make($request->all(),[
             'user_id' => 'required|integer',
             'contact' => 'required|integer|unique:stores|min:1|digits:10',
-            'whatsapp' => 'required|integer|unique:stores|min:1|digits:10',
+            'whatsapp' => 'nullable|integer|unique:stores|min:1|digits:10',
             'name' => 'required',
             'distributor_id' => 'required',
             'owner_fname' => 'required|regex:/^[\pL\s\-]+$/u',

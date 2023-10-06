@@ -62,6 +62,13 @@ Route::get('activity', [VisitController::class, 'activityList']);
 Route::get('area/list/{id}', [VisitController::class, 'areaList']);
 //other activity
 Route::post('other-activity/create', [VisitController::class, 'otheractivityStore']);
+//distributor visit
+//start-visit
+Route::post('distributor/visit/start', [VisitController::class, 'distributorvisitStart']);
+//check visit started or not
+Route::get('check/distributor/visit/{id}/{distributor_id}', [VisitController::class, 'checkdistributorVisit']);
+//end-visit
+Route::post('distributor/visit/end', [VisitController::class, 'distributorvisitEnd']);
 //store list
 Route::get('store', [StoreController::class, 'index']);
 //store search

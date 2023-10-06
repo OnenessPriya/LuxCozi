@@ -5,64 +5,57 @@
 @section('content')
 
 <section class="store-sec ">
-  <div class="row">
-      <div class="col-xl-12 order-2 order-xl-1">
           <div class="card search-card">
               <div class="card-body">
-                  <div class="search__filter mb-5">
-                      <div class="row align-items-center justify-content-between">
-                         
-                          <div class="col-md-12 mb-3">
-                              <div class="search-filter-right">
-                                  <div class="search-filter-right-el">
-                                      <form class="row align-items-end justify-content-end" action="" method="GET">
-                                          <div class="search-filter-right">
-                                              <div class="search-filter-right-el">
-                                                  <label for="date_from" class="text-muted small">Date from</label>
-                            <input type="date" name="date_from" id="date_from" class="form-control form-control-sm" aria-label="Default select example" value="{{request()->input('date_from') ?? date('Y-m-01') }}">
-                                              </div>
+                      <div class="row">
+                          <div class="col-12 mb-3">
+                            <div class="date-formatter">
+                                <form action="" method="get" class="row">
+                                    <div class="row">
+                                        <div class="col-12 col-md-3 mb-3">
+                                            <label for="date_from" class="text-muted small">Date from</label>
+                                            <input type="date" name="date_from" id="date_from" class="form-control form-control-sm" aria-label="Default select example" value="{{request()->input('date_from') ?? date('Y-m-01') }}">
+                                        </div>
                                               
-                                              <div class="search-filter-right-el">
-                                                  <label for="date_to" class="text-muted small">Date to</label>
-                            <input type="date" name="date_to" id="date_to" class="form-control form-control-sm" aria-label="Default select example" value="{{request()->input('date_to') ?? date('Y-m-d') }}">
-                                              </div>
+                                        <div class="col-12 col-md-3 mb-3">
+                                            <label for="date_to" class="text-muted small">Date to</label>
+                                            <input type="date" name="date_to" id="date_to" class="form-control form-control-sm" aria-label="Default select example" value="{{request()->input('date_to') ?? date('Y-m-d') }}">
+                                        </div>
                                               
                                               
-                                              <div class="search-filter-right-el">
-                                                  <label for="state" class="text-muted small">State</label>
-                            <select name="state_id" id="state" class="form-control select2">
-                                <option value="" disabled>Select</option>
-                                <option value="" selected>All</option>
-                                @foreach ($state as $row)
-                                    <option value="{{$row->states->id}}" {{ request()->input('state_id') == $row->states->id ? 'selected' : '' }}>{{$row->states->name}}</option>
-                                @endforeach
-                            </select>
+                                        <div class="col-12 col-md-3 mb-3">
+                                            <label for="state" class="text-muted small">State</label>
+                                            <select name="state_id" id="state" class="form-control select2">
+                                                <option value="" disabled>Select</option>
+                                                <option value="" selected>All</option>
+                                                @foreach ($state as $row)
+                                                    <option value="{{$row->states->id}}" {{ request()->input('state_id') == $row->states->id ? 'selected' : '' }}>{{$row->states->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-3 mb-3">
+                                            <label class="small text-muted">Area</label>
+                                            <select class="form-control select2" name="area_id" disabled>
+                                                <option value="{{ $request->area_id }}">Select state first</option>
+                                            </select>
                                               </div>
-                                              <div class="search-filter-right-el">
-                                                  <label class="small text-muted">Area</label>
-							<select class="form-control select2" name="area_id" disabled>
-								<option value="{{ $request->area_id }}">Select state first</option>
-							</select>
-                                              </div>
-                                          </div>
-                                          <div class="search-filter-right search-filter-right-store mt-3">
+                                        </div>
+                                        <div class="report-filter filter-btns">
+                                            <div class="filter-btn-left">
+                                                <button type="submit" data-bs-toggle="tooltip" title="" class="btn btn-outline-danger btn-sm store-filter-btn filter-btn search-filter" data-bs-original-title="Search"> Filter </button>
+                                            
+                                                <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter store-filter-times filter-btn" data-bs-toggle="tooltip" title="Clear Filter">
+                                                    <iconify-icon icon="basil:cross-outline"></iconify-icon>
+                                                </a>
+                                            </div>
                                               
-                                               
-                                              <div class="search-filter-right-el">
-                                                  <button type="submit" data-bs-toggle="tooltip" title="" class="btn btn-outline-danger btn-sm store-filter-btn" data-bs-original-title="Search"> Filter </button>
-                                                  
-                                                  <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter store-filter-times" data-bs-toggle="tooltip" title="Clear Filter">
-                                                      <iconify-icon icon="basil:cross-outline"></iconify-icon>
-                                                  </a>
-                                              </div>
-                                              
-                                              <div class="search-filter-right-el">
-                                      <a href="{{route('front.zone.order.csv.download',['date_from'=>$request->date_from,'date_to'=>$request->date_to,'state'=>$request->state_id,'area'=>$request->area_id])}}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
+                                           
+                                             <a href="{{route('front.zone.order.csv.download',['date_from'=>$request->date_from,'date_to'=>$request->date_to,'state'=>$request->state_id,'area'=>$request->area_id])}}" class="btn btn-outline-danger btn-sm filter-btn filter-csv" data-bs-toggle="tooltip" title="Export data in CSV">
                                           
-                                          <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
-                                      </a>
-                                  </div>
-                                          </div>
+                                                     <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
+                                            </a>
+                                            
+                                        </div>
                                            
                                       </form>
                                   </div>
@@ -76,9 +69,9 @@
             
                       </div>
                   </div>
-                  
+            <div class="card card-search mt-4">
                   <div class="table-responsive">
-                      <table class="table table-sm admin-table">
+                      <table class="table table-striped table-hovered">
                 <thead>
                 <tr>
                     <th>#SR</th>
@@ -120,9 +113,7 @@
                         <tr><td colspan="100%" class="small text-muted">No data found</td></tr>
                     @endforelse
                     <tr>
-                        <td></td>
-                        <td></td>
-                       
+                        
                         <td>
                             <p class="small text-dark mb-1 fw-bold">TOTAL</p>
                         </td>

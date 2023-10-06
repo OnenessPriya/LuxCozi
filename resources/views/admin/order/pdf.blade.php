@@ -47,6 +47,7 @@
                         <div class="col-6">
                             <div style="padding: 0 15px 14px; border-left:2px solid #000;">
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>Order no./ Date:</strong> <u>{{$data->order_no}}/ {{date('d.m.Y', strtotime($data->created_at))}}</u></p>
+                                <p style="margin-bottom: 5px;font-size: 14px"><strong>Order Type:</strong> <u>{{$data->order_type}}</u></p>
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>Print Date:</strong> <u>{{date('d.m.Y')}}</u></p>
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>From:</strong></p>
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>M/S: </strong> <u>{{$data->stores ? $data->stores->name : ''}}</u></p>

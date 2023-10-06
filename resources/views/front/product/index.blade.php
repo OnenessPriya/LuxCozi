@@ -103,34 +103,7 @@
 													</div>
 												</div>
 											</div>
-                                          <!--<div class="search-filter-right">
-                                              
-                                          </div>
-                                          <div class="search-filter-right search-filter-right-store mt-3">
-                                              
-                                             
-                                              
-                                             
-                                               <div class="col-md-3">
-                                                  <input type="search" name="orderNo" id="orderNo" class="form-control" placeholder="Search here.." value="{{app('request')->input('orderNo')}}" autocomplete="off">
-                                              </div>
-                                              <div class="search-filter-right-el">
-                                                  <button type="submit" data-bs-toggle="tooltip" title="" class="btn btn-outline-danger btn-sm store-filter-btn" data-bs-original-title="Search"> Filter </button>
-                                                  <!--<button type="submit" class="btn btn-outline-danger btn-sm store-filter-btn">-->
-                                                  <!--    Filter-->
-                                                  <!--</button>-->
-                                                 <!-- <a href="{{ url()->current() }}" class="btn btn-sm btn-light clear-filter store-filter-times" data-bs-toggle="tooltip" title="Clear Filter">
-                                                      <iconify-icon icon="basil:cross-outline"></iconify-icon>
-                                                  </a>
-                                              </div>
-                                              
-                                              <div class="search-filter-right-el">
-                                      <a href="{{route('front.product.order.csv.download',['date_from'=>$request->date_from,'date_to'=>$request->date_to,'ase'=>$request->user_id,'state'=>$request->state_id,'area'=>$request->area_id,'store_id'=>$request->store_id,'product'=>$request->product_id,'orderNo'=>$request->orderNo])}}" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Export data in CSV">
-                                          
-                                          <iconify-icon icon="material-symbols:download"></iconify-icon> CSV
-                                      </a>
-                                  </div>
-                                          </div>-->
+                                         
                                            
                                       </form>
                                   </div>
@@ -146,7 +119,7 @@
                   </div>
 	
 				 <div class="card card-search mt-4">
-	<div class="table-responsive">
+	                <div class="table-responsive">
                       <table class="table table-striped table-hovered">
                 <thead>
                 <tr>

@@ -94,7 +94,8 @@
                                 @if($unreadNotifications->count() > 0) <span class="badge badge-danger">{{$unreadNotifications->count()}}</span> @endif
                             </a>
 
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                            <div class="dropdown-menu dropdown-menu-right" style="    height: 300px;
+    overflow-y: scroll;" aria-labelledby="navbarDropdown">
                                 @forelse($notifications as $notification)
                                     <a class="dropdown-item" href="javascript: void(0)" onclick="readNotification('{{ $notification->id }}', '{{ $notification->route ? route($notification->route) : '' }}')" style="{{ ($notification->read_flag == 1) ? '' : 'background: #c7c7c7' }}">
                                         <h6 class="mb-1">{{$notification->title}}</h6>
@@ -171,18 +172,22 @@
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                     Sales Person</a>
                 </li>
-				{{--<li class="nav-item {{ (request()->is('activity*')) ? 'active' : '' }}"><a href="{{ route('front.store.list') }}">
+				<li class="nav-item {{ (request()->is('store/list*')) ? 'active' : '' }}"><a href="{{ route('front.store.list') }}">
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                     Store List</a>
-                </li>--}}
+                </li>
 				<li class="nav-item {{ (request()->is('activity*')) ? 'active' : '' }}"><a href="{{ route('front.activity.index') }}">
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                     Activity Log</a>
                 </li>
-				{{--<li class="nav-item {{ (request()->is('activity*')) ? 'active' : '' }}"><a href="{{ route('front.store.list') }}">
+                <li class="nav-item {{ (request()->is('team/order/report*')) ? 'active' : '' }}"><a href="{{ route('front.team.order.report') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                     Team Wise Sales</a>
+                 </li>
+				<li class="nav-item {{ (request()->is('store/report*')) ? 'active' : '' }}"><a href="{{ route('front.store.order.report') }}">
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
-                    Team Wise Sales</a>
-                </li>--}}
+                    Store Wise Sales</a>
+				</li>
 				<li class="nav-item {{ (request()->is('activity*')) ? 'active' : '' }}"><a href="{{ route('front.product.order') }}">
                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
                     Product Wise Sales</a>

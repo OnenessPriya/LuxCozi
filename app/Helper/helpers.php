@@ -336,7 +336,7 @@ function dates_attendance($id, $date) {
     if($user->type==2 || $user->type==3){
         
            // $res=UserLogin::join('other_activities', 'other_activities.user_id', 'user_logins.user_id')->where('user_logins.user_id',$id)->whereRaw("DATE_FORMAT(user_logins.created_at,'%Y-%m-%d')",$date)->get();
-            $res=DB::select("select * from user_logins where user_id='$id' and created_at like '$date%'");
+            $res=DB::select("select * from user_logins where user_id='$id' and is_login=1 and created_at like '$date%'");
             if (!empty($res)) {
                 $d['is_present'] = 'P';
             }else if($day=='Sun' && empty($res))

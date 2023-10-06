@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\OrderProduct;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\State;
 use App\Models\Activity;
@@ -389,6 +390,28 @@ class UserController extends Controller
         return view('front.activity.index', compact('activity','ases','asms','request'));
 		
 		
+    }
+
+    //store list
+
+    public function storeList(Request $request)
+    {
+        $loggedInUserId = Auth::guard('web')->user()->id;
+        $category=Category::orderby('name')->get();
+        $user=User::where('type',5)->orWhere('type',6)->orderby('name')->get();
+        $store = Store::join('teams', 'teams.store_id', '=', 'stores.id')->where('teams.zsm_id','=',$loggedInUserId)->get();
+        if (!empty(request()->input('from'))) {
+            $from = request()->input('from');
+        } else {
+            $from = $first_day_this_month = date('Y-m-01');
+        }
+
+        if (!empty(request()->input('to'))) {
+            $to = date('Y-m-d', strtotime(request()->input('to')));
+        } else {
+            $to = $current_day_this_month = date('Y-m-d', strtotime('+1 day'));
+        }
+        return view('front.store.index', compact('store','request','loggedInUserId','category','from','to','user'));
     }
    
 }
