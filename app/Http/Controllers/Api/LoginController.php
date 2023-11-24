@@ -78,12 +78,14 @@ class LoginController extends Controller
 			"is_login" => "required|integer"
 		]);
 
-        DB::table('user_logins')->insert([
-            'user_id' => $request->user_id,
-            'is_login' => $request->is_login,
-			'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        
+            DB::table('user_logins')->insert([
+                'user_id' => $request->user_id,
+                'is_login' => $request->is_login,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        
 		 return response()->json(['error'=>false, 'resp'=>'Login flag updated successfully']);
     }
 

@@ -94,7 +94,7 @@
                                               
                                                <div class="col-12 col-md-3 mb-3">
 													<div class="report-filter">
-														<label class="">Keyword</label>
+														<label class="text-muted small">Keyword</label>
 													  
 													  
 													  
@@ -134,103 +134,103 @@
             
                       
                   <div class="card card-search mt-4">
-	                <div class="table-responsive">
-                      <table class="table table-striped table-hovered">
-                <thead>
-                <tr>
-                    <th>#SR</th>
-                    <th>Order No</th>
-                    <th>Report</th>
-                    <th>Store</th>
-                    <th>Store State</th>
-                    <th>Store Area</th>
-                    <th>Distributor</th>
-                    <th>Sales Person</th>
-                    <th>Sales Person Mobile</th>
-                    <th>Sales Person WhatsApp Number</th>
-                    <th>Sales Person Pincode</th>
-                    <th>Order Type</th>
-                    <th>Order time</th>
-                    <th>Note</th>
-                </tr>
-                </thead>
-                <tbody>
-                    @forelse ($data as $index => $item)
-                        @php
-                        $validOrder=DB::table('order_products')->where('order_id',$item->id)->get();
-                        $user=DB::table('teams')->where('store_id',$item->store_id)->first();
-                        $userName=DB::table('users')->where('id',$user->distributor_id)->first();
-                        @endphp
-                    <tr>
-                        <td>
-                        {{($data->firstItem()) + $index}}
-                        </td>
-                        <td>
-                            <p class="small text-dark mb-1">{{$item->order_no}}</p>
-                        
-                        </td>
-                        
-                     @if(count($validOrder)==0)
-                        <td>
-                        <p class="text-danger">Invalid Order</p>
-                        </td>
-                        @else
-                        <td>
-                            <div class="btn-group">
-                                <a href="{{ route('front.orders.pdf', $item->id) }}" class="btn btn-sm btn-primary">PDF</a>
-                                <a href="{{ route('front.orders.report.csv', $item->id) }}" class="btn btn-sm btn-primary">CSV</a>
-                            </div>
-                        </td>
-                        @endif
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->stores ? $item->stores->name : ''}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->stores ? $item->stores->states->name : ''}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->stores ? $item->stores->areas->name : ''}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$userName ? $userName->name : ''}}</p>
-                        </td>
-                        <td>
-                            @if(!empty($item->users))
-                            <p class="small text-muted mb-1"> {{$item->users ? $item->users->name : ''}}</p>
-                            @else
-                            <p class="small text-danger mb-1"> No ASE,Self order</p>
-                            @endif
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->users ? $item->users->mobile : ''}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->users ? $item->users->whatsapp_no : ''}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->users ? $item->users->pin : ''}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->order_type}}</p>
-                        </td>
-                        <td>
-                            <p class="small">{{date('j M Y g:i A', strtotime($item->created_at))}}</p>
-                        </td>
-                        <td>
-                            <p class="small text-muted mb-1"> {{$item->comment}}</p>
-                        </td>
-                        
-                    </tr>
-                    @empty
-                    <tr><td colspan="100%" class="small text-muted">No data found</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-            </div>
+                  <div class="table-responsive">
+                      <table class="table table-sm admin-table" id="example5">
+        <thead>
+        <tr>
+            <th>#SR</th>
+            <th>Order No</th>
+            <th>Report</th>
+            <th>Store</th>
+            <th>Store State</th>
+            <th>Store Area</th>
+            <th>Distributor</th>
+			<th>Sales Person</th>
+			<th>Sales Person Mobile</th>
+			<th>Sales Person WhatsApp Number</th>
+			<th>Sales Person Pincode</th>
+            <th>Order Type</th>
+            <th>Order time</th>
+            <th>Note</th>
+        </tr>
+        </thead>
+        <tbody>
+            @forelse ($data as $index => $item)
+			    @php
+                  $validOrder=DB::table('order_products')->where('order_id',$item->id)->get();
+                  $user=DB::table('teams')->where('store_id',$item->store_id)->first();
+                  $userName=DB::table('users')->where('id',$user->distributor_id)->first();
+                @endphp
+            <tr>
+                <td>
+                   {{($data->firstItem()) + $index}}
+                </td>
+                <td>
+                    <p class="small text-dark mb-1">{{$item->order_no}}</p>
+                   
+                </td>
+                
+                @if(count($validOrder)==0)
+                <td>
+                   <p class="text-danger">Invalid Order</p>
+                </td>
+                @else
+                <td>
+                    <div class="btn-group">
+                        <a href="{{ route('front.orders.pdf', $item->id) }}" class="btn btn-sm btn-primary">PDF</a>
+                        <a href="{{ route('front.orders.report.csv', $item->id) }}" class="btn btn-sm btn-primary">CSV</a>
+                    </div>
+                </td>
+                @endif
+                <td>
+                    <p class="small text-muted mb-1"> {{$item->stores ? $item->stores->name : ''}}</p>
+                </td>
+                <td>
+                    <p class="small text-muted mb-1"> {{$item->stores ? $item->stores->states->name : ''}}</p>
+                </td>
+                <td>
+                    <p class="small text-muted mb-1"> {{$item->stores ? $item->stores->areas->name : ''}}</p>
+                </td>
+                <td>
+                    <p class="small text-muted mb-1"> {{$userName ? $userName->name : ''}}</p>
+                </td>
+				<td>
+					@if(!empty($item->users))
+                    <p class="small text-muted mb-1"> {{$item->users ? $item->users->name : ''}}</p>
+					@else
+					 <p class="small text-danger mb-1"> No ASE,Self order</p>
+					@endif
+                </td>
+				<td>
+                    <p class="small text-muted mb-1"> {{$item->users ? $item->users->mobile : ''}}</p>
+                </td>
+				<td>
+                    <p class="small text-muted mb-1"> {{$item->users ? $item->users->whatsapp_no : ''}}</p>
+                </td>
+				<td>
+                    <p class="small text-muted mb-1"> {{$item->users ? $item->users->pin : ''}}</p>
+                </td>
+                <td>
+                    <p class="small text-muted mb-1"> {{$item->order_type}}</p>
+                </td>
+                <td>
+                    <p class="small">{{date('j M Y g:i A', strtotime($item->created_at))}}</p>
+                </td>
+                <td>
+                    <p class="small text-muted mb-1"> {{$item->comment}}</p>
+                </td>
+                
+            </tr>
+            @empty
+            <tr><td colspan="100%" class="small text-muted">No data found</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+                  </div>
 
                    <div class="d-flex justify-content-end">
-                        {{ $data->appends($_GET)->links() }}
-                </div>
+        {{ $data->appends($_GET)->links() }}
+    </div>
               </div>
           </div>
       </div>

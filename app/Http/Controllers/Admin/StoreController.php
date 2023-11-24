@@ -12,6 +12,7 @@ use App\Models\Team;
 use App\Models\UserNoOrderReason;
 use App\Models\NoOrderReason;
 use DB;
+use Str;
 class StoreController extends Controller
 {
     /**
@@ -38,7 +39,7 @@ class StoreController extends Controller
             $area = $request->area_id ? $request->area_id : '';
             $keyword = $request->keyword ? $request->keyword : '';
 
-            $query = Store::with('states','areas','users')->join('teams', 'teams.store_id', 'stores.id');
+            $query = Store::selectRaw('stores.*')->with('states','areas','users')->join('teams', 'teams.store_id', 'stores.id');
             $query->when($distributor, function($query) use ($distributor) {
                 $query->whereRaw("find_in_set('".$distributor."',teams.distributor_id)");
             });
@@ -104,6 +105,7 @@ class StoreController extends Controller
     {
         $data = (object)[];
         $data->stores = Store::where('id',$id)->with('users','states','areas')->first();
+		//dd($data->stores);
         $data->team = Team::where('store_id', $id)->with('distributors','rsm','zsm','nsm','asm','sm','ase')->first();
         $data->users = User::all();
         return view('admin.store.detail', compact('data'));
@@ -256,9 +258,14 @@ class StoreController extends Controller
      * @param  \App\Models\Store  $store
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Store $store)
+    public function destroy($id)
     {
-        //
+        $data=Store::destroy($id);
+        if ($data) {
+            return redirect()->back()->with('success','Deleted successfully');
+        } else {
+            return redirect()->route('admin.stores.index')->withInput($request->all());
+        }
     }
 
      /**
@@ -269,12 +276,14 @@ class StoreController extends Controller
      */
     public function status(Request $request, $id)
     {
+		
         $category = Store::findOrFail($id);
+		
         $status = ( $category->status == 1 ) ? 0 : 1;
         $category->status = $status;
         $category->save();
         if ($category) {
-            return redirect()->route('admin.stores.index');
+            return redirect()->back()->with('success','Status updated successfully');
         } else {
             return redirect()->route('admin.stores.create')->withInput($request->all());
         }
@@ -339,12 +348,12 @@ class StoreController extends Controller
             ->orWhere('stores.contact','=', $keyword);
         })->whereBetween('stores.created_at', [$from, $to]);
 
-        $data = $query->where('stores.user_id','!=','')->latest('stores.id')->paginate(25);
+        $data = $query->where('stores.user_id','!=','')->latest('stores.id')->get();
          
     }
     else{
         $data = Store::selectRaw('stores.*')->join('teams', 'teams.store_id', 'stores.id')->where('stores.user_id','!=','')
-        ->with('states','areas','users')->latest('id')->paginate(25);
+        ->with('states','areas','users')->latest('id')->get();
         
     }
         if (count($data) > 0) {
@@ -365,12 +374,12 @@ class StoreController extends Controller
                 //dd($row);
                 $datetime = date('j F, Y', strtotime($row['created_at']));
                 $displayASEName = '';
-                foreach(explode(',',$row->user_id) as $aseKey => $aseVal) 
-                {
+               // foreach(explode(',',$row->user_id) as $aseKey => $aseVal) 
+                //{
                     
-                    $catDetails = DB::table('users')->where('id', $aseVal)->first();
-                    $displayASEName .= $catDetails->name.',';
-                }
+                    $catDetails = DB::table('users')->where('id', $row['user_id'])->first();
+                    $displayASEName = $catDetails->name ?? '';
+               // }
                 $store_name = $row->store_name ?? '';
                
                 $storename = Team::where('store_id', $row->id)->with('distributors','rsm','zsm','nsm','asm','sm','ase')->first();
@@ -380,9 +389,9 @@ class StoreController extends Controller
                     ucwords($row->name),
                     ucwords($row->business_name),
                     ucwords($row->address),
-                    $row->areas->name,
+                    $row->areas->name ?? '',
                     $row->pin,
-                    $row->states->name,
+                    $row->states->name ?? '',
                     ucwords($row->owner_fname.' '.$row->owner_lname),
                     $row->contact,
                     $row->whatsapp,
@@ -393,7 +402,7 @@ class StoreController extends Controller
                     $row->email,
                     $row->gst_no,
                     $storename->distributors->name ?? '',
-                    substr($displayASEName, 0, -1) ? substr($displayASEName,0, -1) : 'NA',
+                    $displayASEName ?? '',
                     $storename->ase->name ?? '',
                     $storename->asm->name ?? '',
                     $storename->sm->name ?? '',
@@ -425,7 +434,10 @@ class StoreController extends Controller
        //user no order reason list
     public function noOrderreason(Request $request)
     {
-        if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+        if (isset($request->date_from) || isset($request->date_to) || isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+			
+			 $from = $request->date_from ? $request->date_from : '';
+            $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
 
             $user_id = $request->ase ? $request->ase : '';
             $asm=$request->asm ? $request->asm : '';
@@ -452,7 +464,7 @@ class StoreController extends Controller
             });
             $query->when($keyword, function($query) use ($keyword) {
                 $query->where('comment', 'like', '%'.$keyword.'%');
-            });
+            })->whereBetween('created_at', [$from, $to]);
 
             $data = $query->latest('id')->paginate(25);
            
@@ -469,8 +481,10 @@ class StoreController extends Controller
     //csv export of no order reason list
     public function noOrderreasonCSV(Request $request)
     {
-        if (isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
+        if (isset($request->date_from) || isset($request->date_to) ||isset($request->ase) ||isset($request->zsm) || isset($request->rsm) ||isset($request->sm) ||isset($request->asm) ||isset($request->store_id) || isset($request->comment) || isset($request->keyword)) {
 
+			 $from = $request->date_from ? $request->date_from : '';
+            $to = date('Y-m-d', strtotime(request()->input('date_to'). '+1 day'))? date('Y-m-d', strtotime(request()->input('date_to'). '+1 day')) : '';
             $user_id = $request->ase ? $request->ase : '';
             $asm=$request->asm ? $request->asm : '';
             $store_id = $request->store_id ? $request->store_id : '';
@@ -498,7 +512,7 @@ class StoreController extends Controller
             });
             $query->when($keyword, function($query) use ($keyword) {
                 $query->where('comment', 'like', '%'.$keyword.'%');
-            });
+            })->whereBetween('created_at', [$from, $to]);
 
             $data = $query->latest('id')->get();
             

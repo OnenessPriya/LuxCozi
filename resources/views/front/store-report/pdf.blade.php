@@ -179,6 +179,7 @@
 @endsection
 
 @section('script')
+
 <script src="{{ asset('admin/js/printThis.js') }}"></script>
 
 <script>

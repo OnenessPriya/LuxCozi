@@ -187,9 +187,9 @@
                 </div>
             </div>
 		</div> --}}
-	{{-- <div class="row mt-4">
+	 <div class="row mt-4">
 		<div class="col-md-12">
-                <div class="card h-100" id="aseCard" style="max-height: 730px;overflow:hidden">
+                <div class="card h-100" id="aseCard" style="max-height: 530px;overflow:hidden">
                     <div class="card-body">
                         <h5 class="card-title">Today's Inactive ASE report</h5>
                         <table class="table table-sm table-hover">
@@ -201,29 +201,33 @@
 									<th>State</th>
 									<th>ASM</th>
 									<th>RSM</th>
-									<th>VP</th>
+									<th>SM</th>
+									<th>ZSM</th>
+									<th>NSM</th>
                                 </tr>
                             </thead>
                             <tbody>
 
                                 @foreach ($inactiveASE as $aseKey => $item)
 							     @php
-								   $salesTeam=\App\Models\RetailerListOfOcc::select('vp','rsm','asm')->where('ase', $item->name)->first();
+								   $salesTeam=\App\Models\Team::select('nsm_id','zsm_id','rsm_id','asm_id','sm_id')->where('ase_id', $item->id)->with('nsm','zsm','rsm','sm','asm')->first();
 								@endphp
                                     <tr>
 
                                         <td>
 
-                                            <a href="{{route('admin.user.index',['ase'=>$item->name])}}"> {{ ($item->name == null) ? 'NA' : $item->name }}</a>
+                                            <a href="{{route('admin.users.index',['keyword'=>$item->name])}}"> {{ ($item->name == null) ? 'NA' : $item->name }}</a>
                                         </td>
                                         <td> {{$item->mobile ?? ''}}</td>
 										 <td> {{$item->city ?? ''}}</td>
 										 <td> {{$item->state ?? ''}}</td>
-										<td> {{$salesTeam->asm ?? ''}}</td>
-										<td> {{$salesTeam->rsm ?? ''}}</td>
-										<td> {{$salesTeam->vp ?? ''}}</td>
+										<td> {{$salesTeam->asm->name ?? ''}}</td>
+										<td> {{$salesTeam->rsm->name ?? ''}}</td>
+										<td> {{$salesTeam->sm->name ?? ''}}</td>
+										<td> {{$salesTeam->zsm->name ?? ''}}</td>
+										<td> {{$salesTeam->nsm->name ?? ''}}</td>
                                     </tr>
-                                    @if($aseKey == 10)
+                                    @if($aseKey == 5)
                                     <tr>
                                         <td colspan="100%" class="text-end">
                                             <a href="javascript: void(0)" id="aseShowMore">Show more</a>
@@ -237,7 +241,7 @@
                     </div>
                 </div>
             </div>
-	</div> --}}
+	</div> 
 </section>
 @endsection
 

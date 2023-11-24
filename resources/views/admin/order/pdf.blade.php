@@ -47,7 +47,7 @@
                         <div class="col-6">
                             <div style="padding: 0 15px 14px; border-left:2px solid #000;">
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>Order no./ Date:</strong> <u>{{$data->order_no}}/ {{date('d.m.Y', strtotime($data->created_at))}}</u></p>
-                                <p style="margin-bottom: 5px;font-size: 14px"><strong>Order Type:</strong> <u>{{$data->order_type}}</u></p>
+								<p style="margin-bottom: 5px;font-size: 14px"><strong>Order Type:</strong> <u>{{$data->order_type}}</u></p>
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>Print Date:</strong> <u>{{date('d.m.Y')}}</u></p>
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>From:</strong></p>
                                 <p style="margin-bottom: 5px;font-size: 14px"><strong>M/S: </strong> <u>{{$data->stores ? $data->stores->name : ''}}</u></p>
@@ -121,8 +121,8 @@
                                         <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">60</th>
                                         <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">65</th>
                                         <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">70</th>
-										<th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">75</th>
-                                        <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;"></th>
+										<th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">73</th>
+                                        <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">75</th>
                                         <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">Total</th>
                                     </tr>
                                 </thead>
@@ -142,8 +142,8 @@
                                         <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['60'] ? $productValue['60'] : '' }}</p></td>
                                         <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['65'] ? $productValue['65'] : '' }}</p></td>
                                         <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['70'] ? $productValue['70'] : '' }}</p></td>
-                                        <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['75'] ? $productValue['75'] : '' }}</p></td>
-										<td style="border-left:2px solid #000; border-bottom:2px solid #000;"></td>
+                                        <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['73'] ? $productValue['73'] : '' }}</p></td>
+										<td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['75'] ? $productValue['75'] : '' }}</p></td>
                                         <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{$productValue['total']}}</p></td>
                                     </tr>
                                     @endforeach

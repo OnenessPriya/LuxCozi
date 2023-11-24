@@ -240,18 +240,18 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                                                 <td>{{$index + $distributorTeam->firstItem()}}</td>
                                                 <td>{{$row->states->name ??''}}</td>
                                                 <td>{{$row->areas->name ??''}}</td>
-                                                <td>{{$row->nsm->name}}</td>
-                                                <td>{{$row->zsm->name}}</td>
-                                                <td>{{$row->rsm->name}}</td>
-                                                <td>{{$row->sm->name}}</td>
-                                                <td>{{$row->asm->name}}</td>
+                                                <td>{{$row->nsm->name ?? ''}}</td>
+                                                <td>{{$row->zsm->name ?? ''}}</td>
+                                                <td>{{$row->rsm->name ?? ''}}</td>
+                                                <td>{{$row->sm->name ?? ''}}</td>
+                                                <td>{{$row->asm->name ?? ''}}</td>
                                                 <td>{{$row->ase->name ??''}}</td>
                                                 <td>{{$row->distributors->name}}</td>
                                                 <td>
             
                                                     <a href="#exampleModal_{{$row->id}}" data-bs-toggle="modal" type="button" class="btn btn-success new-color icon-btn"><iconify-icon icon="tabler:edit"></iconify-icon></a>
                                                 
-                                                    <div class="modal fade" id="exampleModal_{{$row->id}}" tabindex="-1" aria-labelledby="newRangeModalLabel" aria-hidden="true">
+                                                    <div class="modal fade rrrr" id="exampleModal_{{$row->id}}"  aria-labelledby="newRangeModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
@@ -417,7 +417,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
         </div>
     </div>
     {{-- add team ---}}
-<div class="modal fade" id="newRangeModal" tabindex="-1" aria-labelledby="newRangeModalLabel" aria-hidden="true">
+<div class="modal fade distributor-edit" id="newRangeModal"  aria-labelledby="newRangeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -432,7 +432,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="vp">NSM *</label>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="nsm_id" name="nsm_id" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="nsm_data" name="nsm_id" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->allNSM as $item)
                                             <option value="{{$item->id}}">{{$item->name}}</option>
@@ -447,7 +447,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="vp">ZSM *</label>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="zsm_id" name="zsm_id" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="zsm_data" name="zsm_id" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->allZSM as $item)
                                             <option value="{{$item->id}}">{{$item->name}}</option>
@@ -463,7 +463,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="rsm">RSM *</label>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="rsm_id" name="rsm_id" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="rsm_data" name="rsm_id" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->allRSM as $item)
                                             <option value="{{$item->id}}" >{{$item->name}}</option>
@@ -478,7 +478,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="rsm">SM *</label>
                                 <div class="form-floating mb-3 ">
-                                    <select class="form-select select2" id="sm_id" name="sm_id" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="sm_data" name="sm_id" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->allSM as $item)
                                             <option value="{{$item->id}}">{{$item->name}}</option>
@@ -495,7 +495,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="asm">ASM *</label>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="asm_id" name="asm_id" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="asm_data" name="asm_id" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->allASM as $item)
                                             <option value="{{$item->id}}" >{{$item->name}}</option>
@@ -510,7 +510,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="asm">ASE *</label>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="ase_id" name="ase_id" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="ase_data" name="ase_id" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->allASE as $item)
                                             <option value="{{$item->id}}">{{$item->name}}</option>
@@ -525,7 +525,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="state">State *</label>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="stateId" name="stateId" aria-label="Floating label select example">
+                                    <select class="form-select select2" id="state_data" name="stateId" aria-label="Floating label select example">
                                         <option value="" selected disabled>Select</option>
                                         @foreach ($data->stateDetails as $index => $item)
                                             <option value="{{ $item->name }}">{{ $item->name }}</option>
@@ -540,7 +540,7 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
                             <div class="form-group">
                                 <label for="area">City/ Area *</label><span>({{$data->city}})</span>
                                 <div class="form-floating mb-3">
-                                    <select class="form-select select2" id="areaId" name="areaId" aria-label="Floating label select example" disabled>
+                                    <select class="form-select select2" id="area_data" name="areaId" aria-label="Floating label select example" disabled>
                                         <option value="">Select State first</option>
                                     </select>
                                    
@@ -584,6 +584,21 @@ $distributorTeam=\App\Models\Team::select('id','nsm_id','zsm_id','rsm_id','sm_id
     });
 </script>
 <script>
+
+	$(document).ready(function() {
+  //$("select").select2({
+    //dropdownParent: $('.rrrr' '.distributor-edit')
+	//dropdownParent: $('.distributor-edit')
+  //});
+$('.modal select').each(function() {  
+   var $p = $(this).parent(); 
+   $(this).select2({  
+     dropdownParent: $p  
+   });  
+});
+});
+	
+
     $('select[name="stateId"]').on('change', (event) => {
         var value = $('select[name="stateId"]').val();
       

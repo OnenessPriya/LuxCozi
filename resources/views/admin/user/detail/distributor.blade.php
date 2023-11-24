@@ -66,27 +66,27 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">NSM</p>
-                            <h5>{{$data->team->nsm->name}}</h5>
+                            <h5>{{$data->team->nsm->name ?? ''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">ZSM</p>
-                            <h5>{{$data->team->zsm->name}}</h5>
+                            <h5>{{$data->team->zsm->name ?? ''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">RSM</p>
-                            <h5>{{$data->team->rsm->name}}</h5>
+                            <h5>{{$data->team->rsm->name ?? ''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">SM</p>
-                            <h5>{{$data->team->sm->name}}</h5>
+                            <h5>{{$data->team->sm->name ?? ''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">ASM</p>
-                            <h5>{{$data->team->asm->name}}</h5>
+                            <h5>{{$data->team->asm->name ??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
                             <p class="small text-muted mb-1">ASE</p>
-                            <h5>{{$data->team->ase->name}}</h5>
+                            <h5>{{$data->team->ase->name ?? ''}}</h5>
                         </div>
                     </div>
 

@@ -73,6 +73,8 @@ Route::post('distributor/visit/end', [VisitController::class, 'distributorvisitE
 Route::get('store', [StoreController::class, 'index']);
 //store search
 Route::get('store/search', [StoreController::class, 'search']);
+//all store search
+Route::get('all/store/search', [StoreController::class, 'searchStoreAll']);
 //store search for individual ASE's store
 Route::get('user/store/search', [StoreController::class, 'searchuserStore']);
 //store create

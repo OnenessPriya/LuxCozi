@@ -92,9 +92,6 @@
                                       </form>
                                   </div>
                                   
-                                  
-                                  
-                                 
                               </div>
                           </div>
                           
@@ -113,6 +110,7 @@
                                   <th>Working Area/HQ & State</th>
                                   <th style="min-width: 200px">Manager</th>
                                   <th>Status</th>
+								  <th></th>
                               </tr>
                           </thead>
                   
@@ -125,11 +123,12 @@
                                         if(!empty($areaDetail)) {
                                             foreach($areaDetail as $key => $obj) {
                                                 $areaList=DB::table('areas')->where('id','=',$obj->area_id)->first();
-                                                $area .= $areaList->name;
+                                                $area .= $areaList->name ??'';
                                                 if((count($areaDetail) - 1) != $key) $area .= ', ';
                                             }
                                         }
-				
+										$login=DB::table('user_logins')->where('user_id',$item->id)->orderby('id','desc')->first();
+							 
                                     @endphp
                           
                                   <tr>
@@ -171,9 +170,16 @@
                                           
                                       </td>
                                       <td>
-                                          <p class="small text-muted">{!! findManagerDetails($item->id, $item->type) !!}</p>
+                                         {{-- <p class="small text-muted">{!! findManagerDetails($item->id, $item->type) !!}</p>--}}
                                       </td>
                                       <td><span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span></td>
+									  @if(!empty($login))
+									  @if($login->is_login==1)
+									   <td><a type="button" class="btn btn-primary" href="{{route('admin.users.logout',$item->id)}}">Logout from Other Devices</a></td>
+									  @else
+									  <td></td>
+									  @endif
+									  @endif
                                   </tr>
                                  
                               @endforeach

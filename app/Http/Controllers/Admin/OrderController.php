@@ -91,7 +91,7 @@ class OrderController extends Controller
 
             // Set column headers
             $fields = array('Name of Quality Shape & Unit', '75', '80', '85', '90', '95', '100', '105', '110', '115','120', 'Total');
-            $childFields = array('Name of Quality Shape & Unit', '35', '40', '45', '50', '55', '60', '65', '70', '75','','Total');
+            $childFields = array('Name of Quality Shape & Unit', '35', '40', '45', '50', '55', '60', '65', '70', '73','75','','Total');
 
             $count = 1;
 
@@ -136,6 +136,7 @@ class OrderController extends Controller
                         $row['60'] ? $row['60'] : '',
                         $row['65'] ? $row['65'] : '',
                         $row['70'] ? $row['70'] : '',
+						$row['73'] ? $row['73'] : '',
                         $row['75'] ? $row['75'] : '',
 						'',
                         $row['total']
@@ -197,7 +198,7 @@ class OrderController extends Controller
             $f = fopen('php://memory', 'w');
 
             // Set column headers
-            $fields = array('SR', 'ORDER NO', 'STORE','STORE STATE','STORE AREA','DISTRIBUTOR', 'SALES PERSON(ASE/ASM)', 'MOBILE', 'STATE', 'CITY', 'PINCODE', 'PRODUCT', 'STYLE NO', 'COLOR', 'SIZE', 'QTY', 'DATETIME');
+            $fields = array('SR', 'ORDER NO','ORDER TYPE',  'STORE','STORE STATE','STORE AREA','DISTRIBUTOR', 'SALES PERSON(ASE/ASM)', 'MOBILE', 'STATE', 'CITY', 'PINCODE', 'PRODUCT', 'STYLE NO', 'COLOR', 'SIZE', 'QTY', 'DATETIME');
             fputcsv($f, $fields, $delimiter);
 
             $count = 1;
@@ -213,6 +214,7 @@ class OrderController extends Controller
                 $lineData = array(
                     $count,
                     $row['order_no'],
+					$row['order_type'],
                     $row->stores->name ?? '',
                     $row->stores->states->name ?? '',
                     $row->stores->areas->name ?? '',
@@ -627,10 +629,10 @@ class OrderController extends Controller
                 $query->where('user_id', $zsm);
             });
 
-            $data = $query->latest('id')->with('users')->paginate(25);
+            $data = $query->where('is_login',1)->orderby('created_at','desc')->with('users')->paginate(25);
            
         } else {
-            $data = UserLogin::latest('id')->with('users')->paginate(25);
+            $data = UserLogin::where('is_login',1)->orderby('created_at','desc')->with('users')->paginate(25);
            
         }
         $zsm=User::select('id', 'name')->where('type', 2)->orderBy('name')->get();

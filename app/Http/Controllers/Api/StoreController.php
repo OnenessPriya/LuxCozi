@@ -302,7 +302,7 @@ class StoreController extends Controller
             $data = Store::select('*');
             
             if(!empty($search)){
-                $data = $data->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name')->where('status','=',1);
+                $data = $data->where('area_id',$areaId)->where('contact', '=',$search)->orWhere('name', 'like', '%'.$search.'%')->with('states:id,name','areas:id,name');
             }        
 
             $data = $data->get();
@@ -383,4 +383,41 @@ class StoreController extends Controller
                 return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
             }  
     }
+	
+	
+	//all store search area wise 
+    public function searchStoreAll(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'keyword' => 'required'
+        ]);
+
+        if(!$validator->fails()){
+            $search = $_GET['keyword'];
+            $data = Store::select('*');
+            
+            if(!empty($search)){
+                $data = $data->where('contact', '=',$search)->with('states:id,name','areas:id,name')->where('status','=',1);
+            }        
+
+            $data = $data->get();
+           
+            if(!empty($data)){
+                foreach($data as $item){
+                    $retailer=Team::select('id','distributor_id')->where('store_id',$item->id)->with('distributors:id,name')->first();
+                    $item->team = $retailer;
+                }
+            }
+            return response()->json([
+                'error'=>false,
+                'resp'=>"Store List",
+                'data'=> $data
+                
+            ]);
+        }else {
+            return response()->json(['error' => true, 'resp' => $validator->errors()->first()]);
+        }
+
+    }
+
 }

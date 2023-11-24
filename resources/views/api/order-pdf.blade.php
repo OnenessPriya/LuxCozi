@@ -66,6 +66,8 @@
                                     $data = \App\Models\Order::findOrFail($order_id);
 								    $user=DB::table('teams')->where('store_id',$data->store_id)->first();
                                     $userName=DB::table('users')->where('id',$user->distributor_id)->first();
+								    $totalCOunt=0;
+								    $tcount=0;
                                 @endphp
 
                                 <div class="col-6">
@@ -109,7 +111,7 @@
                                 </thead>
                                 <tbody>
                                     @php
-                                        $totalCOunt = 0;
+                             
                                     @endphp
                                     @foreach(orderProductsUpdatedMatrix($orderData) as $productKey => $productValue)
                                     
@@ -122,7 +124,7 @@
                                         <td style="border-left:2px solid #000; border-bottom:2px solid #000;">
                                             <p class="small text-dark fw-bold mb-0">{{$productValue['product_name']}}</p>
                                             <p class="small text-dark fw-bold mb-0">{{$productValue['product_style_no']}}</p>
-                                            <p class="small text-dark fw-bold mb-0">{{$color->name ?? ''}}</p>
+                                            <p class="small text-dark fw-bold mb-0">{{$productValue['color'] ?? ''}}</p>
                                         </td>
                                        <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['75'] ? $productValue['75'] : '' }}</p></td>
                                         <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productValue['80'] ? $productValue['80'] : '' }}</p></td>
@@ -144,44 +146,48 @@
                                     <thead>
                                         <tr>
                                             <th style="color: #6c757d; font-size: 13px; min-width:200px; border-bottom:2px solid #000; width: 242px;">Name of Quality Shape & Unit</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">1-2</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">2-3</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">3-4</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">5-6</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">7-8</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">9-10</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">11-12</th>
-                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">13-14</th>
-											 <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;"></th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">35</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">40</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">45</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">50</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">55</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">60</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">65</th>
+                                            <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">70</th>
+											<th style="color : #6c75d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">73</th>
+											 <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;">75</th>
                                             <th style="color: #6c757d; font-size: 13px; border-left:2px solid #000; border-bottom:2px solid #000;border-right:2px solid #000;">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @php
                                             $totalProductCount = 0;
+										   
                                         @endphp
                                         @foreach(orderProductsUpdatedMatrixChild($orderData) as $productKey => $productOrderValue)
+									
                                         @php
 										 $color=\App\Models\Color::where('id',$productOrderValue['color'])->first();
                                             $totalCOunt += $productOrderValue['total'];
                                             $totalProductCount += $productOrderValue['total'];
-                                            $tcount=$totalProductCount+$totalCOunt;
+                                            $tcount=$totalCOunt;
                                         @endphp
                                         <tr>
                                             <td style="; border-bottom:2px solid #000;">
                                                 <p class="small text-dark fw-bold mb-0">{{$productOrderValue['product_name']}}</p>
                                                 <p class="small text-dark fw-bold mb-0">{{$productOrderValue['product_style_no']}}</p>
-                                                <p class="small text-dark fw-bold mb-0">{{$color->name}}</p>
+                                                <p class="small text-dark fw-bold mb-0">{{$productOrderValue['color'] ?? ''}}</p>
                                             </td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['1-2'] ? $productOrderValue['1-2'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['2-3'] ? $productOrderValue['2-3'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['3-4'] ? $productOrderValue['3-4'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['5-6'] ? $productOrderValue['5-6'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['7-8'] ? $productOrderValue['7-8'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['9-10'] ? $productOrderValue['9-10'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['11-12'] ? $productOrderValue['11-12'] : '' }}</p></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['13-14'] ? $productOrderValue['13-14'] : '' }}</p></td>
-											<td style="border-left:2px solid #000; border-bottom:2px solid #000;"></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['35'] ? $productOrderValue['35'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['40'] ? $productOrderValue['40'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['45'] ? $productOrderValue['45'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['50'] ? $productOrderValue['50'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['55'] ? $productOrderValue['55'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['60'] ? $productOrderValue['60'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['65'] ? $productOrderValue['65'] : '' }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{ $productOrderValue['70'] ? $productOrderValue['70'] : '' }}</p></td>
+											<td style ="border-left:2px solid #000; border-bottom:2px solid #000;"><p class ="small text-dark fw-bold mb-0">{{ $productOrderValue['73'] ? $productOrderValue['73'] : ''}}</p></td>
+											<td style="border-left:2px solid #000; border-bottom:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{$productOrderValue['75'] ? $productOrderValue['75'] : ''}}</p></td>
                                             <td style="border-left:2px solid #000; border-bottom:2px solid #000;border-right:2px solid #000;"><p class="small text-dark fw-bold mb-0">{{$productOrderValue['total']}}</p></td>
                                         </tr>
                                         @endforeach
@@ -202,7 +208,7 @@
                                             <td></td>
 											<td></td>
 											<td></td>
-                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;border-right:2px solid #000;"><p class="small text-muted fw-bold mb-0">{{ $totalCOunt }}</p></td>
+                                            <td style="border-left:2px solid #000; border-bottom:2px solid #000;border-right:2px solid #000;"><p class="small text-muted fw-bold mb-0">{{$data->orderProducts->sum('qty')}}</p></td>
                                             {{-- <td style="border-left:2px solid #000;"><p class="small text-muted fw-bold mb-0">{{$cartData->sum('qty')}}</p></td> --}}
                                         </tr>
                                     </tbody>

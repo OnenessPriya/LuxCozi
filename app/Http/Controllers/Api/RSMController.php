@@ -137,9 +137,9 @@ class RSMController extends Controller
                 $asm_name=$asm_data->name;
                 $asm_id =$asm_data->id;
 				if($area_id!=''){
-					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and area_id='$area_id' and ase_id is not null");
+					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and area_id='$area_id' and ase_id is not null groupby ase_id");
 				}else{
-					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and ase_id is not null");
+					$ase_arr_result = DB::select("SELECT DISTINCT ase_id as ase_n from teams where asm_id='$asmResult' and ase_id is not null groupby ase_id");
 				}
 				
 

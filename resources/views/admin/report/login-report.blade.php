@@ -82,7 +82,7 @@
                                       </a>
                                   </div>
                                           </div>
-                                           
+                                           </div>
                                       </form>
                                   </div>
                                   
@@ -159,10 +159,17 @@
             @endforelse
         </tbody>
     </table>
-</div>
+
     <div class="d-flex justify-content-end">
         {{ $data->appends($_GET)->links() }}
     </div>
+	   </div>
+
+                  
+              </div>
+          </div>
+      </div>
+  </div>
 </section>
 
 @endsection

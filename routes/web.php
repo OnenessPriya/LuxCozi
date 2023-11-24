@@ -62,8 +62,12 @@ Route::middleware(['auth:web'])->name('front.')->group(function () {
 	Route::get('activity', [UserController::class, 'activityList'])->name('activity.index');
 	//store list
 	Route::get('store/list', [UserController::class, 'storeList'])->name('store.list');
-	//store order details
-	Route::get('store/order/details', [UserController::class, 'storeDetail'])->name('store.details');
+	Route::get('store/list/approve', [UserController::class, 'storeApproveList'])->name('store.list.approve');
+	Route::get('store/list/detail/{id}', [UserController::class, 'storeDetail'])->name('store.detail');
+	Route::get('store/list/edit/{id}', [UserController::class, 'storeEdit'])->name('store.edit');
+	Route::post('store/list/update/{id}', [UserController::class, 'storeUpdate'])->name('store.update');
+	Route::get('store/list/approve/status/update/{id}', [UserController::class, 'storeApproveStatus'])->name('store.list.approve.status.update');
+	
 	//team report
 	Route::get('/ZSM/team/report', [ReportController::class, 'zsmreportIndex'])->name('team.order.report');
     Route::get('/ZSM/team/report/detail', [ReportController::class, 'zsmreportDetail'])->name('team.order.report.detail');

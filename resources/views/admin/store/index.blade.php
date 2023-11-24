@@ -35,7 +35,7 @@
                                                 </div>
                                                 <div class="search-filter-right-el">
                                                     <label for="ase" class="small text-muted">ASE</label>
-                                                    <select class="form-control form-control-sm select2" id="ase" name="ase">
+                                                    <select class="form-control form-control-sm select2" id="ase" name="ase_id">
                                                         <option value="" selected disabled>Select</option>
                                                         @foreach ($allASEs as $item)
                                                             <option value="{{$item->id}}" {{ (request()->input('ase_id') == $item->id) ? 'selected' : '' }}>{{$item->name}}</option>
@@ -136,12 +136,13 @@
                                 <th>Distributor</th>
                                 <th>Address</th>
                                 <th>Date</th>
+								<th>ZSM Approval</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($data as $index => $item)
-
+							
                             @php
                             if (!empty($_GET['status'])) {
                             if ($_GET['status'] == 'active') {
@@ -151,7 +152,8 @@
                             }
                             }
                               $distName = \App\Models\Team::select('users.name')->join('users', 'users.id', 'teams.distributor_id')->where('store_id', $item->id)->first();
-                            
+                            $storename = \App\Models\Team::where('store_id', $item->id)->with('distributors','rsm','zsm','nsm','asm','sm','ase')->first();
+							//dd($storename->zsm);
                             @endphp
                             <tr>
                                 <td>{{ ($data->firstItem()) + $index }}</td>
@@ -169,10 +171,15 @@
                                         <form action="{{ route('admin.stores.destroy',$item->id) }}" method="POST">
                                             <a href="{{ route('admin.stores.edit', $item->id) }}">Edit</a>
                                             <a href="{{ route('admin.stores.show', $item->id) }}">View</a>
+											 @if($item->zsm_approval == 1)
                                             <a href="{{ route('admin.stores.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
+											
+							                @elseif($storename->zsm->fname =='VACCANT')
+											<a href="{{ route('admin.stores.status', $item->id) }}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</a>
+											@endif
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link" style="">Delete</button>
+                                          {{-- <button type="submit" onclick="return confirm('Are you sure ?')" class="btn-link" style="">Delete</button>--}}
                                         </form>
                                     </div>
                                 </td>
@@ -184,8 +191,16 @@
                                 <td>
                                     {{ $distName ? $distName->name : '' }}
                                 </td> 
-                                <td>{{ ucwords($item->address) }}<br>{{ $item->areas->name }}<br>{{ $item->areas->name }}<br>{{ $item->states->name }}</td>
+                                <td>{{ ucwords($item->address) }}<br>{{ $item->areas->name ??'' }}<br>{{ $item->areas->name ??''}}<br>{{ $item->states->name ??''}}</td>
                                 <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y g:i:s A')}}
+                                </td>
+								<td>
+								    @if($item->zsm_approval== 1) <span class="badge bg-success">Approved by ZSM </span>
+                                    
+								    @else
+								       <span class="badge bg-secondary">Waiting for approval </span>
+                                    @endif
+								    
                                 </td>
                                 <td><span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span></td>
                             </tr>

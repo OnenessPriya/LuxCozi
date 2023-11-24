@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Store; 
+use App\Models\Activity; 
 use App\Models\OrderProduct; 
 use AuthenticatesUsers;
 use Illuminate\Support\Facades\Hash;
@@ -81,7 +82,13 @@ class AuthController extends Controller
         $data->distributor =User::select('name')->where('type',7)->get();
         $data->store = Store::where('status','=', 1)->count();
         $data->secondary = OrderProduct::where('created_at', '>', date('Y-m-d'))->sum('qty');
-        return view('admin.dashboard.index', compact('data'));
+		$user=User::where('type',6)->get()->pluck('id')->toArray();
+
+		$activeASEreport=Activity::where('type','Visit Started')->where('created_at', '>', date('Y-m-d'))->whereIn('user_id',$user)->pluck('user_id')->toArray();
+						//dd($inactiveASEreport);
+		$inactiveASE=User::where('type',6)->whereNotIn('id',$activeASEreport)
+			->get();
+        return view('admin.dashboard.index', compact('data','inactiveASE'));
     }
 
     /**

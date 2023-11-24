@@ -85,9 +85,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 		Route::get('/collection/delete/{id}', [UserController::class, 'collectionDelete'])->name('users.collection.delete');
         Route::get('/users/state/{state}', [UserController::class, 'state'])->name('users.state');
 		Route::post('/users/area', [UserController::class, 'areaStore'])->name('users.area.store');
+	    Route::get('/users/area/delete/{id}', [UserController::class, 'areaDelete'])->name('users.area.delete');
         Route::get('/users/csv/export', [UserController::class, 'csvExport'])->name('users.csv.export');
         Route::post('/users/password/generate', [UserController::class, 'passwordGenerate'])->name('users.password.generate');
 		Route::post('/users/password/reset', [UserController::class, 'passwordReset'])->name('users.password.reset');
+		//logout from other device
+		Route::get('/user/{id}/logout', [UserController::class, 'logout'])->name('users.logout');
         //user activity
         Route::get('/activity/list', [UserController::class, 'activityList'])->name('users.activity.index');
         Route::get('/activity/csv/export', [UserController::class, 'activityCSV'])->name('users.activity.csv.export');

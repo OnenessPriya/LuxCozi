@@ -61,11 +61,11 @@ if (!function_exists('orderProductsUpdatedMatrix')) {
         // dd($productsArr);
         if (count($productsArr) > 0) {
             $newProductArr = [];
-            $childrenSizes = ['35', '40', '45', '50', '55', '60', '65', '70','75'];
+            $childrenSizes = ['35', '40', '45', '50', '55', '60', '65', '70','73','75'];
 
             foreach($productsArr as $key => $product) {
                 //dd($product);
-                if (!in_array($product['size_id'], $childrenSizes)) {
+                if (!in_array($product['size']['name'], $childrenSizes)) {
                     $matchString = $product['product']['name'].'-'.$product['color']['name'];
 
                     if (!in_array_r($matchString, $newProductArr)) {
@@ -114,10 +114,10 @@ if (!function_exists('orderProductsUpdatedMatrixChild')) {
          //dd($productsArr);
         if (count($productsArr) > 0) {
             $newProductArr = [];
-            $childrenSizes = ['35', '40', '45', '50', '55', '60', '65', '70','75'];
+            $childrenSizes = ['35', '40', '45', '50', '55', '60', '65', '70','73','75'];
 
             foreach($productsArr as $key => $product) {
-                if (in_array($product['size_id'], $childrenSizes)) {
+                if (in_array($product['size']['name'], $childrenSizes)) {
                     $matchString = $product['product']['name'].'-'.$product['color']['name'];
 
                     if (!in_array_r($matchString, $newProductArr)) {
@@ -134,6 +134,7 @@ if (!function_exists('orderProductsUpdatedMatrixChild')) {
                             '60' => ($product['size']['name'] == "60") ? $product['qty']  : 0,
                             '65' => ($product['size']['name'] == "65") ? $product['qty']  : 0,
                             '70' => ($product['size']['name'] == "70") ? $product['qty']  : 0,
+							'73' => ( $product['size']['name'] == "73") ? $product['qty'] : 0,
                             '75' => ($product['size']['name'] == "75") ? $product['qty']  : 0,
                             'total' => $product['qty'] ,
                         ];
@@ -148,9 +149,10 @@ if (!function_exists('orderProductsUpdatedMatrixChild')) {
                         ($product['size']['name'] == "60") ? $newProductArr[$i]['60'] += $product['qty']  : $newProductArr[$i]['60'] += 0;
                         ($product['size']['name'] == "65") ? $newProductArr[$i]['65'] += $product['qty']  : $newProductArr[$i]['65'] += 0;
                         ($product['size']['name'] == "70") ? $newProductArr[$i]['70'] += $product['qty']  : $newProductArr[$i]['70'] += 0;
+						($product['size']['name'] == "73") ? $newProductArr[$i]['73'] += $product['qty']: $newProductArr[$i]['73'] += 0;
                         ($product['size']['name'] == "75") ? $newProductArr[$i]['75'] += $product['qty']  : $newProductArr[$i]['75'] += 0;
                       
-                        $newProductArr[$i]['total'] += $product->qty;
+                        $newProductArr[$i]['total'] += $product['qty'];
                     }
                 }
             }
@@ -251,8 +253,7 @@ if (!function_exists('findManagerDetails')) {
                         <br> 
                         <span class='text-dark'>ZSM:</span> ".$query->zsm->name." 
                         <br> 
-                        <span class='text-dark'>RSM:</span> ".$query->rsm->name."
-                        <br> 
+                       
                         <span class='text-dark'>SM:</span> ".$query->sm->name;
                     } else {
                         $namagerDetails = "";
@@ -270,11 +271,12 @@ if (!function_exists('findManagerDetails')) {
                             <br> 
                             <span class='text-dark'>SM:</span> ".$query->sm->name."
                             <br> 
-                            <span class='text-dark'>ASM:</span> ".$query->asm->name;
+                            <span class='text-dark'>ASM:</span> ".$query->asm->name ?? '';
                         } else {
                             $namagerDetails = "";
                         }
                         break;
+				
             default: 
                 $namagerDetails = "";
                 break;
@@ -447,6 +449,20 @@ if (!function_exists('findTeamDetails')) {
                             $namagerDetails['rsm'] = $query->rsm->name?? '';
                             $namagerDetails['sm'] = $query->sm->name?? '';
                             $namagerDetails['asm'] = $query->asm->name?? '';
+                        } else {
+                            $namagerDetails[] = "";
+                        }
+                        break;
+				case 7:
+                        $query=Team::select('nsm_id','zsm_id','rsm_id','sm_id','asm_id','ase_id')->where('distributor_id',$userName)->orderby('id','desc')->with('nsm','zsm','rsm','sm','asm','ase')->first();
+                        
+                        if ($query) {
+                            $namagerDetails['nsm'] = $query->nsm->name ?? '';
+                            $namagerDetails['zsm'] = $query->zsm->name?? '';
+                            $namagerDetails['rsm'] = $query->rsm->name?? '';
+                            $namagerDetails['sm'] = $query->sm->name?? '';
+                            $namagerDetails['asm'] = $query->asm->name?? '';
+							$namagerDetails['ase'] = $query->ase->name?? '';
                         } else {
                             $namagerDetails[] = "";
                         }

@@ -88,17 +88,17 @@ class UserController extends Controller
             "fname" => "required|string|max:255",
             "lname" => "required|string|max:255",
             "email" => "nullable|string|max:255",
-            "mobile" => "required|integer|digits:10",
+            "mobile" => "nullable|integer|digits:10",
             "whatsapp_no" => "nullable|integer|digits:10",
             "type" => "required",
 			 "designation" =>"required",
-            "employee_id" => "required|string|min:1",
+            "employee_id" => "nullable|string|min:1",
             "address" => "nullable|string",
             "landmark" => "nullable|string",
-            "state" => "required|string",
+            "state" => "nullable|string",
             "area" => "nullable|string",
             "headquater" => "nullable|string",
-            "password" => "required"
+            "password" => "nullable"
             
         ]);
 		
@@ -407,7 +407,9 @@ class UserController extends Controller
         // Distributor
         elseif ($data->user->type == 7) {
             $area=Area::where('name', $data->user->city)->first();
-            $data->team = Team::where('distributor_id', $data->user->id)->where('area_id', $area->id)->first();
+			
+            $data->team = Team::where('distributor_id', $data->user->id)->where('store_id','=',NULL)->first();
+			
             $data->distributor = User::where('name', $data->user->name)->first();
 			$data->storeList = Team::where('distributor_id', $data->user->id)->where('store_id','!=',null)->groupBy('store_id')->with('store')->get();
             return view('admin.user.detail.distributor', compact('data', 'id', 'request'));
@@ -527,6 +529,103 @@ class UserController extends Controller
             return redirect()->route('admin.users.create')->withInput($request->all());
         }
     }
+	
+	public function csvExport(Request $request)
+    {
+        // return Excel::download(new OrderExport, 'Secondary-sales-'.date('Y-m-d').'.csv');
+
+       // $data = User::latest('id')
+      //  ->get()
+      //  ->toArray();
+			$user_type = $request->user_type ? $request->user_type : '';
+            $state = $request->state ? $request->state : '';
+            $area = $request->area ? $request->area : '';
+            $keyword = $request->keyword ? $request->keyword : '';
+    
+            $query = User::query();
+    
+            $query->when($user_type, function($query) use ($user_type) {
+                $query->where('type', $user_type);
+            });
+            $query->when($state, function($query) use ($state) {
+                $query->where('state', $state);
+            });
+            $query->when($area, function($query) use ($area) {
+                $query->where('city', $area);
+            });
+            $query->when($keyword, function($query) use ($keyword) {
+                $query->where('name', 'like', '%'.$keyword.'%')
+                ->orWhere('fname', 'like', '%'.$keyword.'%')
+                ->orWhere('lname', 'like', '%'.$keyword.'%')
+                ->orWhere('mobile', 'like', '%'.$keyword.'%')
+                ->orWhere('employee_id', 'like', '%'.$keyword.'%')
+                ->orWhere('email', 'like', '%'.$keyword.'%');
+            });
+    
+            $data = $query->latest('id')->get();
+	
+        if (count($data) > 0) {
+            $delimiter = ",";
+            $filename = "lux-all-users-list-".date('Y-m-d').".csv";
+
+            // Create a file pointer
+            $f = fopen('php://memory', 'w');
+
+            // Set column headers
+            $fields = array('SR', 'NAME', 'DESIGNATION', 'MOBILE', 'STATE', 'CITY', 'EMPLOYEE ID', 'WORK EMAIL', 'PERSONAL EMAIL','NSM','ZSM','RSM','SM','ASM','ASE', 'DATETIME');
+            fputcsv($f, $fields, $delimiter);
+
+            $count = 1;
+
+            foreach($data as $row) {
+				//dd($row);
+                $datetime = date('j F, Y h:i A', strtotime($row['created_at']));
+				$findTeamDetails= findTeamDetails($row->id, $row->type);
+               
+                   
+                // $store = Store::select('store_name')->where('id', $row['store_id'])->first();
+                // $user = User::select('name', 'mobile', 'state', 'city', 'pin')->where('id', $row['user_id'])->first();
+
+                // dd($store->store_name, $user->name, $user->mobile);
+
+                $lineData = array(
+                    $count,
+                    // $user->name ?? '',
+                    $row['name'],
+                    $row['designation'],
+                    $row['mobile'],
+					
+                    $row['state'],
+                    $row['city'],
+                    $row['employee_id'],
+                    $row['email'],
+                    $row['personal_mail'],
+                    $findTeamDetails[0]['nsm'] ?? '',
+                    $findTeamDetails[0]['zsm']?? '',
+                    $findTeamDetails[0]['rsm']?? '',
+                    $findTeamDetails[0]['sm']?? '',
+                    $findTeamDetails[0]['asm']?? '',
+					$findTeamDetails[0]['ase']?? '',
+                    $datetime
+                );
+
+                fputcsv($f, $lineData, $delimiter);
+
+                $count++;
+            }
+
+            // Move back to beginning of file
+            fseek($f, 0);
+
+            // Set headers to download file rather than displayed
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+            //output all remaining data on a file pointer
+            fpassthru($f);
+        }
+    }
+
     //password generate 
       public function passwordGenerate(Request $request)
     {
@@ -628,6 +727,19 @@ class UserController extends Controller
 
 		return redirect()->back()->with('success', 'Area Added successfully');
     }
+	
+	//area delete for ASE
+     public function areaDelete(Request $request,$id)
+     {
+        $data=UserArea::destroy($id);
+        if ($data) {
+            return redirect()->back()->with('success', 'Area Deleted successfully');
+        } else {
+            return redirect()->back()->with('success', 'Area Deleted successfully')->withInput($request->all());
+        }
+ 
+         
+     }
 
  //activity list
     public function activityList(Request $request)
@@ -1274,5 +1386,18 @@ public function attendanceList(Request $request)
     {
 		$data = Team::where('id', $id)->delete();
         return redirect()->back()->with('success', 'Team data Deleted for this Distributor');
+    }
+	
+   //logout from other device
+	public function logout(Request $request,$id)
+    {
+            DB::table('user_logins')->insert([
+                'user_id' => $id,
+                'is_login' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        
+		 return redirect()->back()->with('success', 'Logout Successful');
     }
 }

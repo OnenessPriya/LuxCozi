@@ -18,7 +18,17 @@
                                     <div class="search-filter-right-el">
                                         <form class="row align-items-end" action="" method="GET">
                                             <div class="search-filter-right">
+												<div class="search-filter-right-el">
+                                                  <label for="date_from" class="text-muted small">Date from</label>
+                                                  <input type="date" name="date_from" id="date_from" class="form-control form-control-sm" aria-label="Default select example" value="{{ (request()->input('date_from')) ? request()->input('date_from') : '' }}">
+                                              </div>
+                                              
+                                              <div class="search-filter-right-el">
+                                                  <label for="date_to" class="text-muted small">Date to</label>
+                                                  <input type="date" name="date_to" id="date_to" class="form-control form-control-sm" aria-label="Default select example" value="{{ (request()->input('date_to')) ? request()->input('date_to') : '' }}">
+                                              </div>
                                                 <div class="search-filter-right-el">
+													
                                                     <label for="state" class="text-muted small">ZSM</label>
                                                     <select name="zsm" id="zsm" class="form-control form-control-sm select2">
                                                         <option value="" disabled>Select</option>

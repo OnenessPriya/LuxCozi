@@ -76,7 +76,7 @@
                                         <tr>
                                             <th>Store Name</th>
                                             <th>Created By</th>
-                                            <th>Quantity</th>
+                                            <th>Sales Quantity</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -131,7 +131,7 @@
                                         @endphp
                                             <tr>
                                                 <td>
-                                                    <a href="{{ route('front.store.details', ['store_id' => $item->id, 'from' => $from, 'to' => $to,'collection'=>$request->collection,'category'=>$request->category]) }}">
+                                                    <a href="">
                                                         {{ ($item->name == null) ? 'NA' : $item->name }}
                                                     </a>
                                                 </td>

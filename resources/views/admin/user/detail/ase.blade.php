@@ -2,6 +2,21 @@
 @section('page', 'User detail')
 
 @section('content')
+<style>
+    .working_area {
+        display: inline-flex;
+        vertical-align: top;
+        padding: 6px 12px;
+        align-items: center;
+        background: #f7f7f7;
+        border-radius: 6px;
+        text-decoration: none;
+        color: #000;
+    }
+    .working_area svg {
+        margin-right: 10px;
+    }
+</style>
 <section>
     <div class="row">
         <div class="col-sm-12">
@@ -89,7 +104,7 @@
                             <p class="small text-muted mb-1">Working Area List</p>
                             <h5>
                             @foreach ($data->workAreaList as $item)
-                                {{$item->areas->name}}@if(!$loop->last), @endif
+                               <a href="{{route('admin.users.area.delete',$item->id)}}" class="working_area" title="Delete area/bit" onclick="return confirm('Are you sure ?')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <span>{{$item->areas->name}}@if(!$loop->last), @endif</span></a>
                             @endforeach
                             </h5>
                         </div>
@@ -102,11 +117,11 @@
                             <p class="text-dark">Team information</p>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">VP</p>
+                            <p class="small text-muted mb-1">NSM</p>
                             <h5>{{$data->team->nsm->name ??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">RSM</p>
+                            <p class="small text-muted mb-1">ZSM</p>
                             <h5>{{$data->team->zsm->name??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
@@ -114,7 +129,7 @@
                             <h5>{{$data->team->rsm->name??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <p class="small text-muted mb-1">RSM</p>
+                            <p class="small text-muted mb-1">SM</p>
                             <h5>{{$data->team->sm->name??''}}</h5>
                         </div>
                         <div class="col-md-4 mb-3">

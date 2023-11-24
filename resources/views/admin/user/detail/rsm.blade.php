@@ -31,6 +31,10 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                 Edit
                             </a>
+							 <a href="javascript: void(0)" onclick="ResetPasswordModal({{$data->user->id}})" class="btn btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                Reset Password
+                            </a>
                         </div>
                     </div>
 
@@ -103,8 +107,75 @@
         </div>
     </div>
 </section>
+{{-- reset password modal --}}
+<div class="modal fade" id="resetPassword" tabindex="-1" aria-labelledby="resetPasswordLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resetPasswordLabel">Reset Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="resetPassBody"></div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
-    
+     <script>
+    function ResetPasswordModal(userId) {
+        $.ajax({
+            url: "{{route('admin.users.password.generate')}}",
+            type: 'post',
+            data: {
+                _token: '{{csrf_token()}}',
+                userId: userId
+            },
+            success: function(resp) {
+                // console.log(resp);
+                var content = '';
+                var url = "{{url('/')}}/admin/users/password/reset";
+
+                if (resp.status == 200) {
+                    content += `
+                    <form method="post" action="${url}">
+                        <div class="form-group">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="password" name="password" placeholder="Password" value="${resp.data}">
+                                <label for="password">Generated password *</label>
+                            </div>
+                        </div>
+                        <p class="">Password generated</p>
+
+                        <input type="hidden" name="_token" value="{{csrf_token()}}">
+                        <input type="hidden" name="id" value="${userId}">
+                        <button type="submit" class="btn btn-danger">Change password</button>
+                    </form>
+                    `;
+                } else {
+                    content += `
+                    <p class="text-danger">${resp.message}</p>
+                    <form method="post" action="${url}">
+                        <div class="form-group">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="password" name="password" placeholder="Password" value="">
+                                <label for="password">Generate password *</label>
+                            </div>
+                        </div>
+                        <p class="">Suggested password: Firstname EMPLOYEE-ID</p>
+
+                        <input type="hidden" name="_token" value="{{csrf_token()}}">
+                        <input type="hidden" name="id" value="${userId}">
+                        <button type="submit" class="btn btn-danger">Change password</button>
+                    </form>
+                    `;
+                }
+
+                $('#resetPassBody').html(content);
+                var resetPassword = new bootstrap.Modal(document.getElementById('resetPassword'));
+                resetPassword.show();
+            }
+        })
+    }
+</script>
 @endsection
